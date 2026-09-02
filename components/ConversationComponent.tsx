@@ -444,6 +444,11 @@ export default function ConversationComponent({
       setIsVideoOff(true);
     } else {
       try {
+        if (!navigator?.mediaDevices?.getUserMedia) {
+          console.warn('Webcam is not available. Ensure page is accessed via HTTPS or localhost.');
+          setIsVideoOff(false);
+          return;
+        }
         const stream = await navigator.mediaDevices.getUserMedia({
           video: { width: { ideal: 1280 }, height: { ideal: 720 } },
         });

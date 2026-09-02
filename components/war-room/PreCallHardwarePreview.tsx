@@ -29,12 +29,32 @@ export function PreCallHardwarePreview({
   const [hasPermission, setHasPermission] = useState(isPermissionGranted);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [audioLevel, setAudioLevel] = useState(0);
+  const [isInsecureOrigin, setIsInsecureOrigin] = useState(false);
+
+  useEffect(() => {
+    if (
+      typeof window !== 'undefined' &&
+      window.location.hostname !== 'localhost' &&
+      window.location.hostname !== '127.0.0.1' &&
+      window.location.protocol === 'http:'
+    ) {
+      setIsInsecureOrigin(true);
+    }
+  }, []);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
 
   const handleRequestPermission = async () => {
     try {
+      if (!navigator?.mediaDevices?.getUserMedia) {
+        console.warn(
+          'getUserMedia is not available. Ensure page is accessed via HTTPS or localhost.',
+        );
+        setIsInsecureOrigin(true);
+        setHasPermission(true);
+        return;
+      }
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { width: { ideal: 1280 }, height: { ideal: 720 } },
         audio: true,
@@ -118,6 +138,14 @@ export function PreCallHardwarePreview({
 
   return (
     <div className="flex w-full max-w-2xl flex-col rounded-2xl border border-zinc-800 bg-[#28292c] p-4 shadow-xl font-sans">
+      {/* Insecure Origin Alert */}
+      {isInsecureOrigin && (
+        <div className="mb-3 w-full rounded-xl border border-amber-800/80 bg-amber-950/70 p-3 text-xs text-amber-200">
+          <div className="font-semibold text-amber-300 mb-0.5">⚠️ Insecure Context Detected ({typeof window !== 'undefined' ? window.location.host : ''})</div>
+          <div>Web browsers block microphone and camera access on HTTP for non-localhost IPs. Please open <a href="http://localhost:3000" className="underline font-mono text-amber-100 font-semibold">http://localhost:3000</a> on this machine, or access via HTTPS.</div>
+        </div>
+      )}
+
       {/* 1. Video Box Container */}
       <div className="relative flex aspect-video w-full flex-col items-center justify-center overflow-hidden rounded-xl border border-zinc-700/80 bg-[#1e1f22]">
         {!hasPermission ? (
