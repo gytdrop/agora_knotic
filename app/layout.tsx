@@ -1,5 +1,12 @@
 import type { Metadata, Viewport } from 'next';
+import { Montserrat } from 'next/font/google';
 import './globals.css';
+
+const montserrat = Montserrat({
+  subsets: ['latin'],
+  variable: '--font-montserrat',
+  display: 'swap',
+});
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -8,9 +15,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'Talk to your voice agent | Agora',
+  title: 'EchoSphere | AI Incident Commander',
   description:
-    "Next.js quickstart: real-time voice agent with live transcript, streaming audio, and low latency from Agora's Conversational AI Engine—API routes in one repo.",
+    "EchoSphere: Enterprise-grade SRE Copilot for WebRTC Incident Response. Powered by Agora Conversational AI, Deepgram Nova-3, and MiniMax TTS.",
   icons: {
     icon: [
       { url: '/favicon.ico' },
@@ -39,8 +46,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
-      <body className="h-full min-h-screen">{children}</body>
+    <html lang="en" className={`h-full ${montserrat.variable}`}>
+      <body className="h-full min-h-screen font-sans antialiased">{children}</body>
     </html>
   );
 }

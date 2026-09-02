@@ -75,8 +75,8 @@
   --viz-stop-2: 220 14% 78%;
   --viz-stop-3: 285 58% 48%;
 
-  /* Font */
-  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* Font Stack: Montserrat & Helvetica exclusively */
+  --font-sans: var(--font-montserrat), 'Helvetica Neue', 'Helvetica', Arial, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {

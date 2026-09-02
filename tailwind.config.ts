@@ -12,7 +12,9 @@ const config: Config = {
   theme: {
   	extend: {
       fontFamily: {
-        sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-montserrat)', 'Helvetica Neue', 'Helvetica', 'sans-serif'],
+        montserrat: ['var(--font-montserrat)', 'sans-serif'],
+        helvetica: ['Helvetica Neue', 'Helvetica', 'sans-serif'],
       },
   		colors: {
         // The <alpha-value> placeholder enables Tailwind opacity modifiers like
