@@ -11,7 +11,6 @@ export interface LedgerItem {
   tag: 'FACT' | 'HYPOTHESIS' | 'CONTRADICTION' | 'ACTION';
   status?: string;
   reason?: string;
-  cite?: string;
 }
 
 const DEFAULT_ITEMS: LedgerItem[] = [
@@ -19,7 +18,7 @@ const DEFAULT_ITEMS: LedgerItem[] = [
     id: '1',
     timestamp: '12:30:15',
     speaker: 'Akthar',
-    text: "'Database is locked up'",
+    text: '"Database is locked up"',
     tag: 'HYPOTHESIS',
     status: 'Hypothesis',
   },
@@ -27,10 +26,9 @@ const DEFAULT_ITEMS: LedgerItem[] = [
     id: '2',
     timestamp: '12:30:20',
     speaker: 'Ashrith',
-    text: "'Ingress pods OOMing'",
+    text: '"Ingress pods OOMing"',
     tag: 'FACT',
     status: 'Confirmed Fact (HolmesGPT)',
-    cite: 'Ashrith',
   },
   {
     id: '3',
@@ -41,7 +39,6 @@ const DEFAULT_ITEMS: LedgerItem[] = [
     status: 'Suppressed (miniMax voice holding)',
     reason:
       'Contradiction Confirmed. HolmesGPT shows healthy DB connection pools. Suppressing Akthar\'s hypothesis to prevent false path.',
-    cite: '1',
   },
 ];
 
@@ -61,45 +58,48 @@ export function StateLedgerPanel({ items = DEFAULT_ITEMS }: StateLedgerPanelProp
             key={item.id}
             className="group relative flex flex-col rounded-xl border border-zinc-800/80 bg-[#28292c] p-3.5 text-xs shadow-sm transition-all hover:border-zinc-700"
           >
-            {/* Header timestamp & Speaker tag */}
-            <div className="flex items-center justify-between pb-1.5 font-mono text-[11px]">
-              <div className="flex items-center gap-1.5 text-zinc-400">
-                <span>{item.timestamp}</span>
-                {item.cite && <span className="font-semibold">[cite: {item.cite}]</span>}
-                <span className="font-semibold text-zinc-200">[{item.speaker}]</span>
+            {/* Header row: Timestamp (font-mono), Speaker (font-sans), Tag Badge (font-sans) */}
+            <div className="flex items-center justify-between mb-1.5">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-zinc-400 text-xs">{item.timestamp}</span>
+                <span className="font-sans font-medium text-zinc-100 text-xs">
+                  {item.speaker}
+                </span>
               </div>
 
-              {/* Tag pill - Color applied ONLY to tag badge */}
+              {/* Tag pill badge - font-sans, clean crisp border */}
               <span
-                className={`rounded-md px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider border ${
+                className={`rounded px-2 py-0.5 font-sans text-[10px] font-semibold tracking-wide uppercase border ${
                   isFact
-                    ? 'bg-emerald-950/70 text-emerald-400 border-emerald-800/60'
+                    ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800/40'
                     : isHypothesis
-                    ? 'bg-amber-950/70 text-amber-400 border-amber-800/60'
-                    : 'bg-rose-950/70 text-rose-400 border-rose-800/60'
+                    ? 'bg-amber-950/60 text-amber-300 border-amber-800/40'
+                    : 'bg-rose-950/60 text-rose-300 border-rose-800/40'
                 }`}
               >
                 {item.tag}
               </span>
             </div>
 
-            {/* Main Statement text */}
-            <p className="font-sans text-xs leading-relaxed font-normal text-zinc-200">
+            {/* Main Statement text - font-sans, font-normal, leading-relaxed */}
+            <p className="font-sans text-xs text-zinc-200 tracking-normal font-normal leading-relaxed">
               {item.text}
               {item.status && (
-                <span className="ml-1 font-mono text-[11px] text-zinc-400">
-                  -&gt; Tag: {item.status}
+                <span className="ml-1 text-zinc-400 font-normal">
+                  → Tag: {item.status}
                 </span>
               )}
             </p>
 
-            {/* Contradiction Analysis Box */}
+            {/* Contradiction Analysis Reason Box */}
             {item.reason && (
-              <div className="mt-2.5 rounded-lg bg-zinc-950 p-2.5 font-sans text-[11px] text-zinc-300 border border-zinc-800/80 shadow-md">
-                <div className="flex items-center gap-1 font-semibold text-rose-400 mb-1">
+              <div className="mt-2.5 rounded-lg bg-zinc-950 p-2.5 font-sans text-xs leading-relaxed text-zinc-300 border border-zinc-800/80 shadow-md">
+                <div className="flex items-center gap-1.5 font-medium text-rose-400 mb-1 text-xs">
                   <ShieldAlert className="h-3.5 w-3.5 text-rose-400" /> Contradiction Analysis:
                 </div>
-                <p className="leading-snug text-zinc-300">{item.reason}</p>
+                <p className="font-sans font-normal text-xs text-zinc-300 leading-relaxed">
+                  {item.reason}
+                </p>
               </div>
             )}
           </div>

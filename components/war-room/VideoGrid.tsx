@@ -11,7 +11,8 @@ interface Participant {
   status: 'Speaking' | 'Muted' | 'Viewpoint' | 'Ambient Mode';
   avatarUrl?: string;
   hasContradiction?: boolean;
-  factCheckOverlay?: string;
+  statement?: string;
+  factCheckTelemetry?: string;
 }
 
 const PARTICIPANTS: Participant[] = [
@@ -21,7 +22,8 @@ const PARTICIPANTS: Participant[] = [
     role: 'Lead SRE',
     status: 'Speaking',
     hasContradiction: true,
-    factCheckOverlay: '⚠️ Akthar: "Database is down."\n| Fact Check: CPU 2.1%, Active 14 -> [OK]',
+    statement: '⚠️ Akthar: "Database is down."',
+    factCheckTelemetry: 'Fact Check: CPU 2.1%, Active 14 (Healthy)',
   },
   {
     id: 'ashrith',
@@ -79,7 +81,7 @@ interface VideoGridProps {
 
 export function VideoGrid({ onRemediateSuccess }: VideoGridProps) {
   return (
-    <div className="grid h-full w-full grid-cols-3 grid-rows-3 gap-3.5 p-4 bg-[#171717]">
+    <div className="grid h-full w-full grid-cols-3 grid-rows-3 gap-3.5 p-4 bg-[#171717] font-sans">
       {PARTICIPANTS.map((participant) => {
         // Special rendering for HITL Slot
         if (participant.id === 'hitl-slot') {
@@ -143,12 +145,17 @@ export function VideoGrid({ onRemediateSuccess }: VideoGridProps) {
                 </div>
               </div>
 
-              {/* Fact Check Speech Bubble Overlay for Akthar */}
-              {participant.factCheckOverlay && (
+              {/* Clean Speech Overlay Bubble for Akthar */}
+              {participant.statement && (
                 <div className="absolute bottom-12 left-3 right-3 rounded-xl border border-amber-800/60 bg-zinc-950/90 p-2.5 text-xs text-amber-200 backdrop-blur-md shadow-xl">
-                  <div className="font-mono text-[11px] leading-relaxed whitespace-pre-line">
-                    {participant.factCheckOverlay}
-                  </div>
+                  <p className="font-sans font-medium text-xs text-amber-300 leading-relaxed">
+                    {participant.statement}
+                  </p>
+                  {participant.factCheckTelemetry && (
+                    <p className="mt-1 font-mono text-[11px] text-zinc-300 leading-normal">
+                      {participant.factCheckTelemetry}
+                    </p>
+                  )}
                 </div>
               )}
             </div>

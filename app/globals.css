@@ -137,10 +137,15 @@
   }
 }
 
-body {
-  font-family: var(--font-sans);
-  color: hsl(var(--foreground));
-  background-color: hsl(var(--background));
+@layer base {
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-family: var(--font-sans);
+    color: hsl(var(--foreground));
+    background-color: hsl(var(--background));
+  }
 }
 
 /* --- Entry animations --- */
