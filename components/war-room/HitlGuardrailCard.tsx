@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ShieldCheck, AlertOctagon, CheckCircle2, Loader2, Terminal, Radio } from 'lucide-react';
+import { ShieldCheck, AlertOctagon, CheckCircle2, Loader2, Terminal, Flame } from 'lucide-react';
 
 interface HitlGuardrailCardProps {
   isStaged?: boolean;
@@ -10,7 +10,7 @@ interface HitlGuardrailCardProps {
 }
 
 export function HitlGuardrailCard({
-  isStaged = false,
+  isStaged = true,
   isResolved = false,
   onRemediateSuccess,
 }: HitlGuardrailCardProps) {
@@ -28,7 +28,7 @@ export function HitlGuardrailCard({
           actionId: 'act_hotfix_8080_8000',
           actionType: 'K8S_INGRESS_PATCH',
           targetService: 'ingress/auth-svc',
-          authorizedBy: 'Sarah (Lead SRE)',
+          authorizedBy: 'Akthar (Lead SRE)',
           passkeyUsed: true,
         }),
       });
@@ -48,60 +48,18 @@ export function HitlGuardrailCard({
     }
   };
 
-  // 1. Idle / Standby Sentinel State (When no incident/defect is staged yet)
-  if (!isStaged && !isResolved) {
-    return (
-      <div className="flex flex-col justify-between rounded-2xl border border-zinc-800/80 bg-[#28292c] p-4 shadow-sm transition-all hover:border-zinc-700 font-sans">
-        <div>
-          {/* Header Tag */}
-          <div className="flex items-center justify-between pb-2.5">
-            <div className="flex items-center gap-1.5">
-              <Radio className="h-4 w-4 text-blue-400 animate-pulse" />
-              <span className="rounded-md bg-zinc-800 px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase text-blue-300 border border-zinc-700">
-                Sentinel Guardrail Slot
-              </span>
-            </div>
-            <span className="rounded px-1.5 py-0.5 text-[10px] font-medium bg-zinc-800 text-zinc-400 border border-zinc-700">
-              STANDBY
-            </span>
-          </div>
-
-          {/* Details */}
-          <div className="space-y-1.5 text-xs text-zinc-300">
-            <p className="font-normal leading-relaxed text-zinc-300">
-              <span className="text-zinc-100 font-medium">AMBIENT SENTINEL ACTIVE:</span>{' '}
-              Listening to voice channel. Awaiting verbalized defect signals or hypotheses.
-            </p>
-
-            <div className="mt-2 rounded-xl bg-zinc-950/90 p-3 font-mono text-[11px] text-zinc-400 border border-zinc-800/80">
-              <div className="flex items-center gap-1 text-[10px] text-zinc-500 mb-1 font-sans">
-                <Terminal className="h-3 w-3 text-zinc-500" /> Cluster Diagnostic Guard
-              </div>
-              <p className="text-zinc-400 font-mono">
-                Telemetry normal. Ready to stage hotfix manifest upon anomaly detection.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Disabled Action Button */}
-        <div className="mt-3">
-          <button
-            disabled
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-800 px-4 py-2.5 text-xs font-medium text-zinc-500 cursor-not-allowed border border-zinc-700/60"
-          >
-            Awaiting Anomaly Signal...
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // 2. Active Staged Hotfix OR Resolved State
   return (
-    <div className="flex flex-col justify-between rounded-2xl border border-zinc-800/80 bg-[#28292c] p-4 shadow-sm transition-all hover:border-zinc-700 font-sans">
+    <div
+      className={`relative flex flex-col justify-between overflow-hidden rounded-2xl bg-[#28292c] p-4 border shadow-md transition-all font-sans ${
+        isResolved
+          ? 'border-emerald-700/80 shadow-emerald-950/20'
+          : isStaged
+          ? 'border-rose-600/70 shadow-rose-950/20'
+          : 'border-zinc-800/80'
+      }`}
+    >
       <div>
-        {/* Capsule Tag Badge */}
+        {/* Top Badges (Matches uploaded image) */}
         <div className="flex items-center justify-between pb-2.5">
           <div className="flex items-center gap-1.5">
             {isResolved ? (
@@ -110,13 +68,15 @@ export function HitlGuardrailCard({
               <AlertOctagon className="h-4 w-4 text-rose-400" />
             )}
             <span
-              className={`rounded-md px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase border ${
+              className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase border ${
                 isResolved
                   ? 'bg-zinc-800 text-emerald-300 border-zinc-700'
                   : 'bg-zinc-800 text-rose-300 border-zinc-700'
               }`}
             >
-              {isResolved ? 'Remediation Executed (200 OK)' : 'HITL Guardrail Capsule'}
+              {isResolved
+                ? 'REMEDIATION EXECUTED (200 OK)'
+                : 'HITL GUARDRAIL CAPSULE'}
             </span>
           </div>
 
@@ -131,41 +91,48 @@ export function HitlGuardrailCard({
           </span>
         </div>
 
-        {/* Root Cause Details */}
+        {/* Root Cause Details (Matches uploaded image) */}
         <div className="space-y-1.5 text-xs text-zinc-200">
           <p className="font-normal leading-relaxed">
-            <span className={isResolved ? 'text-emerald-300 font-semibold' : 'text-rose-300 font-semibold'}>
+            <span
+              className={
+                isResolved
+                  ? 'text-emerald-300 font-bold'
+                  : 'text-rose-300 font-bold'
+              }
+            >
               ROOT CAUSE ISOLATED:
             </span>{' '}
-            Ingress prefix route mismatch (`/api/v2/auth` -&gt; port 8080 instead of 8000).
+            Ingress prefix route mismatch (&apos;/api/v2/auth&apos; -&gt; port 8080 instead of 8000).
           </p>
 
-          {/* Staged Patch Code Block */}
-          <div className="mt-2 rounded-xl bg-zinc-950/90 p-3 font-mono text-[11px] text-zinc-300 border border-zinc-800/80">
-            <div className="flex items-center gap-1 text-[10px] text-zinc-400 mb-1 font-sans">
-              <Terminal className="h-3 w-3 text-zinc-400" /> Staged Hotfix Manifest
+          {/* Staged Hotfix Manifest Code Block (Matches uploaded image) */}
+          <div className="mt-2.5 rounded-xl bg-zinc-950/95 p-3.5 font-mono text-[11px] text-zinc-300 border border-zinc-800 shadow-inner">
+            <div className="flex items-center gap-1.5 text-[10px] text-zinc-400 mb-1.5 font-sans">
+              <Terminal className="h-3.5 w-3.5 text-zinc-400" />
+              <span className="font-medium text-zinc-300">&gt;_ Staged Hotfix Manifest</span>
             </div>
             <p className="break-all text-zinc-300 leading-relaxed font-mono">
-              kubectl patch ingress auth-svc -p &#39;&#123;&quot;spec&quot;:&#123;&quot;rules&quot;:[&#123;&quot;http&quot;:&#123;&quot;port&quot;:8080&#125;&#125;]&#125;&#125;&#39;
+              kubectl patch ingress auth-svc -p &apos;&#123;&quot;spec&quot;:&#123;&quot;rules&quot;:[&#123;&quot;http&quot;:&#123;&quot;port&quot;:8080&#125;&#125;]&#125;&#125;&apos;
             </p>
-            <p className="mt-1.5 text-[10px] text-zinc-400 font-sans">
-              Verbal Trigger: <span className="text-zinc-200 font-medium">&quot;Authorize Patch&quot;</span>
+            <p className="mt-2 text-[10px] text-zinc-400 font-sans">
+              Verbal Trigger: <span className="text-zinc-200 font-semibold">&quot;Authorize Patch&quot;</span>
             </p>
           </div>
         </div>
       </div>
 
-      {/* 1-Click Action Button */}
+      {/* 1-Click Action Button (Matches uploaded image) */}
       <div className="mt-3">
         {errorMsg && <p className="mb-1 text-[11px] text-rose-400">{errorMsg}</p>}
         <button
           onClick={handleAuthorize}
           disabled={isAuthorizing || isResolved}
-          className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-medium shadow transition-all ${
+          className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold shadow transition-all ${
             isResolved
-              ? 'bg-emerald-700 text-zinc-100 cursor-default'
+              ? 'bg-emerald-700 text-white cursor-default'
               : 'bg-rose-700 hover:bg-rose-600 active:scale-[0.98] text-white cursor-pointer'
-          } disabled:opacity-80`}
+          } disabled:opacity-90`}
         >
           {isAuthorizing ? (
             <>
@@ -174,15 +141,19 @@ export function HitlGuardrailCard({
             </>
           ) : isResolved ? (
             <>
-              <ShieldCheck className="h-4 w-4" />
+              <ShieldCheck className="h-4 w-4 text-white" />
               1-Click Hotfix Executed (Incident Resolved)
             </>
           ) : (
-            '1-Click Hotfix Card'
+            <>
+              <Flame className="h-4 w-4 text-white" />
+              Authorize 1-Click Hotfix
+            </>
           )}
         </button>
       </div>
     </div>
   );
 }
+
 export default HitlGuardrailCard;
