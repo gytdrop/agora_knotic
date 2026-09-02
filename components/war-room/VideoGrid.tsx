@@ -79,7 +79,7 @@ interface VideoGridProps {
 
 export function VideoGrid({ onRemediateSuccess }: VideoGridProps) {
   return (
-    <div className="grid h-full w-full grid-cols-3 grid-rows-3 gap-3 p-3 bg-zinc-950">
+    <div className="grid h-full w-full grid-cols-3 grid-rows-3 gap-3.5 p-4 bg-[#171717]">
       {PARTICIPANTS.map((participant) => {
         // Special rendering for HITL Slot
         if (participant.id === 'hitl-slot') {
@@ -97,18 +97,18 @@ export function VideoGrid({ onRemediateSuccess }: VideoGridProps) {
         return (
           <div
             key={participant.id}
-            className={`relative flex flex-col justify-between overflow-hidden rounded-xl border bg-zinc-900/90 shadow-sm transition-all ${
+            className={`relative flex flex-col justify-between overflow-hidden rounded-2xl bg-[#28292c] border border-zinc-800/80 shadow-md transition-all ${
               isSpeaking
-                ? 'border-emerald-500/80 ring-1 ring-emerald-500/50'
+                ? 'ring-2 ring-blue-500 border-blue-500/80'
                 : participant.hasContradiction
-                ? 'border-amber-600/70'
-                : 'border-zinc-800/80'
+                ? 'border-amber-600/60'
+                : 'border-zinc-800'
             }`}
           >
             {/* Top Bar Badges */}
-            <div className="absolute top-2 left-2 right-2 z-10 flex items-center justify-between">
+            <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none">
               {participant.hasContradiction ? (
-                <span className="inline-flex items-center gap-1 rounded bg-amber-950/80 px-2 py-0.5 font-mono text-[10px] font-bold text-amber-400 border border-amber-800/60 shadow">
+                <span className="inline-flex items-center gap-1 rounded-md bg-amber-950/80 px-2 py-0.5 font-sans text-[11px] font-semibold text-amber-400 border border-amber-800/60 shadow">
                   <AlertTriangle className="h-3 w-3" /> Contradiction Flag
                 </span>
               ) : (
@@ -116,9 +116,9 @@ export function VideoGrid({ onRemediateSuccess }: VideoGridProps) {
               )}
 
               {/* Status Icon */}
-              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-zinc-950/80 text-zinc-400 backdrop-blur-sm">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-950/70 text-zinc-300 backdrop-blur-md border border-zinc-800">
                 {isSpeaking ? (
-                  <Mic className="h-3.5 w-3.5 text-emerald-400 animate-pulse" />
+                  <Mic className="h-3.5 w-3.5 text-blue-400 animate-pulse" />
                 ) : isViewpoint ? (
                   <Eye className="h-3.5 w-3.5 text-amber-400" />
                 ) : (
@@ -127,14 +127,14 @@ export function VideoGrid({ onRemediateSuccess }: VideoGridProps) {
               </div>
             </div>
 
-            {/* Video Feed Placeholder / Avatar Simulation */}
-            <div className="relative flex flex-1 items-center justify-center bg-gradient-to-b from-zinc-900 via-zinc-900/95 to-zinc-950">
+            {/* Video Feed Avatar Area (GMeet style avatar card) */}
+            <div className="relative flex flex-1 items-center justify-center bg-[#28292c]">
               <div className="flex flex-col items-center">
                 <div
-                  className={`flex h-16 w-16 items-center justify-center rounded-full border bg-zinc-800 ${
+                  className={`flex h-16 w-16 items-center justify-center rounded-full border bg-zinc-800 font-sans shadow-md ${
                     isSpeaking
-                      ? 'border-emerald-400 text-emerald-400 ring-4 ring-emerald-500/20'
-                      : 'border-zinc-700 text-zinc-400'
+                      ? 'border-blue-400 text-blue-400 ring-4 ring-blue-500/20'
+                      : 'border-zinc-700 text-zinc-300'
                   }`}
                 >
                   <span className="font-semibold text-lg">
@@ -145,7 +145,7 @@ export function VideoGrid({ onRemediateSuccess }: VideoGridProps) {
 
               {/* Fact Check Speech Bubble Overlay for Akthar */}
               {participant.factCheckOverlay && (
-                <div className="absolute bottom-3 left-3 right-3 rounded-lg border border-amber-800/60 bg-amber-950/90 p-2 text-xs text-amber-200 backdrop-blur-md shadow-lg">
+                <div className="absolute bottom-12 left-3 right-3 rounded-xl border border-amber-800/60 bg-zinc-950/90 p-2.5 text-xs text-amber-200 backdrop-blur-md shadow-xl">
                   <div className="font-mono text-[11px] leading-relaxed whitespace-pre-line">
                     {participant.factCheckOverlay}
                   </div>
@@ -153,19 +153,21 @@ export function VideoGrid({ onRemediateSuccess }: VideoGridProps) {
               )}
             </div>
 
-            {/* Bottom Label Tag */}
-            <div className="flex h-8 items-center justify-between border-t border-zinc-800/60 bg-zinc-950/80 px-3">
-              <span className="font-sans text-xs font-medium text-zinc-200">
-                {participant.name}{' '}
-                <span className="text-zinc-500">({participant.role})</span>
+            {/* Bottom Left GMeet Participant Name Pill */}
+            <div className="absolute bottom-3 left-3 z-10 flex items-center gap-1.5 rounded-md bg-zinc-950/80 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-md border border-zinc-800/60">
+              <span className="font-sans font-medium text-zinc-100">
+                {participant.name}
+              </span>
+              <span className="text-[11px] text-zinc-400 font-normal">
+                ({participant.role})
               </span>
               <span
-                className={`text-[10px] font-medium ${
+                className={`ml-1 text-[10px] font-medium ${
                   isSpeaking
-                    ? 'text-emerald-400 font-semibold'
+                    ? 'text-blue-400 font-semibold'
                     : isViewpoint
                     ? 'text-amber-400'
-                    : 'text-zinc-500'
+                    : 'text-zinc-400'
                 }`}
               >
                 [{participant.status}]

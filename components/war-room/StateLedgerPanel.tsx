@@ -51,7 +51,7 @@ interface StateLedgerPanelProps {
 
 export function StateLedgerPanel({ items = DEFAULT_ITEMS }: StateLedgerPanelProps) {
   return (
-    <div className="flex flex-col gap-2.5 p-3">
+    <div className="flex flex-col gap-3 p-3.5 font-sans">
       {items.map((item) => {
         const isFact = item.tag === 'FACT';
         const isHypothesis = item.tag === 'HYPOTHESIS';
@@ -59,7 +59,7 @@ export function StateLedgerPanel({ items = DEFAULT_ITEMS }: StateLedgerPanelProp
         return (
           <div
             key={item.id}
-            className="group relative flex flex-col rounded-lg border border-zinc-800 bg-zinc-900/90 p-3 text-xs shadow-sm transition-all hover:border-zinc-700"
+            className="group relative flex flex-col rounded-xl border border-zinc-800/80 bg-[#28292c] p-3.5 text-xs shadow-sm transition-all hover:border-zinc-700"
           >
             {/* Header timestamp & Speaker tag */}
             <div className="flex items-center justify-between pb-1.5 font-mono text-[11px]">
@@ -71,12 +71,12 @@ export function StateLedgerPanel({ items = DEFAULT_ITEMS }: StateLedgerPanelProp
 
               {/* Tag pill - Color applied ONLY to tag badge */}
               <span
-                className={`rounded px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider border ${
+                className={`rounded-md px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider border ${
                   isFact
-                    ? 'bg-emerald-950/60 text-emerald-400 border-emerald-800/60'
+                    ? 'bg-emerald-950/70 text-emerald-400 border-emerald-800/60'
                     : isHypothesis
-                    ? 'bg-amber-950/60 text-amber-400 border-amber-800/60'
-                    : 'bg-rose-950/60 text-rose-400 border-rose-800/60'
+                    ? 'bg-amber-950/70 text-amber-400 border-amber-800/60'
+                    : 'bg-rose-950/70 text-rose-400 border-rose-800/60'
                 }`}
               >
                 {item.tag}
@@ -84,7 +84,7 @@ export function StateLedgerPanel({ items = DEFAULT_ITEMS }: StateLedgerPanelProp
             </div>
 
             {/* Main Statement text */}
-            <p className="font-sans text-xs leading-relaxed font-medium text-zinc-200">
+            <p className="font-sans text-xs leading-relaxed font-normal text-zinc-200">
               {item.text}
               {item.status && (
                 <span className="ml-1 font-mono text-[11px] text-zinc-400">
@@ -95,7 +95,7 @@ export function StateLedgerPanel({ items = DEFAULT_ITEMS }: StateLedgerPanelProp
 
             {/* Contradiction Analysis Box */}
             {item.reason && (
-              <div className="mt-2.5 rounded bg-zinc-950 p-2.5 font-sans text-[11px] text-zinc-300 border border-zinc-800/80 shadow-md">
+              <div className="mt-2.5 rounded-lg bg-zinc-950 p-2.5 font-sans text-[11px] text-zinc-300 border border-zinc-800/80 shadow-md">
                 <div className="flex items-center gap-1 font-semibold text-rose-400 mb-1">
                   <ShieldAlert className="h-3.5 w-3.5 text-rose-400" /> Contradiction Analysis:
                 </div>

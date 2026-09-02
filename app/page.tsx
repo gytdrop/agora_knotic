@@ -26,8 +26,8 @@ export default function WarRoomPage() {
   };
 
   return (
-    <div className="flex h-screen w-screen flex-col overflow-hidden bg-zinc-950 text-zinc-100 selection:bg-rose-500 selection:text-white">
-      {/* Top Bar: Incident Header */}
+    <div className="flex h-screen w-screen flex-col overflow-hidden bg-[#171717] text-zinc-100 selection:bg-blue-500 selection:text-white font-sans">
+      {/* Top Bar: Google Meet Style Incident Header */}
       <IncidentHeader
         incidentId="#INC-8921"
         severity="SEV-1"
@@ -35,76 +35,85 @@ export default function WarRoomPage() {
         isConnected={true}
       />
 
-      {/* Main War Room Content: Video Grid + Side Parsing Drawer */}
+      {/* Main Content Area: Video Grid + Side Parsing Drawer */}
       <main className="flex flex-1 min-h-0 w-full overflow-hidden">
         {/* Left Side: Participant Video Grid */}
         <section className="flex-1 min-w-0 overflow-hidden">
           <VideoGrid onRemediateSuccess={handleRemediateSuccess} />
         </section>
 
-        {/* Right Side: Real-Time Conversation Parsing Drawer */}
+        {/* Right Side: Conversation Parsing Side Drawer */}
         <ConversationParsingPanel />
       </main>
 
-      {/* Bottom Control Toolbar */}
-      <footer className="flex h-16 w-full items-center justify-between border-t border-zinc-800/80 bg-zinc-950 px-6 backdrop-blur-md">
-        {/* Left Status Summary */}
+      {/* Bottom Control Toolbar (GMeet Floating Control Dock) */}
+      <footer className="flex h-16 w-full items-center justify-between border-t border-zinc-800/80 bg-[#202124] px-6 text-zinc-200">
+        {/* Left Status Indicator */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 rounded bg-zinc-900 px-3 py-1.5 border border-zinc-800 text-xs font-mono text-zinc-300">
+          <div className="flex items-center gap-2 rounded-full bg-zinc-800/80 px-3.5 py-1.5 border border-zinc-700/60 text-xs font-sans text-zinc-300">
             <span className="h-2 w-2 rounded-full bg-emerald-400" />
-            <span>Ambient Mode (16kHz PCM Audio Ingestion)</span>
+            <span>Ambient Sentinel Mode (16kHz PCM)</span>
           </div>
         </div>
 
-        {/* Center Control Buttons */}
+        {/* Center Google Meet Circular Control Buttons */}
         <div className="flex items-center gap-3">
-          {/* Mute Toggle */}
+          {/* Mute Toggle Circular Button */}
           <button
             onClick={() => setIsMuted(!isMuted)}
-            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-medium border transition-colors ${
+            className={`flex h-10 w-10 items-center justify-center rounded-full border transition-colors shadow-sm ${
               isMuted
-                ? 'bg-rose-950/60 border-rose-800 text-rose-300 hover:bg-rose-900/80'
-                : 'bg-zinc-900 border-zinc-800 text-zinc-300 hover:bg-zinc-800'
+                ? 'bg-rose-600 border-rose-500 text-white hover:bg-rose-700'
+                : 'bg-zinc-800 border-zinc-700 text-zinc-200 hover:bg-zinc-700'
             }`}
+            title={isMuted ? 'Unmute Microphone' : 'Mute Microphone'}
           >
-            {isMuted ? <MicOff className="h-4 w-4 text-rose-400" /> : <Mic className="h-4 w-4 text-emerald-400" />}
-            {isMuted ? 'Muted' : 'Inter (Mute)'}
+            {isMuted ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
           </button>
 
-          {/* Camera Toggle */}
+          {/* Camera Toggle Circular Button */}
           <button
             onClick={() => setIsVideoOff(!isVideoOff)}
-            className="flex items-center gap-1.5 rounded-lg bg-zinc-900 border border-zinc-800 px-3.5 py-2 text-xs font-medium text-zinc-300 hover:bg-zinc-800 transition-colors"
+            className={`flex h-10 w-10 items-center justify-center rounded-full border transition-colors shadow-sm ${
+              isVideoOff
+                ? 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:bg-zinc-700'
+                : 'bg-zinc-800 border-zinc-700 text-emerald-400 hover:bg-zinc-700'
+            }`}
+            title={isVideoOff ? 'Turn Camera On' : 'Turn Camera Off'}
           >
-            {isVideoOff ? <VideoOff className="h-4 w-4 text-zinc-400" /> : <Video className="h-4 w-4 text-emerald-400" />}
-            {isVideoOff ? '[Cam Off]' : 'Cam On'}
+            {isVideoOff ? <VideoOff className="h-4 w-4" /> : <Video className="h-4 w-4" />}
           </button>
 
-          {/* RTM Ledger Button */}
-          <button className="flex items-center gap-1.5 rounded-lg bg-zinc-900 border border-zinc-800 px-3.5 py-2 text-xs font-medium text-zinc-300 hover:bg-zinc-800 transition-colors">
-            <FileText className="h-4 w-4 text-amber-400" />
-            RTM Ledger
+          {/* RTM Ledger Circular Button */}
+          <button
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800 border border-zinc-700 text-amber-400 hover:bg-zinc-700 transition-colors shadow-sm"
+            title="RTM Ledger"
+          >
+            <FileText className="h-4 w-4" />
           </button>
 
-          {/* Diagnostics Tool */}
-          <button className="flex items-center gap-1.5 rounded-lg bg-zinc-900 border border-zinc-800 px-3.5 py-2 text-xs font-medium text-zinc-300 hover:bg-zinc-800 transition-colors">
-            <Terminal className="h-4 w-4 text-emerald-400" />
-            [Diagnostics Tool]
+          {/* Diagnostics Tool Circular Button */}
+          <button
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800 border border-zinc-700 text-blue-400 hover:bg-zinc-700 transition-colors shadow-sm"
+            title="Diagnostics Tool"
+          >
+            <Terminal className="h-4 w-4" />
+          </button>
+
+          {/* End Call Circular Button (GMeet Red Button) */}
+          <button
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-600 text-white hover:bg-rose-700 transition-colors shadow-sm"
+            title="Leave War Room Call"
+          >
+            <PhoneOff className="h-4 w-4" />
           </button>
         </div>
 
-        {/* Right Action Callouts */}
+        {/* Right Authorize Patch Action Pill */}
         <div className="flex items-center gap-3">
-          {/* Leave Call */}
-          <button className="flex items-center gap-1.5 rounded-lg border border-rose-900/60 bg-rose-950/40 px-3.5 py-2 text-xs font-medium text-rose-400 hover:bg-rose-900/60 transition-colors">
-            <PhoneOff className="h-4 w-4" />
-            [Leave Call]
-          </button>
-
-          {/* Authorize 1-Click Patch Action Pill */}
           <button
             onClick={handleRemediateSuccess}
-            className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold shadow-lg transition-all ${
+            className={`flex items-center gap-2 rounded-full px-5 py-2 text-xs font-semibold shadow-md transition-all ${
               isResolved
                 ? 'bg-emerald-600 text-white cursor-default'
                 : 'bg-rose-600 hover:bg-rose-500 active:scale-95 text-white animate-pulse'

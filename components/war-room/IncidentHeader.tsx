@@ -34,24 +34,24 @@ export function IncidentHeader({
   };
 
   return (
-    <header className="flex h-14 w-full items-center justify-between border-b border-zinc-800 bg-zinc-950/90 px-5 backdrop-blur-md">
+    <header className="flex h-14 w-full items-center justify-between border-b border-zinc-800/80 bg-[#202124] px-6 text-zinc-100">
       {/* Left Branding & Incident Badge */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 font-sans">
         <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded bg-zinc-800 border border-zinc-700">
-            <span className="font-mono text-sm font-bold text-emerald-400">E</span>
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600 font-bold text-white shadow-sm">
+            E
           </div>
-          <span className="font-mono text-sm font-bold tracking-wider text-zinc-100 uppercase">
+          <span className="text-sm font-semibold tracking-wide text-white uppercase">
             {title}
           </span>
         </div>
 
-        <span className="text-zinc-600">&#47;&#47;</span>
+        <span className="text-zinc-500 font-light">&#47;&#47;</span>
 
         <div className="flex items-center gap-2">
-          <span className="font-mono text-xs text-zinc-400">INCIDENT:</span>
-          <span className="font-mono text-xs font-semibold text-zinc-200">{incidentId}</span>
-          <span className="inline-flex items-center gap-1 rounded bg-rose-950/60 px-2 py-0.5 text-xs font-bold text-rose-400 border border-rose-800/60">
+          <span className="text-xs font-medium text-zinc-400">INCIDENT:</span>
+          <span className="text-xs font-semibold text-zinc-200 font-mono">{incidentId}</span>
+          <span className="inline-flex items-center gap-1 rounded-md bg-rose-950/70 px-2 py-0.5 text-xs font-bold text-rose-400 border border-rose-800/60">
             <ShieldAlert className="h-3 w-3" />
             [{severity}]
           </span>
@@ -59,16 +59,16 @@ export function IncidentHeader({
       </div>
 
       {/* Right Metrics & RTC Status */}
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-6 font-sans">
         {/* MTTR Timer */}
-        <div className="flex items-center gap-2 rounded bg-zinc-900/80 px-3 py-1 border border-zinc-800">
+        <div className="flex items-center gap-2 rounded-lg bg-zinc-800/90 px-3 py-1 border border-zinc-700/60">
           <Clock className="h-3.5 w-3.5 text-zinc-400" />
-          <span className="font-mono text-xs text-zinc-400">MTTR Clock:</span>
+          <span className="text-xs text-zinc-400 font-medium">MTTR Clock:</span>
           <span className="font-mono text-xs font-semibold text-amber-400">{formatTimer(secondsElapsed)}</span>
         </div>
 
         {/* Agora RTC Connection Status */}
-        <div className="flex items-center gap-2 rounded-full bg-zinc-900/80 px-3 py-1 border border-zinc-800">
+        <div className="flex items-center gap-2 rounded-full bg-zinc-800/90 px-3.5 py-1 border border-zinc-700/60">
           <span className="relative flex h-2 w-2">
             {isConnected && (
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
@@ -79,7 +79,7 @@ export function IncidentHeader({
               }`}
             />
           </span>
-          <span className="text-xs font-medium text-zinc-300">
+          <span className="text-xs font-medium text-zinc-200">
             {isConnected ? 'Agora RTC Connected' : 'Disconnected'}
           </span>
         </div>
