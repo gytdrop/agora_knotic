@@ -10,7 +10,7 @@ interface HitlGuardrailCardProps {
 }
 
 export function HitlGuardrailCard({
-  isStaged = true,
+  isStaged: _isStaged = true,
   isResolved = false,
   onRemediateSuccess,
 }: HitlGuardrailCardProps) {
@@ -49,65 +49,39 @@ export function HitlGuardrailCard({
   };
 
   return (
-    <div
-      className={`relative flex flex-col justify-between overflow-hidden rounded-2xl bg-[#28292c] p-4 border shadow-md transition-all font-sans ${
-        isResolved
-          ? 'border-emerald-700/80 shadow-emerald-950/20'
-          : isStaged
-          ? 'border-rose-600/70 shadow-rose-950/20'
-          : 'border-zinc-800/80'
-      }`}
-    >
+    <div className="relative flex flex-col justify-between overflow-hidden rounded-2xl bg-[#28292c] p-4 border border-zinc-800/80 shadow-md font-sans">
       <div>
-        {/* Top Badges (Matches uploaded image) */}
+        {/* Top Badges - Strictly Tag-Only, Matte Styling */}
         <div className="flex items-center justify-between pb-2.5">
           <div className="flex items-center gap-1.5">
             {isResolved ? (
-              <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+              <CheckCircle2 className="h-4 w-4 text-emerald-400/90" />
             ) : (
-              <AlertOctagon className="h-4 w-4 text-rose-400" />
+              <AlertOctagon className="h-4 w-4 text-rose-400/90" />
             )}
-            <span
-              className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase border ${
-                isResolved
-                  ? 'bg-zinc-800 text-emerald-300 border-zinc-700'
-                  : 'bg-zinc-800 text-rose-300 border-zinc-700'
-              }`}
-            >
+            <span className="inline-flex items-center gap-1 rounded-md bg-zinc-800 px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase border border-zinc-700 text-zinc-300">
               {isResolved
                 ? 'REMEDIATION EXECUTED (200 OK)'
                 : 'HITL GUARDRAIL CAPSULE'}
             </span>
           </div>
 
-          <span
-            className={`rounded px-1.5 py-0.5 text-[10px] font-medium border ${
-              isResolved
-                ? 'bg-zinc-800 text-emerald-300 border-zinc-700'
-                : 'bg-zinc-800 text-rose-300 border-zinc-700'
-            }`}
-          >
+          <span className="rounded bg-zinc-800 px-1.5 py-0.5 text-[10px] font-medium border border-zinc-700 text-zinc-400">
             {isResolved ? 'PATCH ACTIVE' : 'STAGED'}
           </span>
         </div>
 
-        {/* Root Cause Details (Matches uploaded image) */}
+        {/* Root Cause Details */}
         <div className="space-y-1.5 text-xs text-zinc-200">
-          <p className="font-normal leading-relaxed">
-            <span
-              className={
-                isResolved
-                  ? 'text-emerald-300 font-bold'
-                  : 'text-rose-300 font-bold'
-              }
-            >
+          <p className="font-normal leading-relaxed text-zinc-300">
+            <span className="font-medium text-zinc-100">
               ROOT CAUSE ISOLATED:
             </span>{' '}
             Ingress prefix route mismatch (&apos;/api/v2/auth&apos; -&gt; port 8080 instead of 8000).
           </p>
 
-          {/* Staged Hotfix Manifest Code Block (Matches uploaded image) */}
-          <div className="mt-2.5 rounded-xl bg-zinc-950/95 p-3.5 font-mono text-[11px] text-zinc-300 border border-zinc-800 shadow-inner">
+          {/* Staged Hotfix Manifest Code Block */}
+          <div className="mt-2.5 rounded-xl bg-zinc-950 p-3.5 font-mono text-[11px] text-zinc-300 border border-zinc-800">
             <div className="flex items-center gap-1.5 text-[10px] text-zinc-400 mb-1.5 font-sans">
               <Terminal className="h-3.5 w-3.5 text-zinc-400" />
               <span className="font-medium text-zinc-300">&gt;_ Staged Hotfix Manifest</span>
@@ -122,31 +96,31 @@ export function HitlGuardrailCard({
         </div>
       </div>
 
-      {/* 1-Click Action Button (Matches uploaded image) */}
+      {/* Action Button - Matte Zinc Neutral (Zero Neon) */}
       <div className="mt-3">
         {errorMsg && <p className="mb-1 text-[11px] text-rose-400">{errorMsg}</p>}
         <button
           onClick={handleAuthorize}
           disabled={isAuthorizing || isResolved}
-          className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold shadow transition-all ${
+          className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold border transition-all ${
             isResolved
-              ? 'bg-emerald-700 text-white cursor-default'
-              : 'bg-rose-700 hover:bg-rose-600 active:scale-[0.98] text-white cursor-pointer'
+              ? 'bg-zinc-800 border-zinc-700 text-emerald-300 cursor-default'
+              : 'bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-200 cursor-pointer active:scale-[0.98]'
           } disabled:opacity-90`}
         >
           {isAuthorizing ? (
             <>
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-zinc-400" />
               Executing Hotfix Webhook...
             </>
           ) : isResolved ? (
             <>
-              <ShieldCheck className="h-4 w-4 text-white" />
+              <ShieldCheck className="h-4 w-4 text-emerald-400" />
               1-Click Hotfix Executed (Incident Resolved)
             </>
           ) : (
             <>
-              <Flame className="h-4 w-4 text-white" />
+              <Flame className="h-4 w-4 text-rose-400" />
               Authorize 1-Click Hotfix
             </>
           )}

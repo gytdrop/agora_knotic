@@ -560,7 +560,7 @@ export default function ConversationComponent({
         {/* Left Status */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 rounded-full bg-zinc-800/80 px-3.5 py-1.5 border border-zinc-700/60 text-xs font-sans text-zinc-300">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+            <span className="h-2 w-2 rounded-full bg-zinc-400" />
             <span>
               Ambient Sentinel Mode ({humanRemoteUsers.length + 1} connected)
             </span>
@@ -574,7 +574,7 @@ export default function ConversationComponent({
             onClick={handleMicToggle}
             className={`flex h-10 w-10 items-center justify-center rounded-full border transition-colors shadow-sm ${
               !isEnabled
-                ? 'bg-rose-700 border-rose-600 text-white hover:bg-rose-600'
+                ? 'bg-zinc-800 border-rose-800/80 text-rose-400 hover:bg-zinc-700'
                 : 'bg-zinc-800 border-zinc-700 text-zinc-200 hover:bg-zinc-700'
             }`}
             title={!isEnabled ? 'Unmute Microphone' : 'Mute Microphone'}
@@ -634,7 +634,7 @@ export default function ConversationComponent({
           {/* End Call Circular Button (GMeet Red Button) */}
           <button
             onClick={handleEndConversation}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-700 text-white hover:bg-rose-600 transition-colors shadow-sm"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-900/90 text-zinc-100 border border-rose-700 hover:bg-rose-800 transition-colors shadow-sm"
             title="Leave War Room Call"
           >
             <PhoneOff className="h-4 w-4" />
@@ -646,20 +646,20 @@ export default function ConversationComponent({
           <button
             onClick={handleRemediateSuccess}
             disabled={isResolved}
-            className={`flex items-center gap-2 rounded-full px-5 py-2 text-xs font-medium shadow transition-all ${
+            className={`flex items-center gap-2 rounded-full px-5 py-2 text-xs font-medium border transition-all ${
               isResolved
-                ? 'bg-emerald-700 text-zinc-100 cursor-default'
-                : 'bg-rose-700 hover:bg-rose-600 active:scale-95 text-white'
+                ? 'bg-zinc-800 border-zinc-700 text-emerald-300 cursor-default'
+                : 'bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-200 active:scale-95'
             }`}
           >
             {isResolved ? (
               <>
-                <ShieldCheck className="h-4 w-4 text-zinc-100" />
+                <ShieldCheck className="h-4 w-4 text-emerald-400" />
                 Hotfix Active (200 OK)
               </>
             ) : (
               <>
-                <Flame className="h-4 w-4 text-white" />
+                <Flame className="h-4 w-4 text-rose-400" />
                 Authorize 1-Click Patch
               </>
             )}
