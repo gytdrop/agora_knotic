@@ -758,6 +758,18 @@ export default function ConversationComponent({
         {isSideDrawerOpen && (
           <ConversationParsingPanel items={ledgerItems} />
         )}
+
+        {/* Background Audio Playback for ALL Remote WebRTC Users (Specifically the AI Agent) */}
+        <div className="hidden" aria-hidden="true">
+          {remoteUsers.map((user) => (
+            <RemoteUser
+              key={user.uid}
+              user={user}
+              playAudio={true}
+              playVideo={false}
+            />
+          ))}
+        </div>
       </main>
 
       {/* Bottom Control Toolbar (GMeet Floating Control Dock) */}
