@@ -12,11 +12,15 @@ function isAgentAlreadyStoppingOrStopped(error: unknown): boolean {
   };
 
   const statusCode = maybeErr.statusCode;
-  const reason = maybeErr.body?.reason?.toLowerCase();
-  const detail = maybeErr.body?.detail?.toLowerCase() ?? maybeErr.message?.toLowerCase() ?? '';
+  const reason = (maybeErr.body?.reason ?? '').toLowerCase();
+  const detail = (maybeErr.body?.detail ?? maybeErr.message ?? '').toLowerCase();
 
   if (statusCode === 404) return true;
-  if (reason === 'invalidrequest' && detail.includes('already in the process of shutting down')) {
+  if (
+    reason.includes('already in the process of shutting down') ||
+    detail.includes('already in the process of shutting down') ||
+    detail === 'errconflict'
+  ) {
     return true;
   }
   return false;

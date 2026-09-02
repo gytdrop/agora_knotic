@@ -8,6 +8,7 @@ import AgoraRTC, {
   useClientEvent,
   useJoin,
   usePublish,
+  RemoteUser,
   UID,
 } from 'agora-rtc-react';
 import {
@@ -182,6 +183,14 @@ export default function ConversationComponent({
   );
 
   const { localMicrophoneTrack } = useLocalMicrophoneTrack(isReady);
+
+  useEffect(() => {
+    if (localMicrophoneTrack) {
+      try {
+        localMicrophoneTrack.setVolume(100);
+      } catch {}
+    }
+  }, [localMicrophoneTrack]);
 
   useEffect(() => {
     if (!client) return;
@@ -400,6 +409,17 @@ export default function ConversationComponent({
 
   useClientEvent(client, 'user-left', (user) => {
     if (user.uid.toString() === agentUID) setIsAgentConnected(false);
+  });
+
+  useClientEvent(client, 'user-published', async (user, mediaType) => {
+    if (mediaType === 'audio') {
+      try {
+        await client.subscribe(user, 'audio');
+        user.audioTrack?.play();
+      } catch (err) {
+        console.warn('[Agora RTC] Failed to play audio track:', err);
+      }
+    }
   });
 
   useEffect(() => {
