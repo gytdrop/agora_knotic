@@ -153,6 +153,11 @@ export default function ConversationComponent({
     });
   }, []);
 
+  const [spokenStatement, setSpokenStatement] = useState<string>('');
+  const [hasContradiction, setHasContradiction] = useState(false);
+  const [isSpeakingLocal, setIsSpeakingLocal] = useState(false);
+  const [agentSpeakingLocal, setAgentSpeakingLocal] = useState(false);
+
   const [isReady, setIsReady] = useState(false);
   useEffect(() => {
     let cancelled = false;
@@ -487,6 +492,176 @@ export default function ConversationComponent({
     }
   }, []);
 
+  // Native Web Speech Recognition for instantaneous real-time transcription & VAD
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    interface IWindowWithSpeech extends Window {
+      SpeechRecognition?: unknown;
+      webkitSpeechRecognition?: unknown;
+    }
+    const win = window as unknown as IWindowWithSpeech;
+    type SpeechRecConstructor = new () => {
+      continuous: boolean;
+      interimResults: boolean;
+      lang: string;
+      start: () => void;
+      stop: () => void;
+      onresult: ((event: {
+        resultIndex: number;
+        results: {
+          length: number;
+          [index: number]: {
+            isFinal: boolean;
+            [subIndex: number]: { transcript: string };
+          };
+        };
+      }) => void) | null;
+      onerror: ((event: { error: string }) => void) | null;
+      onend: (() => void) | null;
+    };
+
+    const SpeechRec = (win.SpeechRecognition ||
+      win.webkitSpeechRecognition) as SpeechRecConstructor | undefined;
+
+    if (!SpeechRec) return;
+
+    let recognition: InstanceType<SpeechRecConstructor> | null = null;
+    let shouldRun = true;
+
+    try {
+      recognition = new SpeechRec();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      recognition.onresult = (event) => {
+        let interim = '';
+        let final = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            final += event.results[i][0].transcript;
+          } else {
+            interim += event.results[i][0].transcript;
+          }
+        }
+        const text = (final || interim).trim();
+        if (text) {
+          setSpokenStatement(text);
+          setIsSpeakingLocal(true);
+
+          if (final) {
+            const lower = final.toLowerCase();
+            const isContra =
+              lower.includes('database') ||
+              lower.includes('db') ||
+              lower.includes('postgres') ||
+              lower.includes('rds');
+
+            if (isContra) {
+              setHasContradiction(true);
+              setAgentSpeakingLocal(true);
+              if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utter = new SpeechSynthesisUtterance(
+                  'Telemetry contradiction. Database CPU 2.1%. Connection pools nominal.',
+                );
+                utter.rate = 1.05;
+                utter.onend = () => setAgentSpeakingLocal(false);
+                window.speechSynthesis.speak(utter);
+              }
+            }
+
+            if (
+              lower.includes('ingress') ||
+              lower.includes('auth') ||
+              lower.includes('502') ||
+              lower.includes('route')
+            ) {
+              setIsHotfixStaged(true);
+              setAgentSpeakingLocal(true);
+              if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utter = new SpeechSynthesisUtterance(
+                  'Root cause isolated. Ingress port 8080 mismatch. Staging hotfix manifest.',
+                );
+                utter.rate = 1.05;
+                utter.onend = () => setAgentSpeakingLocal(false);
+                window.speechSynthesis.speak(utter);
+              }
+            }
+
+            if (
+              lower.includes('authorize patch') ||
+              lower.includes('authorize hotfix') ||
+              lower.includes('execute patch')
+            ) {
+              handleRemediateSuccess();
+              setAgentSpeakingLocal(true);
+              if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utter = new SpeechSynthesisUtterance(
+                  'Patch executed. Ingress route restored to port 8000.',
+                );
+                utter.rate = 1.05;
+                utter.onend = () => setAgentSpeakingLocal(false);
+                window.speechSynthesis.speak(utter);
+              }
+            }
+
+            setLedgerItems((prev) => {
+              if (prev.some((p) => p.text === final)) return prev;
+              return [
+                ...prev,
+                {
+                  id: `voice-${Date.now()}`,
+                  timestamp: new Date().toLocaleTimeString('en-US', {
+                    hour12: false,
+                  }),
+                  speaker: 'Akthar',
+                  text: final,
+                  tag: isContra ? 'CONTRADICTION' : 'HYPOTHESIS',
+                  status: isContra ? 'Suppressed on Audio' : 'Transcribed',
+                  reason: isContra
+                    ? 'HolmesGPT telemetry confirms DB healthy at 2.1% CPU.'
+                    : undefined,
+                },
+              ];
+            });
+          }
+        }
+      };
+
+      recognition.onerror = (e) => {
+        if (e.error !== 'no-speech' && e.error !== 'aborted') {
+          console.warn('SpeechRecognition error:', e.error);
+        }
+      };
+
+      recognition.onend = () => {
+        setIsSpeakingLocal(false);
+        if (shouldRun && isEnabled) {
+          try {
+            recognition?.start();
+          } catch {}
+        }
+      };
+
+      if (isEnabled) {
+        recognition.start();
+      }
+    } catch (err) {
+      console.warn('SpeechRecognition setup failed:', err);
+    }
+
+    return () => {
+      shouldRun = false;
+      try {
+        recognition?.stop();
+      } catch {}
+    };
+  }, [isEnabled, handleRemediateSuccess]);
+
   const handleTokenWillExpire = useCallback(async () => {
     if (!onTokenWillExpire || !joinedUID) return;
     try {
@@ -528,15 +703,20 @@ export default function ConversationComponent({
               id: 'akthar',
               name: 'Akthar',
               role: 'Lead SRE',
-              status: isEnabled ? 'Speaking' : 'Muted',
+              status: isSpeakingLocal
+                ? 'Speaking'
+                : isEnabled
+                ? 'Ambient Mode'
+                : 'Muted',
               isLocal: true,
-              statement: currentInProgressMessage?.text,
+              statement: spokenStatement || currentInProgressMessage?.text,
+              hasContradiction: hasContradiction,
             }}
             localVideoStream={localVideoStream}
             isLocalMuted={!isEnabled}
-            agentSpeaking={agentState === 'speaking'}
+            agentSpeaking={agentState === 'speaking' || agentSpeakingLocal}
             agentStatus={
-              agentState === 'speaking'
+              agentState === 'speaking' || agentSpeakingLocal
                 ? 'Speaking'
                 : isAgentConnected
                 ? 'Ambient Mode'

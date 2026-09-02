@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Mic,
   MicOff,
@@ -11,6 +11,7 @@ import {
   Wifi,
   ChevronDown,
   Lock,
+  CheckCircle2,
 } from 'lucide-react';
 
 interface PreCallHardwarePreviewProps {
@@ -24,113 +25,244 @@ export function PreCallHardwarePreview({
 }: PreCallHardwarePreviewProps) {
   const [micEnabled, setMicEnabled] = useState(true);
   const [audioEnabled, setAudioEnabled] = useState(true);
-  const [videoEnabled, setVideoEnabled] = useState(false);
+  const [videoEnabled, setVideoEnabled] = useState(true);
   const [hasPermission, setHasPermission] = useState(isPermissionGranted);
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  const [audioLevel, setAudioLevel] = useState(0);
 
-  const handleRequestPermission = () => {
-    setHasPermission(true);
-    if (onPermissionGranted) {
-      onPermissionGranted();
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+
+  const handleRequestPermission = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: true,
+      });
+      setLocalStream(stream);
+      setHasPermission(true);
+
+      // Setup audio analyzer for preview
+      const AudioCtx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext })
+          .webkitAudioContext;
+      const ctx = new AudioCtx();
+      audioContextRef.current = ctx;
+      const source = ctx.createMediaStreamSource(stream);
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 64;
+      source.connect(analyser);
+
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+      const checkVolume = () => {
+        analyser.getByteFrequencyData(dataArray);
+        let sum = 0;
+        for (let i = 0; i < dataArray.length; i++) {
+          sum += dataArray[i];
+        }
+        const avg = sum / dataArray.length;
+        setAudioLevel(Math.min(100, Math.round(avg * 1.8)));
+        requestAnimationFrame(checkVolume);
+      };
+      checkVolume();
+
+      if (onPermissionGranted) {
+        onPermissionGranted();
+      }
+    } catch (err) {
+      console.warn('Microphone/Camera permission error:', err);
+      setHasPermission(true);
+    }
+  };
+
+  useEffect(() => {
+    if (videoRef.current && localStream) {
+      videoRef.current.srcObject = localStream;
+    }
+  }, [localStream, videoEnabled]);
+
+  // Clean up media on unmount
+  useEffect(() => {
+    return () => {
+      if (localStream) {
+        localStream.getTracks().forEach((track) => track.stop());
+      }
+      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+        audioContextRef.current.close().catch(() => {});
+      }
+    };
+  }, [localStream]);
+
+  // Toggle mic track
+  const toggleMic = () => {
+    const next = !micEnabled;
+    setMicEnabled(next);
+    if (localStream) {
+      localStream.getAudioTracks().forEach((track) => {
+        track.enabled = next;
+      });
+    }
+  };
+
+  // Toggle video track
+  const toggleVideo = () => {
+    const next = !videoEnabled;
+    setVideoEnabled(next);
+    if (localStream) {
+      localStream.getVideoTracks().forEach((track) => {
+        track.enabled = next;
+      });
     }
   };
 
   return (
-    <div className="flex w-full flex-col items-center gap-4">
-      {/* Main Video Preview Box */}
-      <div className="relative flex aspect-video w-full max-w-2xl flex-col items-center justify-center overflow-hidden rounded-2xl border border-zinc-800 bg-[#28292c] shadow-2xl">
+    <div className="flex w-full max-w-2xl flex-col rounded-2xl border border-zinc-800 bg-[#28292c] p-4 shadow-xl font-sans">
+      {/* 1. Video Box Container */}
+      <div className="relative flex aspect-video w-full flex-col items-center justify-center overflow-hidden rounded-xl border border-zinc-700/80 bg-[#1e1f22]">
         {!hasPermission ? (
           <div className="flex flex-col items-center justify-center gap-4 px-6 text-center">
-            <p className="text-lg font-medium text-zinc-200">
-              Initialize hardware for WebRTC ingestion.
-            </p>
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300">
+              <Lock className="h-5 w-5 text-zinc-400" />
+            </div>
+            <div>
+              <p className="text-base font-medium text-zinc-200">
+                Initialize hardware for WebRTC ingestion
+              </p>
+              <p className="text-xs text-zinc-400 mt-1">
+                Grant camera and microphone permissions to verify audio levels.
+              </p>
+            </div>
             <button
               onClick={handleRequestPermission}
-              className="flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-blue-500 active:scale-95"
+              className="flex items-center gap-2 rounded-lg bg-zinc-100 px-5 py-2.5 text-xs font-semibold text-zinc-900 shadow-sm transition-all hover:bg-white active:scale-95"
             >
-              <Lock className="h-4 w-4" />
+              <Lock className="h-3.5 w-3.5" />
               ALLOW MICROPHONE AND CAMERA
             </button>
           </div>
+        ) : videoEnabled && localStream ? (
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className="h-full w-full object-cover scale-x-[-1]"
+          />
         ) : (
           <div className="flex flex-col items-center justify-center gap-2">
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 text-xl font-semibold">
               AK
             </div>
-            <span className="text-sm font-medium text-zinc-400">Hardware Initialized</span>
+            <div className="flex items-center gap-1 text-xs text-zinc-400">
+              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+              <span>Hardware Initialized (Camera Muted)</span>
+            </div>
           </div>
         )}
 
-        {/* Floating Preview Control Bar inside Video Box */}
-        <div className="absolute bottom-4 flex items-center gap-3 rounded-xl bg-zinc-900/80 px-4 py-2 border border-zinc-700/60 backdrop-blur-md">
+        {/* Audio Waveform Meter (When Permission Granted) */}
+        {hasPermission && (
+          <div className="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-zinc-950/80 px-2.5 py-1 border border-zinc-800 backdrop-blur-md">
+            <Mic className="h-3 w-3 text-blue-400" />
+            <div className="flex items-center gap-0.5">
+              {[...Array(5)].map((_, i) => (
+                <span
+                  key={i}
+                  className={`h-2.5 w-1 rounded-full transition-all duration-75 ${
+                    audioLevel > i * 18 ? 'bg-blue-400' : 'bg-zinc-700'
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Control Bar inside Preview Card */}
+        <div className="absolute bottom-3 flex items-center gap-2 rounded-xl bg-zinc-950/85 px-3 py-1.5 border border-zinc-800/80 backdrop-blur-md">
           <button
-            onClick={() => setMicEnabled(!micEnabled)}
-            className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${
+            onClick={toggleMic}
+            className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
               micEnabled
-                ? 'bg-zinc-800 text-zinc-200 hover:bg-zinc-700'
-                : 'bg-rose-700 text-white hover:bg-rose-600'
+                ? 'bg-zinc-800 text-zinc-200 hover:bg-zinc-700 border border-zinc-700'
+                : 'bg-rose-900/80 text-rose-200 border border-rose-700'
             }`}
             title={micEnabled ? 'Mute Mic' : 'Unmute Mic'}
           >
-            {micEnabled ? <Mic className="h-4 w-4" /> : <MicOff className="h-4 w-4" />}
+            {micEnabled ? <Mic className="h-3.5 w-3.5" /> : <MicOff className="h-3.5 w-3.5" />}
           </button>
 
           <button
             onClick={() => setAudioEnabled(!audioEnabled)}
-            className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${
+            className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
               audioEnabled
-                ? 'bg-zinc-800 text-zinc-200 hover:bg-zinc-700'
-                : 'bg-rose-700 text-white hover:bg-rose-600'
+                ? 'bg-zinc-800 text-zinc-200 hover:bg-zinc-700 border border-zinc-700'
+                : 'bg-rose-900/80 text-rose-200 border border-rose-700'
             }`}
-            title={audioEnabled ? 'Mute Output' : 'Unmute Output'}
+            title={audioEnabled ? 'Mute Speaker' : 'Unmute Speaker'}
           >
-            {audioEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+            {audioEnabled ? <Volume2 className="h-3.5 w-3.5" /> : <VolumeX className="h-3.5 w-3.5" />}
           </button>
 
           <button
-            onClick={() => setVideoEnabled(!videoEnabled)}
-            className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${
+            onClick={toggleVideo}
+            className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
               videoEnabled
-                ? 'bg-zinc-800 text-zinc-200 hover:bg-zinc-700'
-                : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
+                ? 'bg-zinc-800 text-zinc-200 hover:bg-zinc-700 border border-zinc-700'
+                : 'bg-zinc-800 text-zinc-500 hover:bg-zinc-700 border border-zinc-700'
             }`}
             title={videoEnabled ? 'Turn Camera Off' : 'Turn Camera On'}
           >
-            {videoEnabled ? <Video className="h-4 w-4" /> : <VideoOff className="h-4 w-4" />}
+            {videoEnabled ? <Video className="h-3.5 w-3.5" /> : <VideoOff className="h-3.5 w-3.5" />}
           </button>
 
-          <button
-            className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-800 text-zinc-300 hover:bg-zinc-700 transition-colors"
-            title="Network & Bandwidth Test"
+          <div
+            className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-800 text-zinc-300 border border-zinc-700"
+            title="WebRTC Network Latency < 300ms"
           >
-            <Wifi className="h-4 w-4" />
-          </button>
+            <Wifi className="h-3.5 w-3.5" />
+          </div>
         </div>
       </div>
 
-      {/* Device Selection Dropdown Pills */}
-      <div className="flex w-full max-w-2xl flex-wrap items-center justify-between gap-2 text-xs">
-        <div className="flex items-center gap-1.5 rounded-full border border-zinc-800 bg-zinc-900/90 px-3.5 py-1.5 text-zinc-400 hover:border-zinc-700 cursor-pointer">
-          <Mic className="h-3.5 w-3.5 text-zinc-400" />
-          <span className="truncate max-w-[100px]">Permission n...</span>
-          <ChevronDown className="h-3 w-3 text-zinc-500" />
+      {/* 2. Device Selection Dropdowns - Cleanly Integrated INSIDE the card as an inline row */}
+      <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-sans">
+        <div className="flex items-center justify-between rounded-lg border border-zinc-700/60 bg-zinc-900/90 px-2.5 py-1.5 text-zinc-300 hover:border-zinc-600 transition-colors">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <Mic className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
+            <span className="truncate text-[11px]">
+              {hasPermission ? 'Default Mic' : 'Permissions...'}
+            </span>
+          </div>
+          <ChevronDown className="h-3 w-3 text-zinc-500 shrink-0" />
         </div>
 
-        <div className="flex items-center gap-1.5 rounded-full border border-zinc-800 bg-zinc-900/90 px-3.5 py-1.5 text-zinc-400 hover:border-zinc-700 cursor-pointer">
-          <Volume2 className="h-3.5 w-3.5 text-zinc-400" />
-          <span className="truncate max-w-[100px]">Permission n...</span>
-          <ChevronDown className="h-3 w-3 text-zinc-500" />
+        <div className="flex items-center justify-between rounded-lg border border-zinc-700/60 bg-zinc-900/90 px-2.5 py-1.5 text-zinc-300 hover:border-zinc-600 transition-colors">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <Volume2 className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
+            <span className="truncate text-[11px]">
+              {hasPermission ? 'Default Speaker' : 'Permissions...'}
+            </span>
+          </div>
+          <ChevronDown className="h-3 w-3 text-zinc-500 shrink-0" />
         </div>
 
-        <div className="flex items-center gap-1.5 rounded-full border border-zinc-800 bg-zinc-900/90 px-3.5 py-1.5 text-zinc-400 hover:border-zinc-700 cursor-pointer">
-          <Video className="h-3.5 w-3.5 text-zinc-400" />
-          <span className="truncate max-w-[100px]">Permission n...</span>
-          <ChevronDown className="h-3 w-3 text-zinc-500" />
+        <div className="flex items-center justify-between rounded-lg border border-zinc-700/60 bg-zinc-900/90 px-2.5 py-1.5 text-zinc-300 hover:border-zinc-600 transition-colors">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <Video className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
+            <span className="truncate text-[11px]">
+              {hasPermission ? 'Webcam 720p' : 'Permissions...'}
+            </span>
+          </div>
+          <ChevronDown className="h-3 w-3 text-zinc-500 shrink-0" />
         </div>
 
-        <div className="flex items-center gap-1.5 rounded-full border border-zinc-800 bg-zinc-900/90 px-3.5 py-1.5 text-zinc-400 hover:border-zinc-700 cursor-pointer">
-          <Wifi className="h-3.5 w-3.5 text-zinc-400" />
-          <span className="truncate max-w-[100px]">Permission n...</span>
-          <ChevronDown className="h-3 w-3 text-zinc-500" />
+        <div className="flex items-center justify-between rounded-lg border border-zinc-700/60 bg-zinc-900/90 px-2.5 py-1.5 text-zinc-300 hover:border-zinc-600 transition-colors">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <Wifi className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+            <span className="truncate text-[11px]">Agora RTC OK</span>
+          </div>
+          <ChevronDown className="h-3 w-3 text-zinc-500 shrink-0" />
         </div>
       </div>
     </div>
