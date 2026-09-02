@@ -31,6 +31,7 @@ import {
   PhoneOff,
   ShieldCheck,
   Flame,
+  Headphones,
 } from 'lucide-react';
 import { DEFAULT_AGENT_UID } from '@/lib/agora';
 import {
@@ -158,6 +159,7 @@ export default function ConversationComponent({
   const [hasContradiction, setHasContradiction] = useState(false);
   const [isSpeakingLocal, setIsSpeakingLocal] = useState(false);
   const [agentSpeakingLocal, setAgentSpeakingLocal] = useState(false);
+  const [isMonitoringSelf, setIsMonitoringSelf] = useState(false);
 
   const [isReady, setIsReady] = useState(false);
   useEffect(() => {
@@ -183,6 +185,34 @@ export default function ConversationComponent({
   );
 
   const { localMicrophoneTrack } = useLocalMicrophoneTrack(isReady);
+
+  // Monitor voice activity and audio levels on local mic
+  useEffect(() => {
+    if (!localMicrophoneTrack || !isEnabled) {
+      setIsSpeakingLocal(false);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      try {
+        const level = localMicrophoneTrack.getVolumeLevel();
+        setIsSpeakingLocal(level > 0.04);
+      } catch {}
+    }, 120);
+
+    return () => clearInterval(interval);
+  }, [localMicrophoneTrack, isEnabled]);
+
+  const toggleSelfMonitor = useCallback(() => {
+    if (!localMicrophoneTrack) return;
+    if (isMonitoringSelf) {
+      localMicrophoneTrack.stop();
+      setIsMonitoringSelf(false);
+    } else {
+      localMicrophoneTrack.play();
+      setIsMonitoringSelf(true);
+    }
+  }, [localMicrophoneTrack, isMonitoringSelf]);
 
   useEffect(() => {
     if (localMicrophoneTrack) {
@@ -797,6 +827,23 @@ export default function ConversationComponent({
             title={!isEnabled ? 'Unmute Microphone' : 'Mute Microphone'}
           >
             {!isEnabled ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+          </button>
+
+          {/* Hear Myself / Mic Monitor (Sidetone Test) */}
+          <button
+            onClick={toggleSelfMonitor}
+            className={`flex h-10 w-10 items-center justify-center rounded-full border transition-colors shadow-sm ${
+              isMonitoringSelf
+                ? 'bg-emerald-950/80 border-emerald-500/80 text-emerald-400 ring-2 ring-emerald-500/30'
+                : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200'
+            }`}
+            title={
+              isMonitoringSelf
+                ? 'Hear Myself: ON (Click to stop local loopback)'
+                : 'Hear Myself: OFF (Click to monitor microphone audio)'
+            }
+          >
+            <Headphones className="h-4 w-4" />
           </button>
 
           {/* Camera Toggle Circular Button */}
