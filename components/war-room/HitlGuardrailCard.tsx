@@ -46,24 +46,22 @@ export function HitlGuardrailCard({ onRemediateSuccess }: HitlGuardrailCardProps
 
   return (
     <div
-      className={`flex flex-col justify-between rounded-xl border p-3.5 transition-all duration-300 ${
-        isResolved
-          ? 'border-emerald-700/60 bg-emerald-950/40 text-emerald-200'
-          : 'border-rose-800/70 bg-rose-950/50 text-rose-200'
-      }`}
+      className="flex flex-col justify-between rounded-xl border border-zinc-800 bg-zinc-900/90 p-3.5 shadow-sm transition-all hover:border-zinc-700"
     >
       <div>
-        {/* Capsule Badge */}
+        {/* Capsule Tag Badge - Tag-only color */}
         <div className="flex items-center justify-between pb-2">
           <div className="flex items-center gap-1.5">
             {isResolved ? (
               <CheckCircle2 className="h-4 w-4 text-emerald-400" />
             ) : (
-              <AlertOctagon className="h-4 w-4 text-rose-400 animate-pulse" />
+              <AlertOctagon className="h-4 w-4 text-rose-400" />
             )}
             <span
-              className={`font-mono text-xs font-bold uppercase tracking-wide ${
-                isResolved ? 'text-emerald-400' : 'text-rose-400'
+              className={`rounded px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide border ${
+                isResolved
+                  ? 'bg-emerald-950/60 text-emerald-400 border-emerald-800/60'
+                  : 'bg-rose-950/60 text-rose-400 border-rose-800/60'
               }`}
             >
               {isResolved ? 'Remediation Executed (200 OK)' : 'HITL Guardrail Capsule'}
@@ -71,8 +69,10 @@ export function HitlGuardrailCard({ onRemediateSuccess }: HitlGuardrailCardProps
           </div>
 
           <span
-            className={`rounded px-1.5 py-0.5 font-mono text-[10px] font-semibold ${
-              isResolved ? 'bg-emerald-900/60 text-emerald-300' : 'bg-rose-900/70 text-rose-300'
+            className={`rounded px-1.5 py-0.5 font-mono text-[10px] font-semibold border ${
+              isResolved
+                ? 'bg-emerald-950/40 text-emerald-300 border-emerald-800/40'
+                : 'bg-rose-950/40 text-rose-300 border-rose-800/40'
             }`}
           >
             {isResolved ? 'PATCH ACTIVE' : 'STAGED'}
@@ -80,24 +80,24 @@ export function HitlGuardrailCard({ onRemediateSuccess }: HitlGuardrailCardProps
         </div>
 
         {/* Root Cause Details */}
-        <div className="space-y-1.5 text-xs">
+        <div className="space-y-1.5 text-xs text-zinc-200">
           <p className="font-semibold leading-snug">
-            <span className={isResolved ? 'text-emerald-300' : 'text-rose-300'}>
+            <span className={isResolved ? 'text-emerald-400' : 'text-rose-400'}>
               ROOT CAUSE ISOLATED:
             </span>{' '}
             Ingress prefix route mismatch (`/api/v2/auth` -&gt; port 8080 instead of 8000).
           </p>
 
           {/* Staged Patch Code Block */}
-          <div className="mt-2 rounded bg-zinc-950/90 p-2.5 font-mono text-[11px] text-zinc-300 border border-zinc-800/80">
+          <div className="mt-2 rounded bg-zinc-950 p-2.5 font-mono text-[11px] text-zinc-300 border border-zinc-800/80">
             <div className="flex items-center gap-1 text-[10px] text-zinc-500 mb-1">
               <Terminal className="h-3 w-3" /> Staged Hotfix Manifest
             </div>
-            <p className="break-all text-rose-300/90">
+            <p className="break-all text-zinc-300">
               kubectl patch ingress auth-svc -p &#39;&#123;&quot;spec&quot;:&#123;&quot;rules&quot;:[&#123;&quot;http&quot;:&#123;&quot;port&quot;:8080&#125;&#125;]&#125;&#125;&#39;
             </p>
             <p className="mt-1 text-[10px] text-zinc-400">
-              Verbal Trigger: <span className="text-amber-300">&quot;Authorize Patch&quot;</span>
+              Verbal Trigger: <span className="text-amber-400 font-semibold">&quot;Authorize Patch&quot;</span>
             </p>
           </div>
         </div>

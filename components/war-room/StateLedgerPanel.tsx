@@ -59,32 +59,24 @@ export function StateLedgerPanel({ items = DEFAULT_ITEMS }: StateLedgerPanelProp
         return (
           <div
             key={item.id}
-            className={`group relative flex flex-col rounded-lg border p-3 text-xs transition-all ${
-              isFact
-                ? 'border-emerald-800/50 bg-emerald-950/40 text-emerald-200'
-                : isHypothesis
-                ? 'border-amber-800/50 bg-amber-950/40 text-amber-200'
-                : 'border-rose-800/60 bg-rose-950/50 text-rose-200'
-            }`}
+            className="group relative flex flex-col rounded-lg border border-zinc-800 bg-zinc-900/90 p-3 text-xs shadow-sm transition-all hover:border-zinc-700"
           >
             {/* Header timestamp & Speaker tag */}
-            <div className="flex items-center justify-between pb-1 font-mono text-[11px] opacity-90">
-              <div className="flex items-center gap-1.5">
-                <span className="text-zinc-400">{item.timestamp}</span>
-                {item.cite && (
-                  <span className="text-zinc-400 font-semibold">[cite: {item.cite}]</span>
-                )}
-                <span className="font-semibold text-zinc-100">[{item.speaker}]</span>
+            <div className="flex items-center justify-between pb-1.5 font-mono text-[11px]">
+              <div className="flex items-center gap-1.5 text-zinc-400">
+                <span>{item.timestamp}</span>
+                {item.cite && <span className="font-semibold">[cite: {item.cite}]</span>}
+                <span className="font-semibold text-zinc-200">[{item.speaker}]</span>
               </div>
 
-              {/* Tag pill */}
+              {/* Tag pill - Color applied ONLY to tag badge */}
               <span
-                className={`rounded px-1.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider ${
+                className={`rounded px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider border ${
                   isFact
-                    ? 'bg-emerald-900/60 text-emerald-300'
+                    ? 'bg-emerald-950/60 text-emerald-400 border-emerald-800/60'
                     : isHypothesis
-                    ? 'bg-amber-900/60 text-amber-300'
-                    : 'bg-rose-900/70 text-rose-300'
+                    ? 'bg-amber-950/60 text-amber-400 border-amber-800/60'
+                    : 'bg-rose-950/60 text-rose-400 border-rose-800/60'
                 }`}
               >
                 {item.tag}
@@ -92,20 +84,20 @@ export function StateLedgerPanel({ items = DEFAULT_ITEMS }: StateLedgerPanelProp
             </div>
 
             {/* Main Statement text */}
-            <p className="font-sans text-xs leading-relaxed font-medium">
+            <p className="font-sans text-xs leading-relaxed font-medium text-zinc-200">
               {item.text}
               {item.status && (
-                <span className="ml-1 opacity-80 font-mono text-[11px]">
+                <span className="ml-1 font-mono text-[11px] text-zinc-400">
                   -&gt; Tag: {item.status}
                 </span>
               )}
             </p>
 
-            {/* Contradiction Hover Tooltip Reason Box */}
+            {/* Contradiction Analysis Box */}
             {item.reason && (
-              <div className="mt-2 rounded bg-zinc-950/90 p-2 font-sans text-[11px] text-zinc-300 border border-zinc-800 shadow-md">
-                <div className="flex items-center gap-1 font-semibold text-rose-400 mb-0.5">
-                  <ShieldAlert className="h-3 w-3" /> Contradiction Analysis:
+              <div className="mt-2.5 rounded bg-zinc-950 p-2.5 font-sans text-[11px] text-zinc-300 border border-zinc-800/80 shadow-md">
+                <div className="flex items-center gap-1 font-semibold text-rose-400 mb-1">
+                  <ShieldAlert className="h-3.5 w-3.5 text-rose-400" /> Contradiction Analysis:
                 </div>
                 <p className="leading-snug text-zinc-300">{item.reason}</p>
               </div>
