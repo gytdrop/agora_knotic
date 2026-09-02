@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Mic, MicOff, AlertTriangle, Eye, Radio } from 'lucide-react';
+import { RemoteUser, type IAgoraRTCRemoteUser } from 'agora-rtc-react';
 import { HitlGuardrailCard } from './HitlGuardrailCard';
 import { AgentSphereCard } from './AgentSphereCard';
 
@@ -15,7 +16,6 @@ export interface Participant {
   statement?: string;
   factCheckTelemetry?: string;
   isLocal?: boolean;
-  videoTrack?: unknown;
 }
 
 export const DEFAULT_LOCAL_USER: Participant = {
@@ -37,6 +37,7 @@ interface VideoGridProps {
   isResolved?: boolean;
   onRemediateSuccess?: () => void;
   remoteParticipants?: Participant[];
+  remoteAgoraUsers?: IAgoraRTCRemoteUser[];
 }
 
 export function VideoGrid({
@@ -49,13 +50,10 @@ export function VideoGrid({
   isResolved = false,
   onRemediateSuccess,
   remoteParticipants = [],
+  remoteAgoraUsers = [],
 }: VideoGridProps) {
-  // Total cards in the meeting room:
-  // Card 1: Local User
-  // Card 2: Agent Sphere Card
-  // Card 3: CLI / HITL Guardrail Card
-  // + any Remote Peers joined over network
-  const totalCards = 3 + remoteParticipants.length;
+  // Combine custom participant objects with live Agora WebRTC remote users
+  const totalCards = 3 + remoteParticipants.length + remoteAgoraUsers.length;
 
   // Dynamic Google Meet responsive layout
   let gridLayoutClass = 'grid-cols-3 grid-rows-1'; // Exactly 3 cards (initial single-user state)
@@ -182,7 +180,69 @@ export function VideoGrid({
         onRemediateSuccess={onRemediateSuccess}
       />
 
-      {/* ── DYNAMIC REMOTE PEER CARDS (When friends join over network) ── */}
+      {/* ── CARD 4+: LIVE AGORA WEBRTC REMOTE USERS (When friends join via URL) ── */}
+      {remoteAgoraUsers.map((user) => {
+        const uidStr = String(user.uid);
+        const shortName = `Peer-${uidStr.slice(-4)}`;
+
+        return (
+          <div
+            key={user.uid}
+            className="relative flex flex-col justify-between overflow-hidden rounded-2xl bg-[#28292c] border border-zinc-800/80 shadow-md transition-all"
+          >
+            {/* Top Bar Status */}
+            <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none">
+              <span className="inline-flex items-center gap-1 rounded-md bg-zinc-900/90 px-2 py-0.5 font-sans text-[11px] font-medium text-zinc-300 border border-zinc-700 shadow-sm backdrop-blur-md">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Network Peer
+              </span>
+
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-950/80 text-zinc-300 backdrop-blur-md border border-zinc-800">
+                {user.hasAudio ? (
+                  <Mic className="h-3.5 w-3.5 text-blue-400" />
+                ) : (
+                  <MicOff className="h-3.5 w-3.5 text-zinc-500" />
+                )}
+              </div>
+            </div>
+
+            {/* Video Feed Area: Real Remote Track via Agora RTC */}
+            <div className="relative flex flex-1 items-center justify-center bg-[#28292c] overflow-hidden">
+              {user.hasVideo ? (
+                <RemoteUser
+                  user={user}
+                  playVideo={true}
+                  playAudio={true}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex flex-col items-center">
+                  <div className="flex h-20 w-20 items-center justify-center rounded-full border border-zinc-700 bg-zinc-800 font-sans shadow-md text-zinc-300">
+                    <span className="font-semibold text-xl">
+                      {shortName.slice(0, 2).toUpperCase()}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Bottom Left GMeet Participant Name Pill */}
+            <div className="absolute bottom-3 left-3 z-10 flex items-center gap-1.5 rounded-md bg-zinc-950/85 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-md border border-zinc-800/60">
+              <span className="font-sans font-medium text-zinc-100">
+                {shortName}
+              </span>
+              <span className="text-[11px] text-zinc-400 font-normal">
+                (Remote SRE)
+              </span>
+              <span className="ml-1 text-[10px] font-medium text-emerald-400">
+                [Connected]
+              </span>
+            </div>
+          </div>
+        );
+      })}
+
+      {/* ── EXTRA SIMULATED PEERS (If added) ── */}
       {remoteParticipants.map((peer) => {
         const isPeerSpeaking = peer.status === 'Speaking';
         const isPeerMuted = peer.status === 'Muted';
@@ -199,7 +259,6 @@ export function VideoGrid({
                 : 'border-zinc-800/80'
             }`}
           >
-            {/* Top Bar Badges */}
             <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none">
               {peer.hasContradiction && !isResolved ? (
                 <span className="inline-flex items-center gap-1 rounded-md bg-zinc-900/90 px-2 py-0.5 font-sans text-[11px] font-medium text-amber-300 border border-zinc-700 shadow-sm backdrop-blur-md">
@@ -222,7 +281,6 @@ export function VideoGrid({
               </div>
             </div>
 
-            {/* Video / Avatar Feed */}
             <div className="relative flex flex-1 items-center justify-center bg-[#28292c] overflow-hidden">
               <div className="flex flex-col items-center">
                 <div
@@ -237,23 +295,8 @@ export function VideoGrid({
                   </span>
                 </div>
               </div>
-
-              {/* Speech Overlay Bubble */}
-              {peer.statement && !isResolved && (
-                <div className="absolute bottom-12 left-3 right-3 rounded-xl border border-zinc-700 bg-zinc-950/95 p-3 text-xs text-zinc-200 backdrop-blur-md shadow-lg">
-                  <p className="font-sans font-medium text-xs text-amber-300 leading-relaxed">
-                    {peer.statement}
-                  </p>
-                  {peer.factCheckTelemetry && (
-                    <p className="mt-1 font-mono text-[11px] text-zinc-300 leading-normal">
-                      {peer.factCheckTelemetry}
-                    </p>
-                  )}
-                </div>
-              )}
             </div>
 
-            {/* Bottom Left GMeet Participant Name Pill */}
             <div className="absolute bottom-3 left-3 z-10 flex items-center gap-1.5 rounded-md bg-zinc-950/85 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-md border border-zinc-800/60">
               <span className="font-sans font-medium text-zinc-100">
                 {peer.name}
@@ -261,16 +304,8 @@ export function VideoGrid({
               <span className="text-[11px] text-zinc-400 font-normal">
                 ({peer.role})
               </span>
-              <span
-                className={`ml-1 text-[10px] font-medium ${
-                  isPeerSpeaking
-                    ? 'text-blue-400 font-semibold'
-                    : isPeerMuted
-                    ? 'text-zinc-500'
-                    : 'text-zinc-400'
-                }`}
-              >
-                [{isPeerSpeaking ? 'Speaking' : isPeerMuted ? 'Muted' : peer.status}]
+              <span className="ml-1 text-[10px] font-medium text-zinc-400">
+                [{peer.status}]
               </span>
             </div>
           </div>

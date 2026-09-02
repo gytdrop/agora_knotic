@@ -10,6 +10,7 @@ interface PreCallViewProps {
   severity?: string;
   responderCount?: number;
   isLoading?: boolean;
+  error?: string | null;
   onEnterWarRoom?: () => void;
   onOtherWaysToJoin?: () => void;
 }
@@ -19,6 +20,7 @@ export function PreCallView({
   severity = 'SEV-1',
   responderCount = 5,
   isLoading = false,
+  error,
   onEnterWarRoom,
   onOtherWaysToJoin,
 }: PreCallViewProps) {
@@ -37,6 +39,11 @@ export function PreCallView({
 
           {/* Right Column: Join War Room Action Card (5 cols) */}
           <section className="flex flex-col items-center lg:items-start lg:col-span-5 pl-0 lg:pl-6">
+            {error && (
+              <div className="mb-4 w-full rounded-xl border border-rose-800/80 bg-rose-950/60 p-3 text-xs text-rose-300">
+                {error}
+              </div>
+            )}
             <PreCallWarRoomCard
               incidentId={incidentId}
               severity={severity}

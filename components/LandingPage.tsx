@@ -12,7 +12,7 @@ import type {
 } from '../types/conversation';
 import { ErrorBoundary } from './ErrorBoundary';
 import { LoadingSkeleton } from './LoadingSkeleton';
-import { QuickstartPreCallCard } from './QuickstartPreCallCard';
+import { PreCallView } from './war-room/PreCallView';
 
 // Dynamically import the ConversationComponent with ssr disabled
 const ConversationComponent = dynamic(() => import('./ConversationComponent'), {
@@ -219,10 +219,10 @@ export default function LandingPage() {
           }`}
         >
           {!showConversation ? (
-            <QuickstartPreCallCard
+            <PreCallView
               isLoading={isLoading}
               error={error}
-              onStartConversation={handleStartConversation}
+              onEnterWarRoom={handleStartConversation}
             />
           ) : agoraData && rtmClient ? (
             <>

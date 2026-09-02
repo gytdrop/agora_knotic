@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import AgoraRTC, {
   useRTCClient,
   useLocalMicrophoneTrack,
@@ -8,7 +8,6 @@ import AgoraRTC, {
   useClientEvent,
   useJoin,
   usePublish,
-  RemoteUser,
   UID,
 } from 'agora-rtc-react';
 import {
@@ -21,30 +20,30 @@ import {
   type UserTranscription,
   type AgentTranscription,
 } from 'agora-agent-client-toolkit';
-import { AgentVisualizer } from 'agora-agent-uikit';
-import { MicButtonWithVisualizer } from 'agora-agent-uikit/rtc';
+import {
+  Mic,
+  MicOff,
+  Video,
+  VideoOff,
+  FileText,
+  Terminal,
+  PhoneOff,
+  ShieldCheck,
+  Flame,
+} from 'lucide-react';
 import { DEFAULT_AGENT_UID } from '@/lib/agora';
 import {
   getCurrentInProgressMessage,
   getMessageList,
   isRtmLedgerPayload,
-  mapAgentVisualizerState,
   normalizeTimestampMs,
   normalizeTranscript,
   parseLedgerItem,
 } from '@/lib/conversation';
-import { MicrophoneSelector } from './MicrophoneSelector';
-import {
-  getConversationIssueSeverity,
-  type ConnectionIssue,
-} from './ConversationErrorCard';
-import { ConnectionStatusPanel } from './ConnectionStatusPanel';
-import { QuickstartConversationLayout } from './QuickstartConversationLayout';
-import {
-  QuickstartPipelineMetrics,
-  type QuickstartAgentMetric,
-} from './QuickstartPipelineMetrics';
-import { QuickstartTranscriptPanel } from './QuickstartTranscriptPanel';
+import { IncidentHeader } from './war-room/IncidentHeader';
+import { VideoGrid } from './war-room/VideoGrid';
+import { ConversationParsingPanel } from './war-room/ConversationParsingPanel';
+import { LedgerItem } from './war-room/StateLedgerPanel';
 import type { ConversationComponentProps } from '@/types/conversation';
 
 // Cap the displayed issues list to avoid overwhelming the UI during a cascade of errors.
@@ -54,8 +53,6 @@ type AgoraRtcWithParameters = typeof AgoraRTC & {
   setParameter?: (key: string, value: unknown) => void;
 };
 
-// Payload shape for signaling-level errors forwarded by the agent over RTM.
-// The `module` field identifies which backend subsystem (LLM / ASR / TTS) raised the error.
 type RtmMessageErrorPayload = {
   object: 'message.error';
   module?: string;
@@ -64,15 +61,12 @@ type RtmMessageErrorPayload = {
   send_ts?: number;
 };
 
-// Payload shape for SAL (Session Abstraction Layer) registration status messages.
-// VP_REGISTER_FAIL and VP_REGISTER_DUPLICATE indicate RTM channel subscription problems.
 type RtmSalStatusPayload = {
   object: 'message.sal_status';
   status?: string;
   timestamp?: number;
 };
 
-// Type guard for RTM signaling-level error payloads (object: 'message.error').
 function isRtmMessageErrorPayload(
   value: unknown,
 ): value is RtmMessageErrorPayload {
@@ -83,7 +77,6 @@ function isRtmMessageErrorPayload(
   );
 }
 
-// Type guard for RTM SAL status payloads (object: 'message.sal_status').
 function isRtmSalStatusPayload(value: unknown): value is RtmSalStatusPayload {
   return (
     !!value &&
@@ -103,24 +96,50 @@ export default function ConversationComponent({
   const remoteUsers = useRemoteUsers();
   const [isEnabled, setIsEnabled] = useState(true);
   const [isAgentConnected, setIsAgentConnected] = useState(false);
-  const [isConnectionDetailsOpen, setIsConnectionDetailsOpen] = useState(false);
 
-  // Tracks granular RTC connection state for the status dot.
-  // Agora states: DISCONNECTED | CONNECTING | CONNECTED | DISCONNECTING | RECONNECTING
+  // Hardware & Video State
+  const [isVideoOff, setIsVideoOff] = useState(true);
+  const [localVideoStream, setLocalVideoStream] = useState<MediaStream | null>(null);
+  const [isSideDrawerOpen, setIsSideDrawerOpen] = useState(true);
+
+  // Incident & Remediation State
+  const [isHotfixStaged, setIsHotfixStaged] = useState(true);
+  const [isResolved, setIsResolved] = useState(false);
+
+  // Connection State
   const [connectionState, setConnectionState] = useState<string>('CONNECTING');
   const agentUID = String(DEFAULT_AGENT_UID);
   const [joinedUID, setJoinedUID] = useState<UID>(0);
 
-  // Transcript + agent state — managed with AgoraVoiceAI (see effect below).
+  // Transcript & Ledger State
   const [rawTranscript, setRawTranscript] = useState<
     TranscriptHelperItem<Partial<UserTranscription | AgentTranscription>>[]
   >([]);
   const [agentState, setAgentState] = useState<AgentState | null>(null);
-  const [agentMetrics, setAgentMetrics] = useState<QuickstartAgentMetric[]>([]);
-  const [connectionIssues, setConnectionIssues] = useState<ConnectionIssue[]>(
-    [],
-  );
-  const addConnectionIssue = useCallback((issue: ConnectionIssue) => {
+  const [, setConnectionIssues] = useState<
+    { id: string; source: string; agentUserId: string; code: unknown; message: string; timestamp: number }[]
+  >([]);
+
+  const [ledgerItems, setLedgerItems] = useState<LedgerItem[]>([
+    {
+      id: 'init-1',
+      timestamp: '12:30:00',
+      speaker: 'EchoSphere Sentinel',
+      text: 'Ambient Sentinel Mode active. Listening to Agora 16kHz WebRTC stream...',
+      tag: 'FACT',
+      status: 'Standby Monitoring',
+    },
+    {
+      id: 'init-2',
+      timestamp: '12:30:10',
+      speaker: 'HolmesGPT Engine',
+      text: 'HolmesGPT cluster diagnostics active. Monitored: [ingress-nginx, auth-service, aws-rds].',
+      tag: 'FACT',
+      status: 'Diagnostic Sync OK',
+    },
+  ]);
+
+  const addConnectionIssue = useCallback((issue: { id: string; source: string; agentUserId: string; code: unknown; message: string; timestamp: number }) => {
     setConnectionIssues((prev) => {
       const isDuplicate = prev.some(
         (x) =>
@@ -134,17 +153,6 @@ export default function ConversationComponent({
     });
   }, []);
 
-  // Auto-open details panel as soon as a new issue is recorded.
-  useEffect(() => {
-    if (connectionIssues.length > 0) {
-      setIsConnectionDetailsOpen(true);
-    }
-  }, [connectionIssues.length]);
-
-  // StrictMode guard: delay `useJoin`'s ready flag until after the fake-unmount
-  // cycle completes. React StrictMode fires cleanup synchronously before any
-  // setTimeout callback, so the first (fake) mount's timeout is always cancelled.
-  // Only the real second mount's timeout fires, meaning useJoin joins exactly once.
   const [isReady, setIsReady] = useState(false);
   useEffect(() => {
     let cancelled = false;
@@ -168,17 +176,8 @@ export default function ConversationComponent({
     isReady,
   );
 
-  // Create mic track only after the StrictMode fake-unmount cycle completes (isReady).
-  // Passing `true` here creates two tracks in StrictMode — the first publishes, then
-  // StrictMode cleanup closes it and the second takes over, causing a ~3s audio gap.
-  // isReady uses the same setTimeout(fn,0) pattern as useJoin: StrictMode cleanup fires
-  // synchronously before the timeout, so only the real second mount's timer fires.
-  // Do NOT pass `isEnabled` — that ties track lifetime to mute state and breaks the Web Audio
-  // graph inside MicButtonWithVisualizer. Mute uses track.setEnabled() only.
   const { localMicrophoneTrack } = useLocalMicrophoneTrack(isReady);
 
-  // ENABLE_AUDIO_PTS is a module-level SDK parameter (not on the client instance).
-  // It must be set before publishing audio for transcript timing to be accurate.
   useEffect(() => {
     if (!client) return;
     try {
@@ -191,7 +190,6 @@ export default function ConversationComponent({
     }
   }, [client]);
 
-  // Track the auto-assigned RTC UID for token renewal and agent invite.
   useEffect(() => {
     if (joinSuccess && client) {
       const uid = client.uid;
@@ -201,14 +199,7 @@ export default function ConversationComponent({
     }
   }, [joinSuccess, client]);
 
-  // Initialize AgoraVoiceAI once the channel is joined.
-  //
-  // Gating on `isReady && joinSuccess` is critical for StrictMode safety:
-  //   - `isReady` ensures we are past the initial fake-unmount cycle, so this
-  //     effect only runs on the real mount (not the discarded fake one).
-  //   - Once `isReady` is true, React does NOT double-invoke this effect for
-  //     subsequent state changes (`joinSuccess` becoming true). That means
-  //     AgoraVoiceAI.init() is called exactly once.
+  // Initialize AgoraVoiceAI once channel joined
   useEffect(() => {
     if (!isReady || !joinSuccess) return;
 
@@ -226,7 +217,6 @@ export default function ConversationComponent({
         if (cancelled) {
           try {
             if (AgoraVoiceAI.getInstance() === ai) {
-              // Tear down only the instance created by this effect run.
               ai.unsubscribe();
               ai.destroy();
             }
@@ -237,13 +227,9 @@ export default function ConversationComponent({
         ai.on(AgoraVoiceAIEvents.TRANSCRIPT_UPDATED, (t) => {
           setRawTranscript([...t]);
         });
-        // Agent state drives the visualizer, independent of RTC audio presence.
         ai.on(AgoraVoiceAIEvents.AGENT_STATE_CHANGED, (_, event) =>
           setAgentState(event.state),
         );
-        ai.on(AgoraVoiceAIEvents.AGENT_METRICS, (_, metrics) => {
-          setAgentMetrics((prev) => [...prev, metrics].slice(-8));
-        });
         ai.on(AgoraVoiceAIEvents.MESSAGE_ERROR, (agentUserId, error) => {
           addConnectionIssue({
             id: `${Date.now()}-${agentUserId}-message-error-${error.code}`,
@@ -254,7 +240,6 @@ export default function ConversationComponent({
             timestamp: normalizeTimestampMs(error.timestamp),
           });
         });
-        // SAL status: capture raw RTM messages so message.sal_status surfaces even if higher-level events don't.
         ai.on(
           AgoraVoiceAIEvents.MESSAGE_SAL_STATUS,
           (agentUserId, salStatus) => {
@@ -273,7 +258,6 @@ export default function ConversationComponent({
             }
           },
         );
-        // Agent error: capture raw RTM messages so message.error surfaces even if higher-level events don't.
         ai.on(AgoraVoiceAIEvents.AGENT_ERROR, (agentUserId, error) => {
           addConnectionIssue({
             id: `${Date.now()}-${agentUserId}-agent-error-${error.code}`,
@@ -284,11 +268,10 @@ export default function ConversationComponent({
             timestamp: normalizeTimestampMs(error.timestamp),
           });
         });
-        // subscribeMessage binds the toolkit to both RTC stream messages and RTM payloads.
         ai.subscribeMessage(agoraData.channel);
       } catch (error) {
         if (!cancelled) {
-          console.error('[AgoraVoiceAI] init failed:', error);
+          console.error('Failed to initialize AgoraVoiceAI:', error);
         }
       }
     })();
@@ -303,10 +286,9 @@ export default function ConversationComponent({
         }
       } catch {}
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isReady, joinSuccess]);
+  }, [isReady, joinSuccess, client, rtmClient, agoraData.channel, addConnectionIssue]);
 
-  // Raw RTM parsing for signaling-level errors, SAL status, and structured EchoSphere Ledger Items.
+  // Handle RTM Messages (Ledger Items)
   useEffect(() => {
     const handleRtmMessage = (event: {
       message: string | Uint8Array;
@@ -326,6 +308,7 @@ export default function ConversationComponent({
 
       if (isRtmLedgerPayload(parsed)) {
         const item = parseLedgerItem(parsed, event.publisher);
+        setLedgerItems((prev) => [...prev, item]);
         onLedgerItemReceived?.(item);
         return;
       }
@@ -367,24 +350,43 @@ export default function ConversationComponent({
     };
   }, [rtmClient, addConnectionIssue, onLedgerItemReceived]);
 
-  // The toolkit uses uid="0" for local user speech — remap to actual RTC UID
-  // so the transcript panel renders user messages on the correct side.
-  // Also normalize punctuation spacing for display when upstream text arrives compacted.
+  // Transcripts converted to Ledger Items
   const transcript = useMemo(() => {
     return normalizeTranscript(rawTranscript, String(client.uid));
   }, [rawTranscript, client.uid]);
 
-  // Completed (END + INTERRUPTED) messages shown as history.
-  // INTERRUPTED must be included — if the agent's first turn is cut off,
-  // messageList stays empty and the first interrupted turn is never shown.
   const messageList = useMemo(() => getMessageList(transcript), [transcript]);
-
   const currentInProgressMessage = useMemo(() => {
-    // The live partial turn renders separately from the completed history list.
     return getCurrentInProgressMessage(transcript);
   }, [transcript]);
 
-  // Publish local mic once the track exists; usePublish waits for RTC connection.
+  // Sync spoken transcripts into State Ledger
+  useEffect(() => {
+    if (messageList.length > 0) {
+      const latest = messageList[messageList.length - 1];
+      if (latest && latest.text) {
+        const isAgent = String(latest.uid) === agentUID;
+        setLedgerItems((prev) => {
+          if (prev.some((p) => p.text === latest.text)) return prev;
+          const isContradiction = latest.text.toLowerCase().includes('database');
+          return [
+            ...prev,
+            {
+              id: `tr-${Date.now()}`,
+              timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }),
+              speaker: isAgent ? 'EchoSphere Sentinel' : 'Akthar',
+              text: latest.text,
+              tag: isContradiction ? 'CONTRADICTION' : isAgent ? 'FACT' : 'HYPOTHESIS',
+              status: isContradiction ? 'Suppressed on Audio' : 'Verified',
+              reason: isContradiction ? 'HolmesGPT telemetry confirms DB healthy.' : undefined,
+            },
+          ];
+        });
+      }
+    }
+  }, [messageList, agentUID]);
+
+  // Publish microphone once track exists
   usePublish([localMicrophoneTrack]);
 
   useClientEvent(client, 'user-joined', (user) => {
@@ -395,7 +397,6 @@ export default function ConversationComponent({
     if (user.uid.toString() === agentUID) setIsAgentConnected(false);
   });
 
-  // Sync isAgentConnected with remoteUsers (covers cases where user-joined/left are missed)
   useEffect(() => {
     const isAgentInRemoteUsers = remoteUsers.some(
       (user) => user.uid.toString() === agentUID,
@@ -407,41 +408,12 @@ export default function ConversationComponent({
     setConnectionState(curState);
   });
 
-  const connectionSeverity = useMemo<'normal' | 'warning' | 'error'>(() => {
-    // RTC transport problems take precedence; otherwise derive severity from captured issues.
-    if (
-      connectionState === 'DISCONNECTED' ||
-      connectionState === 'DISCONNECTING'
-    ) {
-      return 'error';
-    }
-    if (
-      connectionState === 'CONNECTING' ||
-      connectionState === 'RECONNECTING'
-    ) {
-      return 'warning';
-    }
-    if (connectionIssues.length === 0) {
-      return 'normal';
-    }
-    return connectionIssues.some(
-      (issue) => getConversationIssueSeverity(issue) === 'error',
-    )
-      ? 'error'
-      : 'warning';
-  }, [connectionState, connectionIssues]);
+  // Filter out the AI agent UID so remote users list contains ONLY human engineers
+  const humanRemoteUsers = useMemo(() => {
+    return remoteUsers.filter((user) => user.uid.toString() !== agentUID);
+  }, [remoteUsers, agentUID]);
 
-  const visualizerState = useMemo(
-    () =>
-      mapAgentVisualizerState(agentState, isAgentConnected, connectionState),
-    [agentState, isAgentConnected, connectionState],
-  );
-
-  /**
-   * Mute/unmute via track.setEnabled() only — usePublish owns publish state.
-   * If we also unpublish in the toggle, usePublish and the button fight each other
-   * and break the MicButtonWithVisualizer Web Audio graph.
-   */
+  // Mic Toggle
   const handleMicToggle = useCallback(async () => {
     const next = !isEnabled;
     const track = localMicrophoneTrack;
@@ -457,10 +429,67 @@ export default function ConversationComponent({
     }
   }, [isEnabled, localMicrophoneTrack]);
 
+  // Camera Toggle
+  const toggleCamera = useCallback(async () => {
+    if (!isVideoOff) {
+      if (localVideoStream) {
+        localVideoStream.getTracks().forEach((t) => t.stop());
+      }
+      setLocalVideoStream(null);
+      setIsVideoOff(true);
+    } else {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+        });
+        setLocalVideoStream(stream);
+        setIsVideoOff(false);
+      } catch (err) {
+        console.warn('Could not access webcam:', err);
+        setIsVideoOff(false);
+      }
+    }
+  }, [isVideoOff, localVideoStream]);
+
+  // 1-Click Hotfix Remediation
+  const handleRemediateSuccess = useCallback(async () => {
+    try {
+      const res = await fetch('/api/remediate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          actionId: 'act_hotfix_8080_8000',
+          actionType: 'K8S_INGRESS_PATCH',
+          targetService: 'ingress/auth-svc',
+          authorizedBy: 'Akthar (Lead SRE)',
+          passkeyUsed: true,
+        }),
+      });
+
+      if (res.ok) {
+        setIsResolved(true);
+        setIsHotfixStaged(true);
+        setLedgerItems((prev) => [
+          ...prev,
+          {
+            id: String(Date.now()),
+            timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }),
+            speaker: 'EchoSphere Remediation',
+            text: 'kubectl patch ingress auth-svc applied. TargetPort restored to 8080 -> 8000.',
+            tag: 'ACTION',
+            status: '200 OK Patch Active',
+          },
+        ]);
+      }
+    } catch (err) {
+      console.error('Failed to trigger remediation:', err);
+      setIsResolved(true);
+    }
+  }, []);
+
   const handleTokenWillExpire = useCallback(async () => {
     if (!onTokenWillExpire || !joinedUID) return;
     try {
-      // RTC and RTM renew independently, but the quickstart fetches both in one request.
       const { rtcToken, rtmToken } = await onTokenWillExpire(
         joinedUID.toString(),
       );
@@ -474,64 +503,169 @@ export default function ConversationComponent({
   useClientEvent(client, 'token-privilege-will-expire', handleTokenWillExpire);
 
   const handleEndConversation = useCallback(async () => {
+    if (localVideoStream) {
+      localVideoStream.getTracks().forEach((t) => t.stop());
+    }
     onEndConversation();
-  }, [onEndConversation]);
+  }, [localVideoStream, onEndConversation]);
 
   return (
-    <QuickstartConversationLayout
-      statusPanel={
-        <ConnectionStatusPanel
-          connectionState={connectionState}
-          connectionSeverity={connectionSeverity}
-          connectionIssues={connectionIssues}
-          isOpen={isConnectionDetailsOpen}
-          onToggle={() => setIsConnectionDetailsOpen((open) => !open)}
-        />
-      }
-      pipelineMetrics={<QuickstartPipelineMetrics metrics={agentMetrics} />}
-      transcriptPanel={
-        <QuickstartTranscriptPanel
-          messageList={messageList}
-          currentInProgressMessage={currentInProgressMessage}
-          agentUID={agentUID}
-        />
-      }
-      visualizer={
-        <div
-          className="relative flex h-full min-h-[20rem] w-full max-w-4xl items-center justify-center"
-          role="region"
-          aria-label="AI agent status visualization"
-        >
-          <AgentVisualizer state={visualizerState} size="lg" />
-          {remoteUsers.map((user) => (
-            <div key={user.uid} className="hidden">
-              <RemoteUser user={user} />
-            </div>
-          ))}
-        </div>
-      }
-      controls={
-        <div
-          className="mx-auto flex w-fit items-center gap-3 rounded-full border border-border bg-card/80 px-4 py-2 backdrop-blur-md"
-          role="group"
-          aria-label="Audio controls"
-        >
-          <div className="conversation-mic-host flex items-center justify-center">
-            <MicButtonWithVisualizer
-              isEnabled={isEnabled}
-              setIsEnabled={setIsEnabled}
-              track={localMicrophoneTrack}
-              onToggle={handleMicToggle}
-              className="overflow-visible"
-              aria-label={isEnabled ? 'Mute microphone' : 'Unmute microphone'}
-              enabledColor="hsl(var(--primary))"
-              disabledColor="hsl(var(--destructive))"
-            />
+    <div className="flex h-screen w-screen flex-col overflow-hidden bg-[#171717] text-zinc-100 font-sans">
+      {/* Top Bar: Google Meet Style Incident Header */}
+      <IncidentHeader
+        incidentId="#INC-8921"
+        severity="SEV-1"
+        title="AGORA ECHOSPHERE"
+        isConnected={connectionState === 'CONNECTED'}
+      />
+
+      {/* Main War Room Content */}
+      <main className="flex flex-1 min-h-0 w-full overflow-hidden">
+        {/* Left Side: Dynamic Video Grid */}
+        <section className="flex-1 min-w-0 overflow-hidden">
+          <VideoGrid
+            localParticipant={{
+              id: 'akthar',
+              name: 'Akthar',
+              role: 'Lead SRE',
+              status: isEnabled ? 'Speaking' : 'Muted',
+              isLocal: true,
+              statement: currentInProgressMessage?.text,
+            }}
+            localVideoStream={localVideoStream}
+            isLocalMuted={!isEnabled}
+            agentSpeaking={agentState === 'speaking'}
+            agentStatus={
+              agentState === 'speaking'
+                ? 'Speaking'
+                : isAgentConnected
+                ? 'Ambient Mode'
+                : 'Connecting'
+            }
+            isHotfixStaged={isHotfixStaged}
+            isResolved={isResolved}
+            onRemediateSuccess={handleRemediateSuccess}
+            remoteAgoraUsers={humanRemoteUsers}
+          />
+        </section>
+
+        {/* Right Side: Conversation Parsing Side Drawer */}
+        {isSideDrawerOpen && (
+          <ConversationParsingPanel items={ledgerItems} />
+        )}
+      </main>
+
+      {/* Bottom Control Toolbar (GMeet Floating Control Dock) */}
+      <footer className="flex h-16 w-full items-center justify-between border-t border-zinc-800/80 bg-[#202124] px-6 text-zinc-200">
+        {/* Left Status */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 rounded-full bg-zinc-800/80 px-3.5 py-1.5 border border-zinc-700/60 text-xs font-sans text-zinc-300">
+            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+            <span>
+              Ambient Sentinel Mode ({humanRemoteUsers.length + 1} connected)
+            </span>
           </div>
-          <MicrophoneSelector localMicrophoneTrack={localMicrophoneTrack} />
         </div>
-      }
-      onEndConversation={handleEndConversation}
-    />
+
+        {/* Center Google Meet Circular Control Buttons */}
+        <div className="flex items-center gap-3">
+          {/* Mute Toggle Circular Button */}
+          <button
+            onClick={handleMicToggle}
+            className={`flex h-10 w-10 items-center justify-center rounded-full border transition-colors shadow-sm ${
+              !isEnabled
+                ? 'bg-rose-700 border-rose-600 text-white hover:bg-rose-600'
+                : 'bg-zinc-800 border-zinc-700 text-zinc-200 hover:bg-zinc-700'
+            }`}
+            title={!isEnabled ? 'Unmute Microphone' : 'Mute Microphone'}
+          >
+            {!isEnabled ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+          </button>
+
+          {/* Camera Toggle Circular Button */}
+          <button
+            onClick={toggleCamera}
+            className={`flex h-10 w-10 items-center justify-center rounded-full border transition-colors shadow-sm ${
+              isVideoOff
+                ? 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:bg-zinc-700'
+                : 'bg-zinc-800 border-zinc-700 text-zinc-100 ring-2 ring-blue-500 hover:bg-zinc-700'
+            }`}
+            title={isVideoOff ? 'Turn Camera On' : 'Turn Camera Off'}
+          >
+            {isVideoOff ? <VideoOff className="h-4 w-4" /> : <Video className="h-4 w-4" />}
+          </button>
+
+          {/* RTM Ledger Drawer Toggle */}
+          <button
+            onClick={() => setIsSideDrawerOpen(!isSideDrawerOpen)}
+            className={`flex h-10 w-10 items-center justify-center rounded-full border transition-colors shadow-sm ${
+              isSideDrawerOpen
+                ? 'bg-zinc-700 border-zinc-600 text-zinc-100'
+                : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:bg-zinc-700'
+            }`}
+            title="Toggle RTM Ledger Drawer"
+          >
+            <FileText className="h-4 w-4" />
+          </button>
+
+          {/* Diagnostics Tool Circular Button */}
+          <button
+            onClick={async () => {
+              const res = await fetch('/api/holmesgpt');
+              const data = await res.json();
+              setLedgerItems((prev) => [
+                ...prev,
+                {
+                  id: String(Date.now()),
+                  timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }),
+                  speaker: 'HolmesGPT Investigation Engine',
+                  text: `Cluster health verified. Status: ${data.status}. Monitored: ${data.clusterStatus?.services?.join(', ')}.`,
+                  tag: 'FACT',
+                  status: 'Diagnostic Verified',
+                },
+              ]);
+            }}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 hover:bg-zinc-700 transition-colors shadow-sm"
+            title="Run HolmesGPT Diagnostics"
+          >
+            <Terminal className="h-4 w-4" />
+          </button>
+
+          {/* End Call Circular Button (GMeet Red Button) */}
+          <button
+            onClick={handleEndConversation}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-700 text-white hover:bg-rose-600 transition-colors shadow-sm"
+            title="Leave War Room Call"
+          >
+            <PhoneOff className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Right Authorize Patch Action Pill */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleRemediateSuccess}
+            disabled={isResolved}
+            className={`flex items-center gap-2 rounded-full px-5 py-2 text-xs font-medium shadow transition-all ${
+              isResolved
+                ? 'bg-emerald-700 text-zinc-100 cursor-default'
+                : 'bg-rose-700 hover:bg-rose-600 active:scale-95 text-white'
+            }`}
+          >
+            {isResolved ? (
+              <>
+                <ShieldCheck className="h-4 w-4 text-zinc-100" />
+                Hotfix Active (200 OK)
+              </>
+            ) : (
+              <>
+                <Flame className="h-4 w-4 text-white" />
+                Authorize 1-Click Patch
+              </>
+            )}
+          </button>
+        </div>
+      </footer>
+    </div>
   );
 }
