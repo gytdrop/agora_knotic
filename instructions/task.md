@@ -19,8 +19,9 @@ Track progress, completed deliverables, and pending tasks across all three engin
 - [x] **UI Guidelines & Clean Font Rendering:** Removed simulated markdown artifacts, normalized line heights, and enforced crisp subpixel font antialiasing.
 
 ### ⏳ Remaining / In-Progress
-- [ ] **Live RTM State Binding:** Connect live RTM message stream from Ashrith's Agora client hook to auto-populate `StateLedgerPanel`.
+- [x] **Live RTM State Binding:** Connected live RTM message stream from Ashrith's Agora client hook to auto-populate `StateLedgerPanel`.
 - [ ] **Demo Video Recording:** Record 90-second demo script execution based on `record.md`.
+
 
 ---
 
@@ -32,11 +33,12 @@ Track progress, completed deliverables, and pending tasks across all three engin
 - [x] **Token Generation Route:** Implemented `app/api/generate-agora-token/route.ts` with `RtcTokenBuilder.buildTokenWithRtm`.
 - [x] **Session Stop Route:** Implemented `app/api/stop-conversation/route.ts` for clean agent session termination.
 - [x] **Core Agora Config:** Setup RTC default parameters and client lifecycle safety rules in `lib/agora.ts`.
+- [x] **RTM Transcript Streamer:** Completed `lib/conversation.ts` with `isRtmLedgerPayload` and `parseLedgerItem` to ingest real-time transcript deltas and parse incoming JSON payloads (`FACT`, `HYPOTHESIS`, `CONTRADICTION`).
+- [x] **Conversation Component Hooks:** Updated `components/ConversationComponent.tsx` with RTM event listeners forwarding structured ledger state (`onLedgerItemReceived`) to Akthar's War Room UI.
+- [x] **Audio & Latency Tuning:** Enforced module-level `ENABLE_AUDIO_PTS` parameter and AEC/VAD settings for <300ms sub-second transcript alignment.
 
 ### ⏳ Remaining / In-Progress
-- [ ] **RTM Transcript Streamer:** Complete `lib/conversation.ts` to ingest real-time transcript deltas and parse incoming JSON payloads (`FACT`, `HYPOTHESIS`, `CONTRADICTION`).
-- [ ] **Conversation Component Hooks:** Update `components/ConversationComponent.tsx` to subscribe to RTM channel events and pass structured ledger state to Akthar's War Room UI.
-- [ ] **Audio & Latency Tuning:** Optimize AEC (Acoustic Echo Cancellation) and VAD (Voice Activity Detection) parameters for <300ms latency.
+- [x] All tasks in Ashrith's territory are complete and verified!
 
 ---
 
