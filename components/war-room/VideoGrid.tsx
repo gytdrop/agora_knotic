@@ -4,7 +4,7 @@ import React from 'react';
 import { Mic, MicOff, AlertTriangle, Eye } from 'lucide-react';
 import { HitlGuardrailCard } from './HitlGuardrailCard';
 
-interface Participant {
+export interface Participant {
   id: string;
   name: string;
   role: string;
@@ -13,9 +13,10 @@ interface Participant {
   hasContradiction?: boolean;
   statement?: string;
   factCheckTelemetry?: string;
+  isLocal?: boolean;
 }
 
-const PARTICIPANTS: Participant[] = [
+export const DEFAULT_PARTICIPANTS: Participant[] = [
   {
     id: 'akthar',
     name: 'Akthar',
@@ -24,6 +25,7 @@ const PARTICIPANTS: Participant[] = [
     hasContradiction: true,
     statement: '⚠️ Akthar: "Database is down."',
     factCheckTelemetry: 'Fact Check: CPU 2.1%, Active 14 (Healthy)',
+    isLocal: true,
   },
   {
     id: 'ashrith',
@@ -76,13 +78,23 @@ const PARTICIPANTS: Participant[] = [
 ];
 
 interface VideoGridProps {
+  participants?: Participant[];
+  localVideoStream?: MediaStream | null;
+  isLocalMuted?: boolean;
   onRemediateSuccess?: () => void;
+  isResolved?: boolean;
 }
 
-export function VideoGrid({ onRemediateSuccess }: VideoGridProps) {
+export function VideoGrid({
+  participants = DEFAULT_PARTICIPANTS,
+  localVideoStream = null,
+  isLocalMuted = false,
+  onRemediateSuccess,
+  isResolved = false,
+}: VideoGridProps) {
   return (
     <div className="grid h-full w-full grid-cols-3 grid-rows-3 gap-3.5 p-4 bg-[#171717] font-sans">
-      {PARTICIPANTS.map((participant) => {
+      {participants.map((participant) => {
         // Special rendering for HITL Slot
         if (participant.id === 'hitl-slot') {
           return (
@@ -93,34 +105,38 @@ export function VideoGrid({ onRemediateSuccess }: VideoGridProps) {
           );
         }
 
-        const isSpeaking = participant.status === 'Speaking';
+        const isLocal = participant.isLocal ?? (participant.id === 'akthar');
+        const isSpeaking = isLocal
+          ? !isLocalMuted && participant.status === 'Speaking'
+          : participant.status === 'Speaking';
+        const isMuted = isLocal ? isLocalMuted : participant.status === 'Muted';
         const isViewpoint = participant.status === 'Viewpoint';
 
         return (
           <div
             key={participant.id}
-            className={`relative flex flex-col justify-between overflow-hidden rounded-2xl bg-[#28292c] border border-zinc-800/80 shadow-md transition-all ${
+            className={`relative flex flex-col justify-between overflow-hidden rounded-2xl bg-[#28292c] border shadow-md transition-all ${
               isSpeaking
                 ? 'ring-2 ring-blue-500 border-blue-500/80'
-                : participant.hasContradiction
+                : participant.hasContradiction && !isResolved
                 ? 'border-amber-600/60'
-                : 'border-zinc-800'
+                : 'border-zinc-800/80'
             }`}
           >
             {/* Top Bar Badges */}
             <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none">
-              {participant.hasContradiction ? (
-                <span className="inline-flex items-center gap-1 rounded-md bg-amber-950/80 px-2 py-0.5 font-sans text-[11px] font-semibold text-amber-400 border border-amber-800/60 shadow">
-                  <AlertTriangle className="h-3 w-3" /> Contradiction Flag
+              {participant.hasContradiction && !isResolved ? (
+                <span className="inline-flex items-center gap-1 rounded-md bg-zinc-800 px-2 py-0.5 font-sans text-[11px] font-medium text-amber-300 border border-zinc-700 shadow-sm">
+                  <AlertTriangle className="h-3 w-3 text-amber-400" /> Contradiction Flag
                 </span>
               ) : (
                 <span />
               )}
 
               {/* Status Icon */}
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-950/70 text-zinc-300 backdrop-blur-md border border-zinc-800">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-950/80 text-zinc-300 backdrop-blur-md border border-zinc-800">
                 {isSpeaking ? (
-                  <Mic className="h-3.5 w-3.5 text-blue-400 animate-pulse" />
+                  <Mic className="h-3.5 w-3.5 text-blue-400" />
                 ) : isViewpoint ? (
                   <Eye className="h-3.5 w-3.5 text-amber-400" />
                 ) : (
@@ -129,25 +145,39 @@ export function VideoGrid({ onRemediateSuccess }: VideoGridProps) {
               </div>
             </div>
 
-            {/* Video Feed Avatar Area (GMeet style avatar card) */}
-            <div className="relative flex flex-1 items-center justify-center bg-[#28292c]">
-              <div className="flex flex-col items-center">
-                <div
-                  className={`flex h-16 w-16 items-center justify-center rounded-full border bg-zinc-800 font-sans shadow-md ${
-                    isSpeaking
-                      ? 'border-blue-400 text-blue-400 ring-4 ring-blue-500/20'
-                      : 'border-zinc-700 text-zinc-300'
-                  }`}
-                >
-                  <span className="font-semibold text-lg">
-                    {participant.name.slice(0, 2).toUpperCase()}
-                  </span>
+            {/* Video Feed Area: Live Webcam Stream OR GMeet Avatar Card */}
+            <div className="relative flex flex-1 items-center justify-center bg-[#28292c] overflow-hidden">
+              {isLocal && localVideoStream ? (
+                <video
+                  ref={(videoEl) => {
+                    if (videoEl && localVideoStream) {
+                      videoEl.srcObject = localVideoStream;
+                    }
+                  }}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="h-full w-full object-cover scale-x-[-1]"
+                />
+              ) : (
+                <div className="flex flex-col items-center">
+                  <div
+                    className={`flex h-16 w-16 items-center justify-center rounded-full border bg-zinc-800 font-sans shadow-md ${
+                      isSpeaking
+                        ? 'border-blue-400 text-blue-400 ring-4 ring-blue-500/20'
+                        : 'border-zinc-700 text-zinc-300'
+                    }`}
+                  >
+                    <span className="font-semibold text-lg">
+                      {participant.name.slice(0, 2).toUpperCase()}
+                    </span>
+                  </div>
                 </div>
-              </div>
+              )}
 
-              {/* Clean Speech Overlay Bubble for Akthar */}
-              {participant.statement && (
-                <div className="absolute bottom-12 left-3 right-3 rounded-xl border border-amber-800/60 bg-zinc-950/90 p-2.5 text-xs text-amber-200 backdrop-blur-md shadow-xl">
+              {/* Speech Overlay Bubble */}
+              {participant.statement && !isResolved && (
+                <div className="absolute bottom-12 left-3 right-3 rounded-xl border border-zinc-700 bg-zinc-950/90 p-2.5 text-xs text-zinc-200 backdrop-blur-md shadow-lg">
                   <p className="font-sans font-medium text-xs text-amber-300 leading-relaxed">
                     {participant.statement}
                   </p>
@@ -172,12 +202,14 @@ export function VideoGrid({ onRemediateSuccess }: VideoGridProps) {
                 className={`ml-1 text-[10px] font-medium ${
                   isSpeaking
                     ? 'text-blue-400 font-semibold'
+                    : isMuted
+                    ? 'text-zinc-400'
                     : isViewpoint
                     ? 'text-amber-400'
                     : 'text-zinc-400'
                 }`}
               >
-                [{participant.status}]
+                [{isSpeaking ? 'Speaking' : isMuted ? 'Muted' : participant.status}]
               </span>
             </div>
           </div>
