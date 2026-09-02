@@ -26,7 +26,7 @@ export default function WarRoomPage() {
   };
 
   return (
-    <div className="flex h-screen w-screen flex-col overflow-hidden bg-[#171717] text-zinc-100 selection:bg-blue-500 selection:text-white font-sans">
+    <div className="flex h-screen w-screen flex-col overflow-hidden bg-[#171717] text-zinc-100 selection:bg-blue-600 selection:text-white font-sans">
       {/* Top Bar: Google Meet Style Incident Header */}
       <IncidentHeader
         incidentId="#INC-8921"
@@ -51,7 +51,7 @@ export default function WarRoomPage() {
         {/* Left Status Indicator */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 rounded-full bg-zinc-800/80 px-3.5 py-1.5 border border-zinc-700/60 text-xs font-sans text-zinc-300">
-            <span className="h-2 w-2 rounded-full bg-emerald-400" />
+            <span className="h-2 w-2 rounded-full bg-emerald-500" />
             <span>Ambient Sentinel Mode (16kHz PCM)</span>
           </div>
         </div>
@@ -63,7 +63,7 @@ export default function WarRoomPage() {
             onClick={() => setIsMuted(!isMuted)}
             className={`flex h-10 w-10 items-center justify-center rounded-full border transition-colors shadow-sm ${
               isMuted
-                ? 'bg-rose-600 border-rose-500 text-white hover:bg-rose-700'
+                ? 'bg-rose-700 border-rose-600 text-white hover:bg-rose-600'
                 : 'bg-zinc-800 border-zinc-700 text-zinc-200 hover:bg-zinc-700'
             }`}
             title={isMuted ? 'Unmute Microphone' : 'Mute Microphone'}
@@ -77,7 +77,7 @@ export default function WarRoomPage() {
             className={`flex h-10 w-10 items-center justify-center rounded-full border transition-colors shadow-sm ${
               isVideoOff
                 ? 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:bg-zinc-700'
-                : 'bg-zinc-800 border-zinc-700 text-emerald-400 hover:bg-zinc-700'
+                : 'bg-zinc-800 border-zinc-700 text-zinc-200 hover:bg-zinc-700'
             }`}
             title={isVideoOff ? 'Turn Camera On' : 'Turn Camera Off'}
           >
@@ -86,7 +86,7 @@ export default function WarRoomPage() {
 
           {/* RTM Ledger Circular Button */}
           <button
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800 border border-zinc-700 text-amber-400 hover:bg-zinc-700 transition-colors shadow-sm"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 hover:bg-zinc-700 transition-colors shadow-sm"
             title="RTM Ledger"
           >
             <FileText className="h-4 w-4" />
@@ -94,7 +94,7 @@ export default function WarRoomPage() {
 
           {/* Diagnostics Tool Circular Button */}
           <button
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800 border border-zinc-700 text-blue-400 hover:bg-zinc-700 transition-colors shadow-sm"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 hover:bg-zinc-700 transition-colors shadow-sm"
             title="Diagnostics Tool"
           >
             <Terminal className="h-4 w-4" />
@@ -102,7 +102,7 @@ export default function WarRoomPage() {
 
           {/* End Call Circular Button (GMeet Red Button) */}
           <button
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-600 text-white hover:bg-rose-700 transition-colors shadow-sm"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-700 text-white hover:bg-rose-600 transition-colors shadow-sm"
             title="Leave War Room Call"
           >
             <PhoneOff className="h-4 w-4" />
@@ -113,15 +113,15 @@ export default function WarRoomPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={handleRemediateSuccess}
-            className={`flex items-center gap-2 rounded-full px-5 py-2 text-xs font-semibold shadow-md transition-all ${
+            className={`flex items-center gap-2 rounded-full px-5 py-2 text-xs font-medium shadow transition-all ${
               isResolved
-                ? 'bg-emerald-600 text-white cursor-default'
-                : 'bg-rose-600 hover:bg-rose-500 active:scale-95 text-white animate-pulse'
+                ? 'bg-emerald-700 text-zinc-100 cursor-default'
+                : 'bg-rose-700 hover:bg-rose-600 active:scale-95 text-white'
             }`}
           >
             {isResolved ? (
               <>
-                <ShieldCheck className="h-4 w-4 text-white" />
+                <ShieldCheck className="h-4 w-4 text-zinc-100" />
                 Hotfix Active (200 OK)
               </>
             ) : (

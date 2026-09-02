@@ -58,7 +58,7 @@ export function StateLedgerPanel({ items = DEFAULT_ITEMS }: StateLedgerPanelProp
             key={item.id}
             className="group relative flex flex-col rounded-xl border border-zinc-800/80 bg-[#28292c] p-3.5 text-xs shadow-sm transition-all hover:border-zinc-700"
           >
-            {/* Header row: Timestamp (font-mono), Speaker (font-sans), Tag Badge (font-sans) */}
+            {/* Header row: Timestamp (font-mono), Speaker (font-sans), Matte Tag Badge */}
             <div className="flex items-center justify-between mb-1.5">
               <div className="flex items-center gap-2">
                 <span className="font-mono text-zinc-400 text-xs">{item.timestamp}</span>
@@ -67,14 +67,14 @@ export function StateLedgerPanel({ items = DEFAULT_ITEMS }: StateLedgerPanelProp
                 </span>
               </div>
 
-              {/* Tag pill badge - font-sans, clean crisp border */}
+              {/* Muted Matte Tag Pill Badge - Zero neon */}
               <span
-                className={`rounded px-2 py-0.5 font-sans text-[10px] font-semibold tracking-wide uppercase border ${
+                className={`rounded px-2 py-0.5 font-sans text-[10px] font-medium tracking-wide uppercase border ${
                   isFact
-                    ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800/40'
+                    ? 'bg-zinc-800 text-emerald-300 border-zinc-700'
                     : isHypothesis
-                    ? 'bg-amber-950/60 text-amber-300 border-amber-800/40'
-                    : 'bg-rose-950/60 text-rose-300 border-rose-800/40'
+                    ? 'bg-zinc-800 text-amber-300 border-zinc-700'
+                    : 'bg-zinc-800 text-rose-300 border-zinc-700'
                 }`}
               >
                 {item.tag}
@@ -93,8 +93,8 @@ export function StateLedgerPanel({ items = DEFAULT_ITEMS }: StateLedgerPanelProp
 
             {/* Contradiction Analysis Reason Box */}
             {item.reason && (
-              <div className="mt-2.5 rounded-lg bg-zinc-950 p-2.5 font-sans text-xs leading-relaxed text-zinc-300 border border-zinc-800/80 shadow-md">
-                <div className="flex items-center gap-1.5 font-medium text-rose-400 mb-1 text-xs">
+              <div className="mt-2.5 rounded-lg bg-zinc-950/90 p-2.5 font-sans text-xs leading-relaxed text-zinc-300 border border-zinc-800/80 shadow-sm">
+                <div className="flex items-center gap-1.5 font-medium text-rose-300 mb-1 text-xs">
                   <ShieldAlert className="h-3.5 w-3.5 text-rose-400" /> Contradiction Analysis:
                 </div>
                 <p className="font-sans font-normal text-xs text-zinc-300 leading-relaxed">
