@@ -20,6 +20,8 @@ Track progress, completed deliverables, and pending tasks across all three engin
 
 ### ⏳ Remaining / In-Progress
 - [x] **Live RTM State Binding:** Connected live RTM message stream from Ashrith's Agora client hook to auto-populate `StateLedgerPanel`.
+- [x] **100% Input-Driven Architecture:** Eliminated static state. Added Real-Time Web Speech API transcription and interactive Voice Prompt Chips.
+- [x] **Dynamic Google Meet Layout:** Participant grid dynamically scales up and down based on the number of actual users in the War Room (simulating Akthar, Ashrith, Kartikey, and EchoSphere HITL Slot).
 - [ ] **Demo Video Recording:** Record 90-second demo script execution based on `record.md`.
 
 

@@ -32,45 +32,15 @@ export const INITIAL_CLEAN_PARTICIPANTS: Participant[] = [
     status: 'Ambient Mode',
   },
   {
-    id: 'tushar',
-    name: 'Tushar',
-    role: 'Backend',
-    status: 'Ambient Mode',
-  },
-  {
-    id: 'sarah',
-    name: 'Sarah',
-    role: 'Lead SRE',
-    status: 'Ambient Mode',
-  },
-  {
-    id: 'aksha',
-    name: 'Aksha',
-    role: 'Network',
-    status: 'Ambient Mode',
-  },
-  {
-    id: 'deepak',
-    name: 'Deepak',
-    role: 'Observability',
+    id: 'kartikey',
+    name: 'Kartikey',
+    role: 'Backend SRE',
     status: 'Ambient Mode',
   },
   {
     id: 'hitl-slot',
     name: 'HITL Guardrail Capsule',
     role: 'Action Required',
-    status: 'Ambient Mode',
-  },
-  {
-    id: 'rishi',
-    name: 'Rishi',
-    role: 'Storage SRE',
-    status: 'Ambient Mode',
-  },
-  {
-    id: 'manish',
-    name: 'Manish',
-    role: 'SRE',
     status: 'Ambient Mode',
   },
 ];
@@ -94,8 +64,17 @@ export function VideoGrid({
   isResolved = false,
   onRemediateSuccess,
 }: VideoGridProps) {
+  
+  const total = participants.length;
+  // Google Meet style dynamic grid layout
+  let gridClass = "grid-cols-2 grid-rows-2"; // Default for 3 or 4 cards
+  if (total === 1) gridClass = "grid-cols-1 grid-rows-1";
+  else if (total === 2) gridClass = "grid-cols-2 grid-rows-1";
+  else if (total > 4 && total <= 6) gridClass = "grid-cols-3 grid-rows-2";
+  else if (total > 6) gridClass = "grid-cols-3 grid-rows-3";
+
   return (
-    <div className="grid h-full w-full grid-cols-3 grid-rows-3 gap-3.5 p-4 bg-[#171717] font-sans">
+    <div className={`grid h-full w-full gap-3.5 p-4 bg-[#171717] font-sans ${gridClass}`}>
       {participants.map((participant) => {
         // Special rendering for HITL Slot
         if (participant.id === 'hitl-slot') {
