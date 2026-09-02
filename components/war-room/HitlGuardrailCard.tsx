@@ -1,15 +1,20 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ShieldCheck, AlertOctagon, CheckCircle2, Loader2, Terminal } from 'lucide-react';
+import { ShieldCheck, AlertOctagon, CheckCircle2, Loader2, Terminal, Radio } from 'lucide-react';
 
 interface HitlGuardrailCardProps {
+  isStaged?: boolean;
+  isResolved?: boolean;
   onRemediateSuccess?: () => void;
 }
 
-export function HitlGuardrailCard({ onRemediateSuccess }: HitlGuardrailCardProps) {
+export function HitlGuardrailCard({
+  isStaged = false,
+  isResolved = false,
+  onRemediateSuccess,
+}: HitlGuardrailCardProps) {
   const [isAuthorizing, setIsAuthorizing] = useState(false);
-  const [isResolved, setIsResolved] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleAuthorize = async () => {
@@ -32,7 +37,6 @@ export function HitlGuardrailCard({ onRemediateSuccess }: HitlGuardrailCardProps
         throw new Error('Remediation webhook returned non-200 status');
       }
 
-      setIsResolved(true);
       if (onRemediateSuccess) {
         onRemediateSuccess();
       }
@@ -44,11 +48,61 @@ export function HitlGuardrailCard({ onRemediateSuccess }: HitlGuardrailCardProps
     }
   };
 
+  // 1. Idle / Standby Sentinel State (When no incident/defect is staged yet)
+  if (!isStaged && !isResolved) {
+    return (
+      <div className="flex flex-col justify-between rounded-2xl border border-zinc-800/80 bg-[#28292c] p-4 shadow-sm transition-all hover:border-zinc-700 font-sans">
+        <div>
+          {/* Header Tag */}
+          <div className="flex items-center justify-between pb-2.5">
+            <div className="flex items-center gap-1.5">
+              <Radio className="h-4 w-4 text-blue-400 animate-pulse" />
+              <span className="rounded-md bg-zinc-800 px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase text-blue-300 border border-zinc-700">
+                Sentinel Guardrail Slot
+              </span>
+            </div>
+            <span className="rounded px-1.5 py-0.5 text-[10px] font-medium bg-zinc-800 text-zinc-400 border border-zinc-700">
+              STANDBY
+            </span>
+          </div>
+
+          {/* Details */}
+          <div className="space-y-1.5 text-xs text-zinc-300">
+            <p className="font-normal leading-relaxed text-zinc-300">
+              <span className="text-zinc-100 font-medium">AMBIENT SENTINEL ACTIVE:</span>{' '}
+              Listening to voice channel. Awaiting verbalized defect signals or hypotheses.
+            </p>
+
+            <div className="mt-2 rounded-xl bg-zinc-950/90 p-3 font-mono text-[11px] text-zinc-400 border border-zinc-800/80">
+              <div className="flex items-center gap-1 text-[10px] text-zinc-500 mb-1 font-sans">
+                <Terminal className="h-3 w-3 text-zinc-500" /> Cluster Diagnostic Guard
+              </div>
+              <p className="text-zinc-400 font-mono">
+                Telemetry normal. Ready to stage hotfix manifest upon anomaly detection.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Disabled Action Button */}
+        <div className="mt-3">
+          <button
+            disabled
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-800 px-4 py-2.5 text-xs font-medium text-zinc-500 cursor-not-allowed border border-zinc-700/60"
+          >
+            Awaiting Anomaly Signal...
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Active Staged Hotfix OR Resolved State
   return (
-    <div className="flex flex-col justify-between rounded-2xl border border-zinc-800/80 bg-[#28292c] p-4 shadow-sm transition-all hover:border-zinc-700">
+    <div className="flex flex-col justify-between rounded-2xl border border-zinc-800/80 bg-[#28292c] p-4 shadow-sm transition-all hover:border-zinc-700 font-sans">
       <div>
-        {/* Capsule Tag Badge - Subtle matte style */}
-        <div className="flex items-center justify-between pb-2.5 font-sans">
+        {/* Capsule Tag Badge */}
+        <div className="flex items-center justify-between pb-2.5">
           <div className="flex items-center gap-1.5">
             {isResolved ? (
               <CheckCircle2 className="h-4 w-4 text-emerald-400" />
@@ -56,7 +110,7 @@ export function HitlGuardrailCard({ onRemediateSuccess }: HitlGuardrailCardProps
               <AlertOctagon className="h-4 w-4 text-rose-400" />
             )}
             <span
-              className={`rounded-md px-2 py-0.5 font-sans text-[10px] font-semibold tracking-wide uppercase border ${
+              className={`rounded-md px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase border ${
                 isResolved
                   ? 'bg-zinc-800 text-emerald-300 border-zinc-700'
                   : 'bg-zinc-800 text-rose-300 border-zinc-700'
@@ -67,7 +121,7 @@ export function HitlGuardrailCard({ onRemediateSuccess }: HitlGuardrailCardProps
           </div>
 
           <span
-            className={`rounded px-1.5 py-0.5 font-sans text-[10px] font-medium border ${
+            className={`rounded px-1.5 py-0.5 text-[10px] font-medium border ${
               isResolved
                 ? 'bg-zinc-800 text-emerald-300 border-zinc-700'
                 : 'bg-zinc-800 text-rose-300 border-zinc-700'
@@ -78,7 +132,7 @@ export function HitlGuardrailCard({ onRemediateSuccess }: HitlGuardrailCardProps
         </div>
 
         {/* Root Cause Details */}
-        <div className="space-y-1.5 text-xs text-zinc-200 font-sans">
+        <div className="space-y-1.5 text-xs text-zinc-200">
           <p className="font-normal leading-relaxed">
             <span className={isResolved ? 'text-emerald-300 font-semibold' : 'text-rose-300 font-semibold'}>
               ROOT CAUSE ISOLATED:
@@ -102,7 +156,7 @@ export function HitlGuardrailCard({ onRemediateSuccess }: HitlGuardrailCardProps
       </div>
 
       {/* 1-Click Action Button */}
-      <div className="mt-3 font-sans">
+      <div className="mt-3">
         {errorMsg && <p className="mb-1 text-[11px] text-rose-400">{errorMsg}</p>}
         <button
           onClick={handleAuthorize}

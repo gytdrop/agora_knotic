@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Mic, MicOff, AlertTriangle, Eye } from 'lucide-react';
+import { Mic, MicOff, AlertTriangle, Eye, Radio } from 'lucide-react';
 import { HitlGuardrailCard } from './HitlGuardrailCard';
 
 export interface Participant {
@@ -16,81 +16,83 @@ export interface Participant {
   isLocal?: boolean;
 }
 
-export const DEFAULT_PARTICIPANTS: Participant[] = [
+export const INITIAL_CLEAN_PARTICIPANTS: Participant[] = [
   {
     id: 'akthar',
     name: 'Akthar',
     role: 'Lead SRE',
-    status: 'Speaking',
-    hasContradiction: true,
-    statement: '⚠️ Akthar: "Database is down."',
-    factCheckTelemetry: 'Fact Check: CPU 2.1%, Active 14 (Healthy)',
+    status: 'Ambient Mode',
+    hasContradiction: false,
     isLocal: true,
   },
   {
     id: 'ashrith',
     name: 'Ashrith',
     role: 'DevOps',
-    status: 'Muted',
+    status: 'Ambient Mode',
   },
   {
     id: 'tushar',
     name: 'Tushar',
     role: 'Backend',
-    status: 'Muted',
+    status: 'Ambient Mode',
   },
   {
     id: 'sarah',
     name: 'Sarah',
     role: 'Lead SRE',
-    status: 'Viewpoint',
+    status: 'Ambient Mode',
   },
   {
     id: 'aksha',
     name: 'Aksha',
     role: 'Network',
-    status: 'Muted',
+    status: 'Ambient Mode',
   },
   {
     id: 'deepak',
     name: 'Deepak',
     role: 'Observability',
-    status: 'Muted',
+    status: 'Ambient Mode',
   },
   {
     id: 'hitl-slot',
     name: 'HITL Guardrail Capsule',
     role: 'Action Required',
-    status: 'Muted',
+    status: 'Ambient Mode',
   },
   {
     id: 'rishi',
     name: 'Rishi',
     role: 'Storage SRE',
-    status: 'Muted',
+    status: 'Ambient Mode',
   },
   {
     id: 'manish',
     name: 'Manish',
     role: 'SRE',
-    status: 'Muted',
+    status: 'Ambient Mode',
   },
 ];
+
+export const DEFAULT_PARTICIPANTS = INITIAL_CLEAN_PARTICIPANTS;
 
 interface VideoGridProps {
   participants?: Participant[];
   localVideoStream?: MediaStream | null;
   isLocalMuted?: boolean;
-  onRemediateSuccess?: () => void;
+  isHotfixStaged?: boolean;
   isResolved?: boolean;
+  onRemediateSuccess?: () => void;
 }
 
 export function VideoGrid({
-  participants = DEFAULT_PARTICIPANTS,
+  participants = INITIAL_CLEAN_PARTICIPANTS,
   localVideoStream = null,
   isLocalMuted = false,
-  onRemediateSuccess,
+  isHotfixStaged = false,
   isResolved = false,
+  onRemediateSuccess,
 }: VideoGridProps) {
   return (
     <div className="grid h-full w-full grid-cols-3 grid-rows-3 gap-3.5 p-4 bg-[#171717] font-sans">
@@ -100,6 +102,8 @@ export function VideoGrid({
           return (
             <HitlGuardrailCard
               key={participant.id}
+              isStaged={isHotfixStaged}
+              isResolved={isResolved}
               onRemediateSuccess={onRemediateSuccess}
             />
           );
@@ -139,8 +143,10 @@ export function VideoGrid({
                   <Mic className="h-3.5 w-3.5 text-blue-400" />
                 ) : isViewpoint ? (
                   <Eye className="h-3.5 w-3.5 text-amber-400" />
-                ) : (
+                ) : isMuted ? (
                   <MicOff className="h-3.5 w-3.5 text-zinc-500" />
+                ) : (
+                  <Radio className="h-3.5 w-3.5 text-zinc-500" />
                 )}
               </div>
             </div>
