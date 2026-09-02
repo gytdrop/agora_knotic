@@ -158,7 +158,6 @@ export default function ConversationComponent({
   const [spokenStatement, setSpokenStatement] = useState<string>('');
   const [hasContradiction, setHasContradiction] = useState(false);
   const [isSpeakingLocal, setIsSpeakingLocal] = useState(false);
-  const [agentSpeakingLocal, setAgentSpeakingLocal] = useState(false);
   const [isMonitoringSelf, setIsMonitoringSelf] = useState(false);
 
   const [isReady, setIsReady] = useState(false);
@@ -615,16 +614,6 @@ export default function ConversationComponent({
 
             if (isContra) {
               setHasContradiction(true);
-              setAgentSpeakingLocal(true);
-              if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const utter = new SpeechSynthesisUtterance(
-                  'Telemetry contradiction. Database CPU 2.1%. Connection pools nominal.',
-                );
-                utter.rate = 1.05;
-                utter.onend = () => setAgentSpeakingLocal(false);
-                window.speechSynthesis.speak(utter);
-              }
             }
 
             if (
@@ -634,16 +623,6 @@ export default function ConversationComponent({
               lower.includes('route')
             ) {
               setIsHotfixStaged(true);
-              setAgentSpeakingLocal(true);
-              if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const utter = new SpeechSynthesisUtterance(
-                  'Root cause isolated. Ingress port 8080 mismatch. Staging hotfix manifest.',
-                );
-                utter.rate = 1.05;
-                utter.onend = () => setAgentSpeakingLocal(false);
-                window.speechSynthesis.speak(utter);
-              }
             }
 
             if (
@@ -652,16 +631,6 @@ export default function ConversationComponent({
               lower.includes('execute patch')
             ) {
               handleRemediateSuccess();
-              setAgentSpeakingLocal(true);
-              if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const utter = new SpeechSynthesisUtterance(
-                  'Patch executed. Ingress route restored to port 8000.',
-                );
-                utter.rate = 1.05;
-                utter.onend = () => setAgentSpeakingLocal(false);
-                window.speechSynthesis.speak(utter);
-              }
             }
 
             setLedgerItems((prev) => {
@@ -769,9 +738,9 @@ export default function ConversationComponent({
             }}
             localVideoStream={localVideoStream}
             isLocalMuted={!isEnabled}
-            agentSpeaking={agentState === 'speaking' || agentSpeakingLocal}
+            agentSpeaking={agentState === 'speaking'}
             agentStatus={
-              agentState === 'speaking' || agentSpeakingLocal
+              agentState === 'speaking'
                 ? 'Speaking'
                 : isAgentConnected
                 ? 'Ambient Mode'
