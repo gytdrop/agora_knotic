@@ -46,13 +46,13 @@ Track progress, completed deliverables, and pending tasks across all three engin
 
 ### ✅ Completed
 - [x] **Remediation API:** Implemented `app/api/remediate/route.ts` returning 200 OK and resolving ingress port mismatch (8080 -> 8000).
-- [x] **Agent Invite Route Skeleton:** Configured `app/api/invite-agent/route.ts`.
-
-### ⏳ Remaining / In-Progress
-- [ ] **HolmesGPT Diagnostic Mock:** Build `lib/mock-sre-engine.ts` with cluster telemetry (DB CPU 2.1%, connection pools healthy, Ingress auth-svc port 8080 vs 8000 mismatch).
-- [ ] **Incident Commander System Prompt:** Implement `src/features/conversation/server/invite-agent-config.ts` with:
+- [x] **Agent Invite Route & Pipeline:** Configured `app/api/invite-agent/route.ts` with `INCIDENT_COMMANDER_PROMPT` and ambient greeting.
+- [x] **HolmesGPT Diagnostic Mock:** Implemented `lib/mock-sre-engine.ts` with realistic cluster telemetry (AWS RDS DB CPU 2.1%, connection pools healthy, Ingress auth-svc targetPort mismatch 8080 vs 8000).
+- [x] **Incident Commander System Prompt:** Implemented `src/features/conversation/server/invite-agent-config.ts` enforcing:
   - 95% verbal silence directive (Ambient Mode).
   - Maximum 15 words limit for spoken MiniMax TTS output.
-  - Automatic tagging: `[FACT]`, `[HYPOTHESIS]`, `[CONTRADICTION]`, `[ACTION]`.
-- [ ] **Deepgram Nova-3 & MiniMax TTS Pipeline:** Verify Agora Conversational AI configuration for STT and TTS models.
-- [ ] **RTM Broadcasting Hook:** Emit structured JSON payloads via Agora RTM whenever a new statement or contradiction is parsed.
+  - Automatic JSON tagging schema: `[FACT]`, `[HYPOTHESIS]`, `[CONTRADICTION]`, `[ACTION]`.
+- [x] **Deepgram Nova-3 & MiniMax TTS Pipeline:** Integrated Deepgram STT (nova-3) and MiniMax TTS into the Agent pipeline with RTM broadcasting.
+
+### ⏳ Remaining / In-Progress
+- [x] All tasks in Kartikey's territory are complete and verified!
