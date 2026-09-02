@@ -124,3 +124,38 @@ export function getCurrentInProgressMessage(
   const item = transcript.find((entry) => entry.status === TurnStatus.IN_PROGRESS);
   return item ? toMessageListItem(item) : null;
 }
+
+// Type guard for RTM Ledger items broadcast by EchoSphere AI agent.
+export function isRtmLedgerPayload(
+  value: unknown,
+): value is import('@/types/conversation').RtmLedgerPayload {
+  if (!value || typeof value !== 'object') return false;
+  const obj = value as Record<string, unknown>;
+  if (obj.object === 'message.ledger_item') return true;
+  if (
+    typeof obj.tag === 'string' &&
+    ['FACT', 'HYPOTHESIS', 'CONTRADICTION', 'ACTION'].includes(obj.tag)
+  ) {
+    return true;
+  }
+  return false;
+}
+
+// Parse an incoming RTM message payload into a structured LedgerItem.
+export function parseLedgerItem(
+  payload: import('@/types/conversation').RtmLedgerPayload,
+  defaultSpeaker = 'EchoSphere',
+): import('@/types/conversation').LedgerItem {
+  return {
+    id: `${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+    timestamp:
+      payload.timestamp ||
+      new Date().toLocaleTimeString('en-US', { hour12: false }),
+    speaker: payload.speaker || defaultSpeaker,
+    text: payload.text || '',
+    tag: payload.tag || 'HYPOTHESIS',
+    status: payload.status || 'LOGGED',
+    reason: payload.reason,
+  };
+}
+

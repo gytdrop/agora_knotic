@@ -1,5 +1,27 @@
 import type { RTMClient } from 'agora-rtm';
 
+export type LedgerTag = 'FACT' | 'HYPOTHESIS' | 'CONTRADICTION' | 'ACTION';
+
+export interface RtmLedgerPayload {
+  object?: 'message.ledger_item';
+  timestamp?: string;
+  speaker?: string;
+  text?: string;
+  tag?: LedgerTag;
+  status?: string;
+  reason?: string;
+}
+
+export interface LedgerItem {
+  id: string;
+  timestamp: string;
+  speaker: string;
+  text: string;
+  tag: LedgerTag;
+  status: string;
+  reason?: string;
+}
+
 export interface AgoraTokenData {
   token: string;
   uid: string;
@@ -32,4 +54,6 @@ export interface ConversationComponentProps {
   rtmClient: RTMClient;
   onTokenWillExpire: (uid: string) => Promise<AgoraRenewalTokens>;
   onEndConversation: () => void;
+  onLedgerItemReceived?: (item: LedgerItem) => void;
 }
+

@@ -27,9 +27,11 @@ import { DEFAULT_AGENT_UID } from '@/lib/agora';
 import {
   getCurrentInProgressMessage,
   getMessageList,
+  isRtmLedgerPayload,
   mapAgentVisualizerState,
   normalizeTimestampMs,
   normalizeTranscript,
+  parseLedgerItem,
 } from '@/lib/conversation';
 import { MicrophoneSelector } from './MicrophoneSelector';
 import {
@@ -95,6 +97,7 @@ export default function ConversationComponent({
   rtmClient,
   onTokenWillExpire,
   onEndConversation,
+  onLedgerItemReceived,
 }: ConversationComponentProps) {
   const client = useRTCClient();
   const remoteUsers = useRemoteUsers();
@@ -303,7 +306,7 @@ export default function ConversationComponent({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isReady, joinSuccess]);
 
-  // Raw RTM parsing is kept as a fallback for signaling-level errors and SAL status.
+  // Raw RTM parsing for signaling-level errors, SAL status, and structured EchoSphere Ledger Items.
   useEffect(() => {
     const handleRtmMessage = (event: {
       message: string | Uint8Array;
@@ -318,6 +321,12 @@ export default function ConversationComponent({
       try {
         parsed = JSON.parse(payloadText);
       } catch {
+        return;
+      }
+
+      if (isRtmLedgerPayload(parsed)) {
+        const item = parseLedgerItem(parsed, event.publisher);
+        onLedgerItemReceived?.(item);
         return;
       }
 
@@ -356,7 +365,7 @@ export default function ConversationComponent({
     return () => {
       rtmClient.removeEventListener('message', handleRtmMessage);
     };
-  }, [rtmClient, addConnectionIssue]);
+  }, [rtmClient, addConnectionIssue, onLedgerItemReceived]);
 
   // The toolkit uses uid="0" for local user speech — remap to actual RTC UID
   // so the transcript panel renders user messages on the correct side.
