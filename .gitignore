@@ -147,3 +147,5 @@ install.ps1
 
 
 certificates
+.clerk/
+.worktrees
