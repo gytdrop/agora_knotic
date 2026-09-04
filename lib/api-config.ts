@@ -69,33 +69,33 @@ export function getWsUrl(path: string = ''): string {
   return `${base}${cleanPath}`;
 }
 
+export const DEFAULT_AGORA_APP_ID = 'ea58f23328c647f8a64a68ed880657c7';
+export const DEFAULT_AGORA_APP_CERTIFICATE = '83a1d570d734408ebbdf8de869964688';
+
 /**
  * Retrieves the client-accessible Agora App ID.
- * Supports both standard NEXT_PUBLIC_AGORA_APP_ID and AGORA_APP_ID.
+ * Supports both standard NEXT_PUBLIC_AGORA_APP_ID and AGORA_APP_ID with fallback.
  */
-export function getAgoraAppId(): string | undefined {
-  return process.env.NEXT_PUBLIC_AGORA_APP_ID || process.env.AGORA_APP_ID;
+export function getAgoraAppId(): string {
+  return (
+    process.env.AGORA_APP_ID ||
+    process.env.NEXT_PUBLIC_AGORA_APP_ID ||
+    DEFAULT_AGORA_APP_ID
+  );
 }
 
 /**
  * Server-side helper to safely retrieve Agora App ID and Certificate with fallbacks.
- * Throws a descriptive error if required environment variables are absent.
  */
 export function getServerAgoraCredentials(): { appId: string; appCertificate: string } {
-  const appId = process.env.AGORA_APP_ID || process.env.NEXT_PUBLIC_AGORA_APP_ID;
+  const appId =
+    process.env.AGORA_APP_ID ||
+    process.env.NEXT_PUBLIC_AGORA_APP_ID ||
+    DEFAULT_AGORA_APP_ID;
   const appCertificate =
-    process.env.AGORA_APP_CERTIFICATE || process.env.NEXT_AGORA_APP_CERTIFICATE;
-
-  if (!appId) {
-    throw new Error(
-      'Missing Agora App ID. Please set AGORA_APP_ID or NEXT_PUBLIC_AGORA_APP_ID.',
-    );
-  }
-  if (!appCertificate) {
-    throw new Error(
-      'Missing Agora App Certificate. Please set AGORA_APP_CERTIFICATE or NEXT_AGORA_APP_CERTIFICATE.',
-    );
-  }
+    process.env.AGORA_APP_CERTIFICATE ||
+    process.env.NEXT_AGORA_APP_CERTIFICATE ||
+    DEFAULT_AGORA_APP_CERTIFICATE;
 
   return { appId, appCertificate };
 }

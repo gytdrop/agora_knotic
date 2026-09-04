@@ -18,7 +18,7 @@ export function AgentSphereCard({
     <div
       className={`relative flex flex-col justify-between overflow-hidden rounded-2xl bg-[#28292c] border shadow-md transition-all font-sans ${
         isSpeaking
-          ? 'ring-2 ring-blue-500 border-blue-500/80'
+          ? 'ring-2 ring-emerald-500 border-emerald-500/80'
           : 'border-zinc-800/80'
       }`}
     >
@@ -32,7 +32,7 @@ export function AgentSphereCard({
         {/* Sentinel Radio / Waveform Icon */}
         <div className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-950/80 text-zinc-400 backdrop-blur-md border border-zinc-800">
           {isSpeaking ? (
-            <Waves className="h-3.5 w-3.5 text-blue-400" />
+            <Waves className="h-3.5 w-3.5 text-emerald-400" />
           ) : (
             <Radio className="h-3.5 w-3.5 text-zinc-400" />
           )}

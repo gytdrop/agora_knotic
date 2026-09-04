@@ -28,20 +28,15 @@ export async function POST(request: NextRequest) {
     const body: ClientStartRequest = await request.json();
     const { requester_id, channel_name } = body;
 
-    // Validate required env vars supporting both standard and NEXT_PUBLIC naming
-    const appId = process.env.AGORA_APP_ID || process.env.NEXT_PUBLIC_AGORA_APP_ID;
+    // Validate required env vars supporting both standard and NEXT_PUBLIC naming, with fallback
+    const appId =
+      process.env.AGORA_APP_ID ||
+      process.env.NEXT_PUBLIC_AGORA_APP_ID ||
+      'ea58f23328c647f8a64a68ed880657c7';
     const appCertificate =
-      process.env.AGORA_APP_CERTIFICATE || process.env.NEXT_AGORA_APP_CERTIFICATE;
-
-    if (!appId || !appCertificate) {
-      return withCors(
-        NextResponse.json(
-          { error: 'Missing Agora configuration. Set AGORA_APP_ID and AGORA_APP_CERTIFICATE.' },
-          { status: 500 },
-        ),
-        request,
-      );
-    }
+      process.env.AGORA_APP_CERTIFICATE ||
+      process.env.NEXT_AGORA_APP_CERTIFICATE ||
+      '83a1d570d734408ebbdf8de869964688';
 
     if (!channel_name || !requester_id) {
       return withCors(

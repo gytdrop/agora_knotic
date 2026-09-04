@@ -67,6 +67,7 @@ function resolveSpeaker(
   agentUID: string,
   localUID: UID | null | undefined,
   remoteUsers: IAgoraRTCRemoteUser[],
+  localUserName: string = 'Responder',
 ): string {
   const uidStr = String(uid);
   if (uidStr === agentUID) return 'EchoSphere Sentinel';
@@ -74,11 +75,11 @@ function resolveSpeaker(
     uidStr === '0' ||
     (localUID !== null && localUID !== undefined && uidStr === String(localUID))
   ) {
-    return 'Akthar';
+    return localUserName;
   }
   const remote = remoteUsers.find((u) => String(u.uid) === uidStr);
   if (remote) return `Peer-${uidStr.slice(-4)}`;
-  return 'Akthar';
+  return localUserName;
 }
 
 export default function ConversationComponent({
@@ -94,6 +95,16 @@ export default function ConversationComponent({
   const remoteUsers = useRemoteUsers();
   const [isEnabled, setIsEnabled] = useState(initialMicEnabled);
   const [isAgentConnected, setIsAgentConnected] = useState(false);
+  const [localUserName, setLocalUserName] = useState<string>('Responder');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = sessionStorage.getItem('echosphere_user_name');
+      if (stored && stored.trim()) {
+        setLocalUserName(stored.trim());
+      }
+    }
+  }, []);
 
   // Hardware & Video State
   const [isVideoOff, setIsVideoOff] = useState(!initialVideoEnabled);
@@ -251,7 +262,7 @@ export default function ConversationComponent({
 
   const { isConnected: joinSuccess } = useJoin(
     {
-      appid: (getAgoraAppId() || process.env.NEXT_PUBLIC_AGORA_APP_ID)!,
+      appid: (getAgoraAppId() || process.env.AGORA_APP_ID || process.env.NEXT_PUBLIC_AGORA_APP_ID)!,
       channel: agoraData.channel,
       token: agoraData.token,
       uid: parseInt(agoraData.uid, 10),
@@ -624,7 +635,7 @@ export default function ConversationComponent({
     for (const turn of messageList) {
       if (!turn.text) continue;
 
-      const speaker = resolveSpeaker(turn.uid, agentUID, client?.uid, remoteUsers);
+      const speaker = resolveSpeaker(turn.uid, agentUID, client?.uid, remoteUsers, localUserName);
       const isAgent = String(turn.uid) === agentUID;
       const isLocal =
         String(turn.uid) === '0' ||
@@ -695,7 +706,7 @@ export default function ConversationComponent({
         timestampMs: turnCreatedAt,
       });
     }
-  }, [messageList, agentUID, client, remoteUsers, handleRemediateSuccess, commitLedgerMutation]);
+  }, [messageList, agentUID, client, remoteUsers, handleRemediateSuccess, commitLedgerMutation, localUserName]);
 
   // Publish microphone and camera tracks once created
   usePublish([localMicrophoneTrack, localCameraTrack]);
@@ -868,8 +879,8 @@ export default function ConversationComponent({
         <section className="flex-1 min-w-0 overflow-hidden">
           <VideoGrid
             localParticipant={{
-              id: 'akthar',
-              name: 'Akthar',
+              id: 'local-user',
+              name: localUserName,
               role: 'Lead SRE',
               status: isSpeakingLocal
                 ? 'Speaking'

@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ShieldCheck, AlertOctagon, CheckCircle2, Loader2, Terminal, Flame } from 'lucide-react';
+import Link from 'next/link';
+import { ShieldCheck, AlertOctagon, CheckCircle2, Loader2, Terminal, Flame, ArrowRight } from 'lucide-react';
 import { getApiUrl } from '@/lib/api-config';
 
 interface HitlGuardrailCardProps {
@@ -126,6 +127,16 @@ export function HitlGuardrailCard({
             </>
           )}
         </button>
+
+        {isResolved && (
+          <Link
+            href="/post-mortem/INC-8921"
+            className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-xl border border-zinc-700/80 bg-zinc-900/90 px-3 py-2 text-xs font-medium text-emerald-300 hover:bg-zinc-800 hover:text-emerald-200 transition-colors shadow-sm"
+          >
+            <span>View Incident Post-Mortem</span>
+            <ArrowRight className="h-3.5 w-3.5 text-emerald-400" />
+          </Link>
+        )}
       </div>
     </div>
   );

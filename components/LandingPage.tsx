@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, Suspense, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import type { RTMClient } from 'agora-rtm';
@@ -57,6 +58,8 @@ const AgoraProvider = dynamic(
 
 export default function LandingPage() {
   const [showConversation, setShowConversation] = useState(false);
+  const searchParams = useSearchParams();
+  const channelName = searchParams?.get('channel') || 'incident-8921';
 
   // Preload heavy modules on mount so they're already cached when the user
   // clicks "Try it Now" — eliminates the ~1.8s dynamic-import delay.
@@ -87,8 +90,15 @@ export default function LandingPage() {
 
     try {
       // 1. Fetch RTC token + channel
-      // console.log('Fetching Agora token...');
-      const agoraResponse = await fetch(getApiUrl('/api/generate-agora-token'));
+      const userName = typeof window !== 'undefined'
+        ? sessionStorage.getItem('echosphere_user_name') || 'Responder'
+        : 'Responder';
+
+      const agoraResponse = await fetch(getApiUrl('/api/generate-agora-token'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ channelName, userName }),
+      });
       const responseData = await agoraResponse.json();
       // console.log('Agora token response: uid =', responseData.uid, 'channel =', responseData.channel);
 
@@ -128,7 +138,8 @@ export default function LandingPage() {
         // 2b. Set up RTM (dynamically imported to keep it client-only)
         (async () => {
           const { default: AgoraRTM } = await import('agora-rtm');
-          const agoraAppId = getAgoraAppId() || process.env.NEXT_PUBLIC_AGORA_APP_ID;
+          const agoraAppId =
+            getAgoraAppId() || process.env.AGORA_APP_ID || process.env.NEXT_PUBLIC_AGORA_APP_ID;
           if (!agoraAppId) {
             throw new Error('Agora App ID is not configured');
           }

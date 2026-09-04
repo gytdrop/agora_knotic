@@ -21,6 +21,22 @@ export function PreCallWarRoomCard({
   onOtherWaysToJoin,
 }: PreCallWarRoomCardProps) {
   const [deploySentinel, setDeploySentinel] = useState(true);
+  const [userName, setUserName] = useState(
+    typeof window !== 'undefined'
+      ? sessionStorage.getItem('echosphere_user_name') || ''
+      : ''
+  );
+  const [error, setError] = useState('');
+
+  const handleJoin = () => {
+    const trimmed = userName.trim();
+    if (!trimmed) {
+      setError('Please enter your name to join the War Room.');
+      return;
+    }
+    sessionStorage.setItem('echosphere_user_name', trimmed);
+    onEnterWarRoom?.();
+  };
 
   return (
     <div className="flex w-full flex-col font-sans max-w-md">
@@ -44,6 +60,27 @@ export function PreCallWarRoomCard({
         </div>
       </div>
 
+      {/* Responder Name Input */}
+      <div className="mb-4">
+        <label className="block text-xs font-medium text-zinc-300 mb-1.5 uppercase tracking-wider">
+          Responder Name
+        </label>
+        <input
+          type="text"
+          placeholder="e.g., Sarah (Lead SRE)"
+          value={userName}
+          onChange={(e) => {
+            setUserName(e.target.value);
+            if (error) setError('');
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') handleJoin();
+          }}
+          className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-800 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-600 font-sans"
+        />
+        {error && <p className="text-xs text-rose-400 mt-1">{error}</p>}
+      </div>
+
       {/* 2. Deploy Ambient AI Sentinel Feature Card - Clean Dark Slate Theme */}
       <div
         onClick={() => setDeploySentinel(!deploySentinel)}
@@ -55,7 +92,7 @@ export function PreCallWarRoomCard({
       >
         <div className="flex items-start gap-3.5">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300">
-            <Bot className="h-4 w-4 text-blue-400" />
+            <Bot className="h-4 w-4 text-zinc-300" />
           </div>
           <div className="flex-1">
             <div className="flex items-center justify-between mb-1">
@@ -64,7 +101,7 @@ export function PreCallWarRoomCard({
               </span>
               <span
                 className={`h-2 w-2 rounded-full ${
-                  deploySentinel ? 'bg-blue-400' : 'border border-zinc-600'
+                  deploySentinel ? 'bg-emerald-400' : 'border border-zinc-600'
                 }`}
               />
             </div>
@@ -79,9 +116,9 @@ export function PreCallWarRoomCard({
       <div className="flex items-center gap-3">
         {/* Primary Join Button */}
         <button
-          onClick={onEnterWarRoom}
+          onClick={handleJoin}
           disabled={isLoading}
-          className="flex items-center justify-center gap-2 rounded-xl bg-zinc-100 px-6 py-2.5 text-xs font-semibold text-zinc-950 shadow-sm transition-all hover:bg-white active:scale-95 disabled:opacity-50"
+          className="flex items-center justify-center gap-2 rounded-xl bg-zinc-100 px-6 py-2.5 text-xs font-semibold text-zinc-950 shadow-sm transition-all hover:bg-white active:scale-95 disabled:opacity-50 cursor-pointer"
         >
           {isLoading ? (
             <>
@@ -99,7 +136,7 @@ export function PreCallWarRoomCard({
         {/* Secondary Button */}
         <button
           onClick={onOtherWaysToJoin}
-          className="flex items-center gap-1.5 rounded-xl border border-zinc-700/80 bg-zinc-800/80 px-4 py-2.5 text-xs font-medium text-zinc-300 transition-colors hover:bg-zinc-700 hover:text-white"
+          className="flex items-center gap-1.5 rounded-xl border border-zinc-700/80 bg-zinc-800/80 px-4 py-2.5 text-xs font-medium text-zinc-300 transition-colors hover:bg-zinc-700 hover:text-white cursor-pointer"
         >
           <Users className="h-3.5 w-3.5 text-zinc-400" />
           <span>Other ways to join</span>

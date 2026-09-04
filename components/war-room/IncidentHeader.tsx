@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { ShieldAlert, Clock, VolumeX } from 'lucide-react';
-import { UserButton } from '@clerk/nextjs';
 
 interface IncidentHeaderProps {
   incidentId?: string;
@@ -20,12 +19,22 @@ export function IncidentHeader({
   speechMuted = false,
 }: IncidentHeaderProps) {
   const [secondsElapsed, setSecondsElapsed] = useState(195); // 00:03:15 start
+  const [userName, setUserName] = useState('SRE');
 
   useEffect(() => {
     const timer = setInterval(() => {
       setSecondsElapsed((prev) => prev + 1);
     }, 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = sessionStorage.getItem('echosphere_user_name');
+      if (stored && stored.trim()) {
+        setUserName(stored.trim());
+      }
+    }
   }, []);
 
   const formatTimer = (totalSeconds: number) => {
@@ -36,12 +45,19 @@ export function IncidentHeader({
     return `${pad(hrs)}:${pad(mins)}:${pad(secs)}`;
   };
 
+  const initials = userName
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase() || 'SR';
+
   return (
     <header className="flex h-14 w-full items-center justify-between border-b border-zinc-800/80 bg-[#202124] px-6 text-zinc-100 font-sans">
       {/* Left Branding & Incident Badge */}
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600 font-bold text-white shadow-sm">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-zinc-100 font-bold text-zinc-950 shadow-sm">
             E
           </div>
           <span className="text-sm font-semibold tracking-wide text-white uppercase">
@@ -92,14 +108,12 @@ export function IncidentHeader({
           </span>
         </div>
 
-        {/* User Button */}
-        <UserButton
-          appearance={{
-            elements: {
-              userButtonAvatarBox: 'h-8 w-8',
-            },
-          }}
-        />
+        {/* User Badge */}
+        <div className="flex items-center gap-2">
+          <div className="relative h-8 w-8 overflow-hidden rounded-full border border-zinc-700 bg-zinc-800 flex items-center justify-center">
+            <span className="text-xs font-medium text-zinc-200">{initials}</span>
+          </div>
+        </div>
       </div>
 
     </header>

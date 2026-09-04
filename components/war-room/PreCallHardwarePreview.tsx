@@ -206,13 +206,13 @@ export function PreCallHardwarePreview({
         {/* Audio Waveform Meter (When Permission Granted) */}
         {hasPermission && (
           <div className="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-zinc-950/80 px-2.5 py-1 border border-zinc-800 backdrop-blur-md">
-            <Mic className="h-3 w-3 text-blue-400" />
+            <Mic className="h-3 w-3 text-emerald-400" />
             <div className="flex items-center gap-0.5">
               {[...Array(5)].map((_, i) => (
                 <span
                   key={i}
                   className={`h-2.5 w-1 rounded-full transition-all duration-75 ${
-                    audioLevel > i * 18 ? 'bg-blue-400' : 'bg-zinc-700'
+                    audioLevel > i * 18 ? 'bg-emerald-400' : 'bg-zinc-700'
                   }`}
                 />
               ))}
@@ -269,42 +269,42 @@ export function PreCallHardwarePreview({
 
       {/* 2. Device Selection Dropdowns - Cleanly Integrated INSIDE the card as an inline row */}
       <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-sans">
-        <div className="flex items-center justify-between rounded-lg border border-zinc-700/60 bg-zinc-900/90 px-2.5 py-1.5 text-zinc-300 hover:border-zinc-600 transition-colors">
-          <div className="flex items-center gap-1.5 min-w-0">
+        <div className="flex items-center justify-between rounded-lg border border-zinc-700/60 bg-zinc-900/90 px-2.5 py-1.5 text-zinc-300 min-w-0 hover:border-zinc-600 transition-colors">
+          <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
             <Mic className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
             <span className="truncate text-[11px]">
-              {hasPermission ? 'Default Mic' : 'Permissions...'}
+              {hasPermission ? 'Default Mic' : 'Microphone'}
             </span>
           </div>
-          <ChevronDown className="h-3 w-3 text-zinc-500 shrink-0" />
+          <ChevronDown className="h-3 w-3 text-zinc-500 shrink-0 ml-1" />
         </div>
 
-        <div className="flex items-center justify-between rounded-lg border border-zinc-700/60 bg-zinc-900/90 px-2.5 py-1.5 text-zinc-300 hover:border-zinc-600 transition-colors">
-          <div className="flex items-center gap-1.5 min-w-0">
+        <div className="flex items-center justify-between rounded-lg border border-zinc-700/60 bg-zinc-900/90 px-2.5 py-1.5 text-zinc-300 min-w-0 hover:border-zinc-600 transition-colors">
+          <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
             <Volume2 className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
             <span className="truncate text-[11px]">
-              {hasPermission ? 'Default Speaker' : 'Permissions...'}
+              {hasPermission ? 'Default Speaker' : 'Speaker'}
             </span>
           </div>
-          <ChevronDown className="h-3 w-3 text-zinc-500 shrink-0" />
+          <ChevronDown className="h-3 w-3 text-zinc-500 shrink-0 ml-1" />
         </div>
 
-        <div className="flex items-center justify-between rounded-lg border border-zinc-700/60 bg-zinc-900/90 px-2.5 py-1.5 text-zinc-300 hover:border-zinc-600 transition-colors">
-          <div className="flex items-center gap-1.5 min-w-0">
+        <div className="flex items-center justify-between rounded-lg border border-zinc-700/60 bg-zinc-900/90 px-2.5 py-1.5 text-zinc-300 min-w-0 hover:border-zinc-600 transition-colors">
+          <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
             <Video className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
             <span className="truncate text-[11px]">
-              {hasPermission ? 'Webcam 720p' : 'Permissions...'}
+              {hasPermission ? 'Webcam 720p' : 'Camera'}
             </span>
           </div>
-          <ChevronDown className="h-3 w-3 text-zinc-500 shrink-0" />
+          <ChevronDown className="h-3 w-3 text-zinc-500 shrink-0 ml-1" />
         </div>
 
-        <div className="flex items-center justify-between rounded-lg border border-zinc-700/60 bg-zinc-900/90 px-2.5 py-1.5 text-zinc-300 hover:border-zinc-600 transition-colors">
-          <div className="flex items-center gap-1.5 min-w-0">
+        <div className="flex items-center justify-between rounded-lg border border-zinc-700/60 bg-zinc-900/90 px-2.5 py-1.5 text-zinc-300 min-w-0 hover:border-zinc-600 transition-colors">
+          <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
             <Wifi className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-            <span className="truncate text-[11px]">Agora RTC OK</span>
+            <span className="truncate text-[11px] text-emerald-400">Agora RTC OK</span>
           </div>
-          <ChevronDown className="h-3 w-3 text-zinc-500 shrink-0" />
+          <ChevronDown className="h-3 w-3 text-zinc-500 shrink-0 ml-1" />
         </div>
       </div>
     </div>

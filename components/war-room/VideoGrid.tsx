@@ -86,7 +86,7 @@ export function VideoGrid({
       <div
         className={`relative flex flex-col justify-between overflow-hidden rounded-2xl bg-[#28292c] border shadow-md transition-all ${
           isLocalSpeaking
-            ? 'ring-2 ring-blue-500 border-blue-500/80'
+            ? 'ring-2 ring-emerald-500 border-emerald-500/80'
             : localParticipant.hasContradiction && !isResolved
             ? 'border-amber-600/70'
             : 'border-zinc-800/80'
@@ -105,7 +105,7 @@ export function VideoGrid({
           {/* Mic Status Icon */}
           <div className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-950/80 text-zinc-300 backdrop-blur-md border border-zinc-800">
             {isLocalSpeaking ? (
-              <Mic className="h-3.5 w-3.5 text-blue-400" />
+              <Mic className="h-3.5 w-3.5 text-emerald-400" />
             ) : isLocalMuted ? (
               <MicOff className="h-3.5 w-3.5 text-zinc-500" />
             ) : (
@@ -139,7 +139,7 @@ export function VideoGrid({
               <div
                 className={`flex h-20 w-20 items-center justify-center rounded-full border bg-zinc-800 font-sans shadow-md ${
                   isLocalSpeaking
-                    ? 'border-blue-400 text-blue-400 ring-4 ring-blue-500/20'
+                    ? 'border-emerald-400 text-emerald-400 ring-4 ring-emerald-500/20'
                     : 'border-zinc-700 text-zinc-300'
                 }`}
               >
@@ -179,7 +179,7 @@ export function VideoGrid({
           <span
             className={`ml-1 text-[10px] font-medium ${
               isLocalSpeaking
-                ? 'text-blue-400 font-semibold'
+                ? 'text-emerald-400 font-semibold'
                 : isLocalMuted
                 ? 'text-zinc-500'
                 : !isVideoOff
@@ -225,7 +225,7 @@ export function VideoGrid({
 
               <div className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-950/80 text-zinc-300 backdrop-blur-md border border-zinc-800">
                 {user.hasAudio ? (
-                  <Mic className="h-3.5 w-3.5 text-blue-400" />
+                  <Mic className="h-3.5 w-3.5 text-emerald-400" />
                 ) : (
                   <MicOff className="h-3.5 w-3.5 text-zinc-500" />
                 )}
@@ -279,7 +279,7 @@ export function VideoGrid({
             key={peer.id}
             className={`relative flex flex-col justify-between overflow-hidden rounded-2xl bg-[#28292c] border shadow-md transition-all ${
               isPeerSpeaking
-                ? 'ring-2 ring-blue-500 border-blue-500/80'
+                ? 'ring-2 ring-emerald-500 border-emerald-500/80'
                 : peer.hasContradiction && !isResolved
                 ? 'border-amber-600/70'
                 : 'border-zinc-800/80'
@@ -296,7 +296,7 @@ export function VideoGrid({
 
               <div className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-950/80 text-zinc-300 backdrop-blur-md border border-zinc-800">
                 {isPeerSpeaking ? (
-                  <Mic className="h-3.5 w-3.5 text-blue-400" />
+                  <Mic className="h-3.5 w-3.5 text-emerald-400" />
                 ) : isPeerViewpoint ? (
                   <Eye className="h-3.5 w-3.5 text-amber-400" />
                 ) : isPeerMuted ? (
@@ -312,7 +312,7 @@ export function VideoGrid({
                 <div
                   className={`flex h-20 w-20 items-center justify-center rounded-full border bg-zinc-800 font-sans shadow-md ${
                     isPeerSpeaking
-                      ? 'border-blue-400 text-blue-400 ring-4 ring-blue-500/20'
+                      ? 'border-emerald-400 text-emerald-400 ring-4 ring-emerald-500/20'
                       : 'border-zinc-700 text-zinc-300'
                   }`}
                 >
