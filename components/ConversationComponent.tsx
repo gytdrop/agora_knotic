@@ -47,6 +47,7 @@ import { VideoGrid } from './war-room/VideoGrid';
 import { ConversationParsingPanel } from './war-room/ConversationParsingPanel';
 import { LedgerItem } from './war-room/StateLedgerPanel';
 import type { ConversationComponentProps } from '@/types/conversation';
+import { getApiUrl, getAgoraAppId } from '@/lib/api-config';
 
 // Cap the displayed issues list to avoid overwhelming the UI during a cascade of errors.
 const MAX_CONNECTION_ISSUES = 6;
@@ -175,7 +176,7 @@ export default function ConversationComponent({
 
   const { isConnected: joinSuccess } = useJoin(
     {
-      appid: process.env.NEXT_PUBLIC_AGORA_APP_ID!,
+      appid: (getAgoraAppId() || process.env.NEXT_PUBLIC_AGORA_APP_ID)!,
       channel: agoraData.channel,
       token: agoraData.token,
       uid: parseInt(agoraData.uid, 10),
@@ -494,7 +495,7 @@ export default function ConversationComponent({
     } else {
       try {
         if (!navigator?.mediaDevices?.getUserMedia) {
-          console.warn('Webcam is not available. Ensure page is accessed via HTTPS or localhost.');
+          console.warn('Webcam is not available. Ensure page is accessed via HTTPS or a secure context.');
           setIsVideoOff(false);
           return;
         }
@@ -513,7 +514,7 @@ export default function ConversationComponent({
   // 1-Click Hotfix Remediation
   const handleRemediateSuccess = useCallback(async () => {
     try {
-      const res = await fetch('/api/remediate', {
+      const res = await fetch(getApiUrl('/api/remediate'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -844,7 +845,7 @@ export default function ConversationComponent({
           {/* Diagnostics Tool Circular Button */}
           <button
             onClick={async () => {
-              const res = await fetch('/api/holmesgpt');
+              const res = await fetch(getApiUrl('/api/holmesgpt'));
               const data = await res.json();
               setLedgerItems((prev) => [
                 ...prev,

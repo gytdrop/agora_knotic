@@ -10,16 +10,15 @@ import {
 } from 'agora-agents';
 import { ClientStartRequest, AgentResponse } from '@/types/conversation';
 import { DEFAULT_AGENT_UID } from '@/lib/agora';
+import { handleCorsPreflight, withCors } from '@/lib/cors';
 
 import { INCIDENT_COMMANDER_PROMPT, GREETING } from '@/src/features/conversation/server/invite-agent-config';
 
 // agentUid identifies the AI in the RTC channel and shares its default with the client.
 const agentUid = String(DEFAULT_AGENT_UID);
 
-function requireEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) throw new Error(`Missing required environment variable: ${name}`);
-  return value;
+export async function OPTIONS(request: NextRequest) {
+  return handleCorsPreflight(request);
 }
 
 export async function POST(request: NextRequest) {
@@ -29,15 +28,28 @@ export async function POST(request: NextRequest) {
     const body: ClientStartRequest = await request.json();
     const { requester_id, channel_name } = body;
 
-    // Validate required env vars on first request so misconfiguration surfaces
-    // with a clear error message rather than a silent failure.
-    const appId = requireEnv('NEXT_PUBLIC_AGORA_APP_ID');
-    const appCertificate = requireEnv('NEXT_AGORA_APP_CERTIFICATE');
+    // Validate required env vars supporting both standard and NEXT_PUBLIC naming
+    const appId = process.env.AGORA_APP_ID || process.env.NEXT_PUBLIC_AGORA_APP_ID;
+    const appCertificate =
+      process.env.AGORA_APP_CERTIFICATE || process.env.NEXT_AGORA_APP_CERTIFICATE;
+
+    if (!appId || !appCertificate) {
+      return withCors(
+        NextResponse.json(
+          { error: 'Missing Agora configuration. Set AGORA_APP_ID and AGORA_APP_CERTIFICATE.' },
+          { status: 500 },
+        ),
+        request,
+      );
+    }
 
     if (!channel_name || !requester_id) {
-      return NextResponse.json(
-        { error: 'channel_name and requester_id are required' },
-        { status: 400 },
+      return withCors(
+        NextResponse.json(
+          { error: 'channel_name and requester_id are required' },
+          { status: 400 },
+        ),
+        request,
       );
     }
 
@@ -156,21 +168,27 @@ export async function POST(request: NextRequest) {
 
     const agentId = await session.start();
 
-    return NextResponse.json({
-      agent_id: agentId,
-      create_ts: Math.floor(Date.now() / 1000),
-      state: 'RUNNING',
-    } as AgentResponse);
+    return withCors(
+      NextResponse.json({
+        agent_id: agentId,
+        create_ts: Math.floor(Date.now() / 1000),
+        state: 'RUNNING',
+      } as AgentResponse),
+      request,
+    );
   } catch (error) {
     console.error('Error starting conversation:', error);
-    return NextResponse.json(
-      {
-        error:
-          error instanceof Error
-            ? error.message
-            : 'Failed to start conversation',
-      },
-      { status: 500 },
+    return withCors(
+      NextResponse.json(
+        {
+          error:
+            error instanceof Error
+              ? error.message
+              : 'Failed to start conversation',
+        },
+        { status: 500 },
+      ),
+      request,
     );
   }
 }

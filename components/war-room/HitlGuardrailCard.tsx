@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { ShieldCheck, AlertOctagon, CheckCircle2, Loader2, Terminal, Flame } from 'lucide-react';
+import { getApiUrl } from '@/lib/api-config';
 
 interface HitlGuardrailCardProps {
   isStaged?: boolean;
@@ -21,7 +22,7 @@ export function HitlGuardrailCard({
     setIsAuthorizing(true);
     setErrorMsg(null);
     try {
-      const res = await fetch('/api/remediate', {
+      const res = await fetch(getApiUrl('/api/remediate'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

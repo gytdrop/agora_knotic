@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { AgoraClient, Area } from 'agora-agents';
 import { StopConversationRequest } from '@/types/conversation';
+import { handleCorsPreflight, withCors } from '@/lib/cors';
 
 function isAgentAlreadyStoppingOrStopped(error: unknown): boolean {
   if (!error || typeof error !== 'object') return false;
@@ -26,23 +27,39 @@ function isAgentAlreadyStoppingOrStopped(error: unknown): boolean {
   return false;
 }
 
+export async function OPTIONS(request: Request) {
+  return handleCorsPreflight(request);
+}
+
 export async function POST(request: Request) {
   try {
     const body: StopConversationRequest = await request.json();
     const { agent_id } = body;
 
     if (!agent_id) {
-      return NextResponse.json(
-        { error: 'agent_id is required' },
-        { status: 400 },
+      return withCors(
+        NextResponse.json(
+          { error: 'agent_id is required' },
+          { status: 400 },
+        ),
+        request,
       );
     }
 
-    const appId = process.env.NEXT_PUBLIC_AGORA_APP_ID;
-    const appCertificate = process.env.NEXT_AGORA_APP_CERTIFICATE;
+    const appId = process.env.AGORA_APP_ID || process.env.NEXT_PUBLIC_AGORA_APP_ID;
+    const appCertificate =
+      process.env.AGORA_APP_CERTIFICATE || process.env.NEXT_AGORA_APP_CERTIFICATE;
+
     if (!appId || !appCertificate) {
-      throw new Error(
-        'Missing Agora configuration. Set NEXT_PUBLIC_AGORA_APP_ID and NEXT_AGORA_APP_CERTIFICATE.',
+      return withCors(
+        NextResponse.json(
+          {
+            error:
+              'Missing Agora configuration. Set AGORA_APP_ID and AGORA_APP_CERTIFICATE.',
+          },
+          { status: 500 },
+        ),
+        request,
       );
     }
 
@@ -52,27 +69,34 @@ export async function POST(request: Request) {
       appId,
       appCertificate,
     });
+
     try {
       await client.stopAgent(agent_id);
     } catch (error) {
       if (isAgentAlreadyStoppingOrStopped(error)) {
         // Treat stop as idempotent: agent is already exiting (or gone).
-        return NextResponse.json({ success: true, state: 'already-stopping' });
+        return withCors(
+          NextResponse.json({ success: true, state: 'already-stopping' }),
+          request,
+        );
       }
       throw error;
     }
 
-    return NextResponse.json({ success: true });
+    return withCors(NextResponse.json({ success: true }), request);
   } catch (error) {
     console.error('Error stopping conversation:', error);
-    return NextResponse.json(
-      {
-        error:
-          error instanceof Error
-            ? error.message
-            : 'Failed to stop conversation',
-      },
-      { status: 500 },
+    return withCors(
+      NextResponse.json(
+        {
+          error:
+            error instanceof Error
+              ? error.message
+              : 'Failed to stop conversation',
+        },
+        { status: 500 },
+      ),
+      request,
     );
   }
 }
