@@ -35,6 +35,8 @@ import {
   ShieldCheck,
   Flame,
   Headphones,
+  Volume2,
+  VolumeX,
 } from 'lucide-react';
 import { DEFAULT_AGENT_UID } from '@/lib/agora';
 import {
@@ -165,6 +167,19 @@ export default function ConversationComponent({
             item: itemToSync,
           }),
         }).catch(() => {});
+
+        // Capture high-signal alerts while muted so they can be replayed on unmute.
+        // Uses the ref (not state) to avoid stale-closure issues in this stable callback.
+        if (
+          speechMutedRef.current &&
+          (itemToSync.tag === 'CONTRADICTION' || itemToSync.tag === 'ACTION')
+        ) {
+          const prefix = itemToSync.tag === 'CONTRADICTION' ? '[CONTRADICTION]' : '[ACTION]';
+          const summary = itemToSync.reason
+            ? `${prefix} ${itemToSync.reason}`
+            : `${prefix} ${itemToSync.text.slice(0, 120)}`;
+          mutedAlertQueueRef.current.push(summary);
+        }
       }
       return itemToSync;
     },
@@ -207,6 +222,18 @@ export default function ConversationComponent({
   const [hasContradiction, setHasContradiction] = useState(false);
   const [isSpeakingLocal, setIsSpeakingLocal] = useState(false);
   const [isMonitoringSelf, setIsMonitoringSelf] = useState(false);
+
+  // Agent Speech Mute — silences TTS playback while keeping all analysis pipelines running.
+  const [speechMuted, setSpeechMuted] = useState(false);
+  // Ref mirrors state so commitLedgerMutation (a stable useCallback) always reads the latest value.
+  const speechMutedRef = useRef(false);
+  // Accumulates [TAG] alert strings generated while muted; drained to TTS on unmute.
+  const mutedAlertQueueRef = useRef<string[]>([]);
+
+  // Keep speechMutedRef in sync with state so stable callbacks read current value without stale closures.
+  useEffect(() => {
+    speechMutedRef.current = speechMuted;
+  }, [speechMuted]);
 
   const [isReady, setIsReady] = useState(false);
   useEffect(() => {
@@ -762,6 +789,28 @@ export default function ConversationComponent({
     }
   }, [isEnabled, localMicrophoneTrack]);
 
+  // Agent Speech Mute Toggle
+  // Flips speechMuted. On unmute, drains the alert queue to the agent TTS (best-effort).
+  const handleSpeechMuteToggle = useCallback(async () => {
+    const next = !speechMuted;
+    setSpeechMuted(next);
+
+    if (!next && mutedAlertQueueRef.current.length > 0) {
+      const alerts = [...mutedAlertQueueRef.current];
+      mutedAlertQueueRef.current = [];
+      console.log(`[SilentMode] Unmuted — replaying ${alerts.length} queued alert(s) via TTS.`);
+      fetch('/api/agent-speak', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ agentId: agoraData.agentId, alerts }),
+      }).catch(() => {
+        console.warn('[SilentMode] TTS replay request failed (alerts already in ledger).');
+      });
+    } else if (!next) {
+      console.log('[SilentMode] Unmuted — no queued alerts.');
+    }
+  }, [speechMuted, agoraData.agentId]);
+
   // Camera Toggle
   const toggleCamera = useCallback(async () => {
     const nextVideoOff = !isVideoOff;
@@ -809,6 +858,7 @@ export default function ConversationComponent({
         severity="SEV-1"
         title="AGORA ECHOSPHERE"
         isConnected={connectionState === 'CONNECTED'}
+        speechMuted={speechMuted}
       />
 
       {/* Main War Room Content */}
@@ -860,7 +910,7 @@ export default function ConversationComponent({
             <RemoteUser
               key={user.uid}
               user={user}
-              playAudio={true}
+              playAudio={!speechMuted}
               playVideo={false}
             />
           ))}
@@ -877,6 +927,13 @@ export default function ConversationComponent({
               Ambient Sentinel Mode ({humanRemoteUsers.length + 1} connected)
             </span>
           </div>
+          {/* Silent Mode status badge — footer secondary indicator */}
+          {speechMuted && (
+            <div className="flex items-center gap-1.5 rounded-full bg-amber-950/80 px-3 py-1 border border-amber-700/60 text-xs font-medium text-amber-300">
+              <VolumeX className="h-3 w-3 text-amber-400" />
+              <span>Listening&nbsp;•&nbsp;Silent Mode</span>
+            </div>
+          )}
         </div>
 
         {/* Center Google Meet Circular Control Buttons */}
@@ -893,6 +950,7 @@ export default function ConversationComponent({
           >
             {!isEnabled ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
           </button>
+
 
           {/* Hear Myself / Mic Monitor (Sidetone Test) */}
           <button
@@ -993,8 +1051,35 @@ export default function ConversationComponent({
           </button>
         </div>
 
-        {/* Right Authorize Patch Action Pill */}
+        {/* Right: Agent Speech Mute + Authorize Patch Action Pill */}
         <div className="flex items-center gap-3">
+          {/* Agent Speech Mute — labeled pill so it's always easy to find */}
+          <button
+            onClick={handleSpeechMuteToggle}
+            className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold border transition-all active:scale-95 ${
+              speechMuted
+                ? 'bg-amber-950/80 border-amber-600/60 text-amber-300 ring-1 ring-amber-500/30 hover:bg-amber-900/80'
+                : 'bg-zinc-800 border-emerald-700/60 text-emerald-300 hover:bg-zinc-700'
+            }`}
+            title={
+              speechMuted
+                ? 'Agent Speaking: OFF — Click to unmute (queued alerts will replay)'
+                : 'Agent Speaking: ON — Click to enter Silent Listening Mode'
+            }
+          >
+            {speechMuted ? (
+              <>
+                <VolumeX className="h-4 w-4 text-amber-400" />
+                Silent Mode
+              </>
+            ) : (
+              <>
+                <Volume2 className="h-4 w-4 text-emerald-400" />
+                Speaking
+              </>
+            )}
+          </button>
+
           <button
             onClick={handleRemediateSuccess}
             disabled={isResolved}
@@ -1017,6 +1102,7 @@ export default function ConversationComponent({
             )}
           </button>
         </div>
+
       </footer>
     </div>
   );

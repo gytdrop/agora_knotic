@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ShieldAlert, Clock } from 'lucide-react';
+import { ShieldAlert, Clock, VolumeX } from 'lucide-react';
 import { UserButton } from '@clerk/nextjs';
 
 interface IncidentHeaderProps {
@@ -9,6 +9,7 @@ interface IncidentHeaderProps {
   severity?: string;
   title?: string;
   isConnected?: boolean;
+  speechMuted?: boolean;
 }
 
 export function IncidentHeader({
@@ -16,6 +17,7 @@ export function IncidentHeader({
   severity = 'SEV-1',
   title = 'AGORA ECHOSPHERE',
   isConnected = true,
+  speechMuted = false,
 }: IncidentHeaderProps) {
   const [secondsElapsed, setSecondsElapsed] = useState(195); // 00:03:15 start
 
@@ -68,6 +70,16 @@ export function IncidentHeader({
           <span className="font-mono text-xs font-medium text-zinc-200">{formatTimer(secondsElapsed)}</span>
         </div>
 
+        {/* Silent Mode Badge — visible only when agent audio is muted */}
+        {speechMuted && (
+          <div className="flex items-center gap-1.5 rounded-full bg-amber-950/80 px-3 py-1 border border-amber-700/60 animate-pulse">
+            <VolumeX className="h-3 w-3 text-amber-400" />
+            <span className="text-xs font-semibold text-amber-300 tracking-wide">
+              Listening&nbsp;•&nbsp;Silent Mode
+            </span>
+          </div>
+        )}
+
         {/* Agora RTC Connection Status */}
         <div className="flex items-center gap-2 rounded-full bg-zinc-800/80 px-3.5 py-1 border border-zinc-700/60">
           <span
@@ -89,6 +101,7 @@ export function IncidentHeader({
           }}
         />
       </div>
+
     </header>
   );
 }

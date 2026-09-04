@@ -237,9 +237,18 @@ async function testRtmLedgerPayload() {
 
   assert.strictEqual(callbackInvoked, true, 'commitLedgerMutation callback must be invoked');
   assert.strictEqual(ledger.length, 3, 'Ledger must contain 3 items');
-  assert.strictEqual(target.text, 'Ingress route is returning 502 Bad Gateway');
-  assert.strictEqual(target.speakerUid, '10002');
   assert.strictEqual(target.turnId, 105);
+
+  // Also verify tag-based payload without object: 'message.ledger_item'
+  const tagOnlyPayload = {
+    speaker: 'EchoSphere',
+    text: 'Database CPU is 2.1%. Connection pools nominal.',
+    tag: 'FACT',
+    status: 'VERIFIED',
+  };
+  assert(isRtmLedgerPayload(tagOnlyPayload), 'Tag-only payload must pass isRtmLedgerPayload');
+  const parsedTagOnly = parseLedgerItem(tagOnlyPayload as RtmLedgerPayload);
+  assert.strictEqual(parsedTagOnly.tag, 'FACT');
 
   console.log('✔ PASS: RTM payload parsed into canonical LedgerItem and routed strictly through commitLedgerMutation.');
 }

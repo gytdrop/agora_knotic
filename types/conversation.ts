@@ -1,6 +1,6 @@
 import type { RTMClient } from 'agora-rtm';
 
-export type LedgerTag = 'FACT' | 'HYPOTHESIS' | 'CONTRADICTION' | 'ACTION' | 'NOISE';
+export type LedgerTag = 'FACT' | 'HYPOTHESIS' | 'CONTRADICTION' | 'ACTION' | 'NOISE' | 'QUESTION';
 
 export type HypothesisLifecycle = 'PENDING' | 'CONFIRMED' | 'REJECTED' | 'CONTRADICTED';
 

@@ -145,7 +145,14 @@ export function isRtmLedgerPayload(
 ): value is import('@/types/conversation').RtmLedgerPayload {
   if (!value || typeof value !== 'object') return false;
   const obj = value as Record<string, unknown>;
-  return obj.object === 'message.ledger_item';
+  if (obj.object === 'message.ledger_item') return true;
+  if (
+    typeof obj.tag === 'string' &&
+    ['FACT', 'HYPOTHESIS', 'CONTRADICTION', 'ACTION', 'NOISE', 'QUESTION'].includes(obj.tag)
+  ) {
+    return true;
+  }
+  return false;
 }
 
 // Parse an incoming RTM message payload into a structured LedgerItem.
@@ -165,6 +172,7 @@ export function parseLedgerItem(
     id: `${now}-${Math.random().toString(36).substring(2, 7)}`,
     timestampMs: parsedTs,
     speaker: payload.speaker || defaultSpeaker,
+    speakerRole: payload.speakerRole,
     speakerUid: payload.speakerUid,
     turnId: payload.turnId,
     text: payload.text || '',
@@ -172,6 +180,8 @@ export function parseLedgerItem(
     status: payload.status || 'LOGGED',
     reason: payload.reason,
     timestamp: payload.timestamp,
+    telemetryEvidence: payload.telemetryEvidence,
+    hypothesisLifecycle: payload.hypothesisLifecycle,
   };
 }
 

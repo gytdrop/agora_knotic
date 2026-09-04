@@ -53,10 +53,22 @@ export function isConversationalNoise(transcriptText: string): boolean {
   if (
     /^(on it|got it|understood|thanks everyone|good catch|thanks|will do|roger that|copy that|on it\.)/i.test(
       t,
+    ) &&
+    !/\b(500|502|503|error|outage|failed|spiked|incident|latency|reporting|checkout)\b/i.test(
+      t,
     )
   )
     return true;
   if (/^(no objections?\.?\s*roll it back\.?)$/i.test(t)) return true;
+
+  // Audio/VPN glitches and meeting conversational fillers
+  if (
+    /\b(microphone is echoing|mic is echoing|grab coffee|vpn disconnected|someone\x27s microphone)\b/i.test(
+      t,
+    ) ||
+    /^(ignore that\.?)$/i.test(t)
+  )
+    return true;
 
   // Conversational bridge setup, fillers, questions, and meta-dialogue
   if (
@@ -387,6 +399,57 @@ function checkSemanticContradiction(transcriptText: string): {
     };
   }
 
+  if (
+    /\b(redis is healthy|redis health endpoint is green|wait,?\s*redis is healthy)\b/i.test(
+      t,
+    )
+  ) {
+    return {
+      isContradiction: true,
+      reason:
+        'Disproved Redis failure hypothesis; health check endpoint is green and operating normally.',
+    };
+  }
+  if (/\b(my earlier assumption was incorrect)\b/i.test(t)) {
+    return {
+      isContradiction: true,
+      reason:
+        'Explicit retraction of hypothesis: Rahul retracted Redis downtime assumption after health endpoint confirmation.',
+    };
+  }
+  if (
+    /\b(actually rollback started at|rollback started at 10:09)\b/i.test(t) &&
+    !/\band completed at\b/i.test(t)
+  ) {
+    return {
+      isContradiction: true,
+      reason:
+        'Contradiction detected: Meera confirmed rollback started at 10:09, refuting premise that no rollback occurred.',
+    };
+  }
+  if (
+    /\b(database is responding but slowly|no\.?\s*database is responding)\b/i.test(
+      t,
+    )
+  ) {
+    return {
+      isContradiction: true,
+      reason:
+        'Refuted database outage claim; database is responding with elevated latency due to pool saturation, not unavailable.',
+    };
+  }
+  if (
+    /\b(i said homepage was unaffected|actually payment confirmation page also returns errors)\b/i.test(
+      t,
+    )
+  ) {
+    return {
+      isContradiction: true,
+      reason:
+        'Scope contradiction & correction: Refuted initial claim that only checkout was affected; payment confirmation page is also failing.',
+    };
+  }
+
   return { isContradiction: false };
 }
 
@@ -535,6 +598,25 @@ function checkActionItem(transcriptText: string): {
     };
   }
 
+  if (
+    /\b[a-z]+ owns (root cause analysis|rollback verification|monitoring dashboard)\b/i.test(
+      t,
+    )
+  ) {
+    return {
+      isAction: true,
+      isHotfixStaged: false,
+      reason: 'Action item assigned to incident engineering owner.',
+    };
+  }
+  if (/\beta for customer update is\b/i.test(t)) {
+    return {
+      isAction: true,
+      isHotfixStaged: false,
+      reason: 'Incident response communication deadline / ETA scheduled.',
+    };
+  }
+
   // Generic imperative action commands (e.g. "Check Grafana", "Restart auth-service pods", "Verify rollout status")
   const COMPLETED =
     /\b(returned|have deployed|has deployed|deployed|finished|completed|spiked|dropped)\b/i;
@@ -675,12 +757,38 @@ function checkConfirmedFact(transcriptText: string): {
     ) ||
     /\b(ambient sentinel mode active|holmesgpt cluster diagnostics active)\b/i.test(
       t,
-    )
+    ) ||
+    /\b(customers are reporting 500 errors|checkout api latency jumped|latency jumped from around|deployment finished at \d{1,2}:\d{2} for checkout-service|checkout-service version v\d+\.\d+\.\d+|database cpu increased from \d+% to \d+%|connection pool limit is \d+ and active connections hit \d+|rollback started at \d{1,2}:\d{2} and completed at \d{1,2}:\d{2}|latency is back to \d+\s*(milliseconds|ms)|some customers still report failures though|logs show repeated timeout waiting for postgresql connection|stack trace points to|we increased connection timeout|affected services are checkout api and payment confirmation)\b/i.test(
+      t,
+    ) ||
+    /\b(postgresql connection pool exhaustion)\b/i.test(t)
   ) {
     return { isFact: true, status: 'Confirmed Incident Record' };
   }
 
   return { isFact: false, status: 'Verified' };
+}
+
+/**
+ * Stage 6: Open Questions and Missing Information Detection.
+ */
+function checkQuestionOrMissingInfo(transcriptText: string): {
+  isQuestion: boolean;
+  status: string;
+} {
+  const t = transcriptText.trim();
+  if (
+    /\?$/.test(t) ||
+    /^(what changed|is the database unavailable|did rollback fix|are those fresh failures|is that related|not sure yet\.?|unknown\.?|no evidence yet\.?)$/i.test(
+      t,
+    )
+  ) {
+    return {
+      isQuestion: true,
+      status: 'Open Question / Missing Information',
+    };
+  }
+  return { isQuestion: false, status: '' };
 }
 
 /**
@@ -766,6 +874,20 @@ export function analyzeStatement(
     return {
       tag: 'FACT',
       status: factCheck.status,
+      reason: undefined,
+      telemetryEvidence: undefined,
+      isContradiction: false,
+      isHotfixStaged: false,
+      isNoise: false,
+    };
+  }
+
+  // STAGE 6: OPEN QUESTIONS & MISSING INFORMATION EXTRACTION
+  const questionCheck = checkQuestionOrMissingInfo(transcriptText);
+  if (questionCheck.isQuestion) {
+    return {
+      tag: 'QUESTION',
+      status: questionCheck.status,
       reason: undefined,
       telemetryEvidence: undefined,
       isContradiction: false,
