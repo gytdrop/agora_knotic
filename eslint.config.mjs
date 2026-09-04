@@ -4,7 +4,7 @@ import tseslint from 'typescript-eslint';
 /** @type {import('eslint').Linter.Config[]} */
 const config = [
   {
-    ignores: ['.worktrees/**', '.next/**'],
+    ignores: ['.worktrees/**', '.next/**', 'convex/_generated/**'],
   },
   ...coreWebVitals,
   {
