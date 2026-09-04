@@ -1,15 +1,6 @@
 {
-  "version": 2,
-  "buildCommand": "pnpm build",
-  "devCommand": "pnpm dev",
-  "installCommand": "pnpm install",
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "outputDirectory": ".next",
-  "env": {
-    "NEXT_PUBLIC_VERCEL_URL": "${VERCEL_URL}"
-  },
-  "github": {
-    "silent": true,
-    "autoAlias": true
-  }
+  "buildCommand": "pnpm build",
+  "installCommand": "pnpm install"
 }

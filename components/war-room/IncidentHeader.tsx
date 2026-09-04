@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { ShieldAlert, Clock } from 'lucide-react';
+import { UserButton } from '@clerk/nextjs';
 
 interface IncidentHeaderProps {
   incidentId?: string;
@@ -78,6 +79,15 @@ export function IncidentHeader({
             {isConnected ? 'Agora RTC Connected' : 'Disconnected'}
           </span>
         </div>
+
+        {/* User Button */}
+        <UserButton
+          appearance={{
+            elements: {
+              userButtonAvatarBox: 'h-8 w-8',
+            },
+          }}
+        />
       </div>
     </header>
   );

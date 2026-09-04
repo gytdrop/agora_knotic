@@ -3,6 +3,7 @@
 import type { ReactNode } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import { UserButton } from '@clerk/nextjs';
 
 type QuickstartConversationLayoutProps = {
   statusPanel: ReactNode;
@@ -52,6 +53,7 @@ export function QuickstartConversationLayout({
           >
             End Conversation
           </Button>
+          <UserButton />
         </div>
       </header>
 

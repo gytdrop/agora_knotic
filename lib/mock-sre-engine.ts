@@ -37,9 +37,10 @@ export interface StagedHotfixPayload {
 export interface ParsedLedgerEntry {
   timestamp: string;
   speaker: string;
+  speakerRole?: "agent" | "user" | "peer";
   text: string;
   tag: "FACT" | "HYPOTHESIS" | "CONTRADICTION" | "ACTION";
-  status: "VERIFIED" | "SUPPRESSED" | "PENDING_APPROVAL" | "EXECUTED";
+  status: "VERIFIED" | "UNVERIFIED" | "SUPPRESSED" | "PENDING_APPROVAL" | "EXECUTED";
   reason: string;
 }
 
@@ -95,17 +96,28 @@ export function stageHotfixPatch(): StagedHotfixPayload {
  */
 export function evaluateStatementAgainstTelemetry(
   speaker: string,
-  transcriptText: string
+  transcriptText: string,
+  speakerRole?: "agent" | "user" | "peer",
 ): ParsedLedgerEntry {
   const timestamp = new Date().toLocaleTimeString("en-US", { hour12: false });
 
-  const lowerText = transcriptText.toLowerCase();
+  // Word-boundary checks to prevent false positives (e.g. 'support' or 'report' matching 'port')
+  const isDatabaseClaim =
+    /\b(database|postgres|rds|dropping connections)\b/i.test(transcriptText) ||
+    (/\bdb\b/i.test(transcriptText) && !/\b(dashboard|debug)\b/i.test(transcriptText));
 
-  if (lowerText.includes("database") || lowerText.includes("db") || lowerText.includes("dropping connections")) {
+  const isDatabaseFailureClaim =
+    /\b(dropping connections|locked up|lockup|down|fail|failing|slow|broken|hung|error|saturation)\b/i.test(transcriptText) ||
+    /\b(lock|locks|connection drop|connections drop|conns)\b/i.test(transcriptText);
+
+  const isDatabaseHealthy = /\b(healthy|nominal|normal|ok)\b/i.test(transcriptText);
+
+  if (isDatabaseClaim && isDatabaseFailureClaim && !isDatabaseHealthy) {
     const db = checkDatabaseHealth();
     return {
       timestamp,
       speaker,
+      speakerRole,
       text: transcriptText,
       tag: "CONTRADICTION",
       status: "SUPPRESSED",
@@ -113,11 +125,16 @@ export function evaluateStatementAgainstTelemetry(
     };
   }
 
-  if (lowerText.includes("ingress") || lowerText.includes("oom") || lowerText.includes("502") || lowerText.includes("port")) {
+  const isIngressIssue =
+    /\b(ingress|oom|ooming|502|bad gateway|targetport|target port)\b/i.test(transcriptText) ||
+    (/\bport\b/i.test(transcriptText) && /\b(8080|8000|mismatch|wrong|incorrect)\b/i.test(transcriptText));
+
+  if (isIngressIssue) {
     const ingress = checkIngressController();
     return {
       timestamp,
       speaker,
+      speakerRole,
       text: transcriptText,
       tag: "ACTION",
       status: "PENDING_APPROVAL",
@@ -125,12 +142,52 @@ export function evaluateStatementAgainstTelemetry(
     };
   }
 
+  if (/\b(could|might|may|maybe|probably|possibly|suspect|think|believe|appears|seems|likely)\b/i.test(transcriptText)) {
+    return {
+      timestamp,
+      speaker,
+      speakerRole,
+      text: transcriptText,
+      tag: "HYPOTHESIS",
+      status: "UNVERIFIED",
+      reason: "",
+    };
+  }
+
+  if (
+    /\b(rolled back|we rolled back|completed|finished|returned|dropped from|dropped|reached|resolved|restored|deployed|scaled|applied)\b/i.test(transcriptText) ||
+    /\b(\d+(\.\d+)?%|(http\s*)?[45]\d{2}|(at\s+)?\d{1,2}:\d{2}(:\d{2})?|cpu utilization|memory usage|error rate|latency|response time|\d+ms|active connections|p99|p95|load average|nominal|healthy|outage)\b/i.test(transcriptText)
+  ) {
+    return {
+      timestamp,
+      speaker,
+      speakerRole,
+      text: transcriptText,
+      tag: "FACT",
+      status: "VERIFIED",
+      reason: "",
+    };
+  }
+
+  if (/\b(check|verify|inspect|compare|look at|query|restart|rollback|roll back|patch|apply|scale|page|drain|kill)\b/i.test(transcriptText)) {
+    return {
+      timestamp,
+      speaker,
+      speakerRole,
+      text: transcriptText,
+      tag: "ACTION",
+      status: "PENDING_APPROVAL",
+      reason: "",
+    };
+  }
+
   return {
     timestamp,
     speaker,
+    speakerRole,
     text: transcriptText,
     tag: "FACT",
     status: "VERIFIED",
-    reason: "Telemetry consistent with observation.",
+    reason: "",
   };
 }

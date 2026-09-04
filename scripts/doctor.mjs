@@ -28,11 +28,18 @@ if (!fs.existsSync(envPath)) {
 }
 
 const envContents = fs.readFileSync(envPath, 'utf8');
-for (const key of ['NEXT_PUBLIC_AGORA_APP_ID', 'NEXT_AGORA_APP_CERTIFICATE']) {
-  const matcher = new RegExp(`^${key}=.+$`, 'm');
-  if (!matcher.test(envContents)) {
-    fail(`.env.local is missing a value for ${key}`);
-  }
+const hasAppId =
+  /^NEXT_PUBLIC_AGORA_APP_ID=.+$/m.test(envContents) ||
+  /^AGORA_APP_ID=.+$/m.test(envContents);
+const hasAppCert =
+  /^NEXT_AGORA_APP_CERTIFICATE=.+$/m.test(envContents) ||
+  /^AGORA_APP_CERTIFICATE=.+$/m.test(envContents);
+
+if (!hasAppId) {
+  fail('.env.local is missing a value for AGORA_APP_ID or NEXT_PUBLIC_AGORA_APP_ID');
+}
+if (!hasAppCert) {
+  fail('.env.local is missing a value for AGORA_APP_CERTIFICATE or NEXT_AGORA_APP_CERTIFICATE');
 }
 
 console.log('Doctor checks passed');

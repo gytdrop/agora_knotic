@@ -10,16 +10,15 @@ import {
 } from 'agora-agents';
 import { ClientStartRequest, AgentResponse } from '@/types/conversation';
 import { DEFAULT_AGENT_UID } from '@/lib/agora';
+import { handleCorsPreflight, withCors } from '@/lib/cors';
 
 import { INCIDENT_COMMANDER_PROMPT, GREETING } from '@/src/features/conversation/server/invite-agent-config';
 
 // agentUid identifies the AI in the RTC channel and shares its default with the client.
 const agentUid = String(DEFAULT_AGENT_UID);
 
-function requireEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) throw new Error(`Missing required environment variable: ${name}`);
-  return value;
+export async function OPTIONS(request: NextRequest) {
+  return handleCorsPreflight(request);
 }
 
 export async function POST(request: NextRequest) {
@@ -29,24 +28,38 @@ export async function POST(request: NextRequest) {
     const body: ClientStartRequest = await request.json();
     const { requester_id, channel_name } = body;
 
-    // Validate required env vars on first request so misconfiguration surfaces
-    // with a clear error message rather than a silent failure.
-    const appId = requireEnv('NEXT_PUBLIC_AGORA_APP_ID');
-    const appCertificate = requireEnv('NEXT_AGORA_APP_CERTIFICATE');
+    // Validate required env vars supporting both standard and NEXT_PUBLIC naming
+    const appId = process.env.AGORA_APP_ID || process.env.NEXT_PUBLIC_AGORA_APP_ID;
+    const appCertificate =
+      process.env.AGORA_APP_CERTIFICATE || process.env.NEXT_AGORA_APP_CERTIFICATE;
+
+    if (!appId || !appCertificate) {
+      return withCors(
+        NextResponse.json(
+          { error: 'Missing Agora configuration. Set AGORA_APP_ID and AGORA_APP_CERTIFICATE.' },
+          { status: 500 },
+        ),
+        request,
+      );
+    }
 
     if (!channel_name || !requester_id) {
-      return NextResponse.json(
-        { error: 'channel_name and requester_id are required' },
-        { status: 400 },
+      return withCors(
+        NextResponse.json(
+          { error: 'channel_name and requester_id are required' },
+          { status: 400 },
+        ),
+        request,
       );
     }
 
     // --- 2. Build and start the agent ---
 
     // AgoraClient authenticates API calls to the Agora Conversational AI service.
-    // area: change to Area.EU or Area.AP for European or Asia-Pacific deployments.
+    // Default to Area.AP for Asia-Pacific/India latency, or Area.US via env
+    const clientArea = process.env.AGORA_AREA === 'US' ? Area.US : Area.AP;
     const client = new AgoraClient({
-      area: Area.US,
+      area: clientArea,
       appId,
       appCertificate,
     });
@@ -97,6 +110,9 @@ export async function POST(request: NextRequest) {
         new DeepgramSTT({
           model: 'nova-3',
           language: 'en',
+          smartFormat: true,
+          punctuation: true,
+          keyterm: 'EchoSphere,Kubernetes,kubectl,ingress,postgres,auth-svc,hotfix,targetPort',
         }),
         // BYOK: uncomment the following block and set NEXT_DEEPGRAM_API_KEY
         // new DeepgramSTT({
@@ -144,11 +160,12 @@ export async function POST(request: NextRequest) {
         // }),
       );
 
-    // remoteUids restricts the agent to only process audio from this user
+    // Multi-speaker incident war room: support wildcard '*' or scope to requester
+    const remoteUids = body.remoteUids ?? (body.multiSpeaker ? ['*'] : [requester_id]);
     const session = agent.createSession({
       channel: channel_name,
       agentUid,
-      remoteUids: [requester_id],
+      remoteUids,
       idleTimeout: 30,
       expiresIn: ExpiresIn.hours(1),
       debug: false, // enable debug to show restful API calls in the console
@@ -156,21 +173,27 @@ export async function POST(request: NextRequest) {
 
     const agentId = await session.start();
 
-    return NextResponse.json({
-      agent_id: agentId,
-      create_ts: Math.floor(Date.now() / 1000),
-      state: 'RUNNING',
-    } as AgentResponse);
+    return withCors(
+      NextResponse.json({
+        agent_id: agentId,
+        create_ts: Math.floor(Date.now() / 1000),
+        state: 'RUNNING',
+      } as AgentResponse),
+      request,
+    );
   } catch (error) {
     console.error('Error starting conversation:', error);
-    return NextResponse.json(
-      {
-        error:
-          error instanceof Error
-            ? error.message
-            : 'Failed to start conversation',
-      },
-      { status: 500 },
+    return withCors(
+      NextResponse.json(
+        {
+          error:
+            error instanceof Error
+              ? error.message
+              : 'Failed to start conversation',
+        },
+        { status: 500 },
+      ),
+      request,
     );
   }
 }

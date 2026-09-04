@@ -6,11 +6,13 @@ import { Bot, Radio, Waves } from 'lucide-react';
 interface AgentSphereCardProps {
   isSpeaking?: boolean;
   statusText?: string;
+  statement?: string;
 }
 
 export function AgentSphereCard({
   isSpeaking = false,
   statusText = 'Ambient Mode',
+  statement,
 }: AgentSphereCardProps) {
   return (
     <div
@@ -115,6 +117,15 @@ export function AgentSphereCard({
             <Bot className="h-5 w-5 text-zinc-300" />
           </div>
         </div>
+
+        {/* Agent Speech Overlay Bubble */}
+        {statement && (
+          <div className="absolute bottom-12 left-3 right-3 z-20 rounded-xl border border-zinc-700 bg-zinc-950/95 p-3 text-xs text-zinc-200 backdrop-blur-md shadow-lg">
+            <p className="font-sans font-medium text-xs text-zinc-200 leading-relaxed">
+              {statement}
+            </p>
+          </div>
+        )}
 
         {/* Audio Frequency Bars / Status below Sphere - Muted Zinc */}
         <div className="absolute bottom-11 flex items-center gap-1">

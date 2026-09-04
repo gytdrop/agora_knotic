@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { streamText } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
 import { randomUUID } from 'crypto';
+import { handleCorsPreflight, getCorsHeaders } from '@/lib/cors';
+
+export async function OPTIONS(request: NextRequest) {
+  return handleCorsPreflight(request);
+}
 
 type ChatBody = {
   messages?: Array<{ role: string; content: unknown }>;
@@ -36,10 +41,12 @@ export function createChatCompletionsHandler({
     // Never use body.model; that would allow callers to route to arbitrary models.
     const modelId = 'gpt-4o';
 
+    const corsHeaders = getCorsHeaders(request);
+
     if (!apiKey || !llmUrl) {
       return NextResponse.json(
         { error: 'NEXT_LLM_API_KEY and NEXT_LLM_URL must be set' },
-        { status: 500 },
+        { status: 500, headers: corsHeaders },
       );
     }
 
@@ -51,7 +58,10 @@ export function createChatCompletionsHandler({
     try {
       body = await request.json();
     } catch {
-      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid JSON body' },
+        { status: 400, headers: corsHeaders },
+      );
     }
 
     const openai = createOpenAIClient({ apiKey, baseURL });
@@ -109,6 +119,7 @@ export function createChatCompletionsHandler({
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
         Connection: 'keep-alive',
+        ...corsHeaders,
       },
     });
   };

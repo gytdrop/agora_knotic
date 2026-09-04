@@ -79,6 +79,7 @@ web_modules/
 .env.production.local
 .env.local
 !env.local.example
+!.env.example
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -147,3 +148,13 @@ install.ps1
 
 
 certificates
+.clerk/
+.worktrees
+
+# Backups and patches
+backups/
+patches/
+*.patch
+
+# Test output artifacts
+*-output.json

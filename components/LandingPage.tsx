@@ -10,6 +10,7 @@ import type {
   AgentResponse,
   AgoraRenewalTokens,
 } from '../types/conversation';
+import { getApiUrl, getAgoraAppId } from '@/lib/api-config';
 import { ErrorBoundary } from './ErrorBoundary';
 import { LoadingSkeleton } from './LoadingSkeleton';
 import { PreCallView } from './war-room/PreCallView';
@@ -68,8 +69,18 @@ export default function LandingPage() {
   const [agoraData, setAgoraData] = useState<AgoraTokenData | null>(null);
   const [rtmClient, setRtmClient] = useState<RTMClient | null>(null);
   const [agentJoinError, setAgentJoinError] = useState(false);
+  const [mediaSettings, setMediaSettings] = useState({ videoEnabled: true, micEnabled: true });
 
-  const handleStartConversation = async () => {
+  const handleStartConversation = async (settings?: {
+    videoEnabled?: boolean;
+    micEnabled?: boolean;
+  }) => {
+    if (settings) {
+      setMediaSettings({
+        videoEnabled: settings.videoEnabled ?? true,
+        micEnabled: settings.micEnabled ?? true,
+      });
+    }
     setIsLoading(true);
     setError(null);
     setAgentJoinError(false);
@@ -77,7 +88,7 @@ export default function LandingPage() {
     try {
       // 1. Fetch RTC token + channel
       // console.log('Fetching Agora token...');
-      const agoraResponse = await fetch('/api/generate-agora-token');
+      const agoraResponse = await fetch(getApiUrl('/api/generate-agora-token'));
       const responseData = await agoraResponse.json();
       // console.log('Agora token response: uid =', responseData.uid, 'channel =', responseData.channel);
 
@@ -92,12 +103,13 @@ export default function LandingPage() {
       //    can subscribe immediately. Agent invite is non-fatal.
       const [agentData, rtm] = await Promise.all([
         // 2a. Start the AI agent
-        fetch('/api/invite-agent', {
+        fetch(getApiUrl('/api/invite-agent'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             requester_id: responseData.uid,
             channel_name: responseData.channel,
+            multiSpeaker: true,
           } as ClientStartRequest),
         })
           .then(async (res) => {
@@ -116,8 +128,12 @@ export default function LandingPage() {
         // 2b. Set up RTM (dynamically imported to keep it client-only)
         (async () => {
           const { default: AgoraRTM } = await import('agora-rtm');
+          const agoraAppId = getAgoraAppId() || process.env.NEXT_PUBLIC_AGORA_APP_ID;
+          if (!agoraAppId) {
+            throw new Error('Agora App ID is not configured');
+          }
           const rtm: RTMClient = new AgoraRTM.RTM(
-            process.env.NEXT_PUBLIC_AGORA_APP_ID!,
+            agoraAppId,
             responseData.uid,
           );
           await rtm.login({ token: responseData.token });
@@ -152,8 +168,8 @@ export default function LandingPage() {
         //   - RTM uses the same UID that was used during RTM login (agoraData.uid).
         // Both are fetched in parallel to stay within the token-expiry grace-period window.
         const [rtcResponse, rtmResponse] = await Promise.all([
-          fetch(`/api/generate-agora-token?channel=${channel}&uid=${uid}`),
-          fetch(`/api/generate-agora-token?channel=${channel}&uid=${agoraData.uid}`),
+          fetch(getApiUrl(`/api/generate-agora-token?channel=${channel}&uid=${uid}`)),
+          fetch(getApiUrl(`/api/generate-agora-token?channel=${channel}&uid=${agoraData.uid}`)),
         ]);
         const [rtcData, rtmData] = await Promise.all([
           rtcResponse.json(),
@@ -181,7 +197,7 @@ export default function LandingPage() {
     if (agoraData?.agentId) {
       try {
         // console.log('Stopping agent:', agoraData.agentId);
-        const response = await fetch('/api/stop-conversation', {
+        const response = await fetch(getApiUrl('/api/stop-conversation'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ agent_id: agoraData.agentId }),
@@ -242,6 +258,8 @@ export default function LandingPage() {
                       rtmClient={rtmClient}
                       onTokenWillExpire={handleTokenWillExpire}
                       onEndConversation={handleEndConversation}
+                      initialVideoEnabled={mediaSettings.videoEnabled}
+                      initialMicEnabled={mediaSettings.micEnabled}
                     />
                   </AgoraProvider>
                 </ErrorBoundary>
