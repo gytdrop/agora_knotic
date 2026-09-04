@@ -98,7 +98,21 @@ export function normalizeTranscript(
       typeof item.text === 'string'
         ? normalizeTranscriptSpacing(item.text)
         : item.text;
-    return { ...item, uid: remappedUID, text: normalizedText };
+
+    // Upstream toolkit handleTextMessage hardcodes status = 1 (END) on all messages.
+    // For user transcriptions, check metadata.final to distinguish IN_PROGRESS vs END.
+    let status = item.status;
+    const meta = item.metadata as Partial<UserTranscription | AgentTranscription> | null;
+    if (meta && meta.object === 'user.transcription') {
+      const userMeta = meta as UserTranscription;
+      if (userMeta.final === false) {
+        status = TurnStatus.IN_PROGRESS;
+      } else if (userMeta.final === true) {
+        status = TurnStatus.END;
+      }
+    }
+
+    return { ...item, uid: remappedUID, text: normalizedText, status };
   });
 }
 
@@ -131,14 +145,7 @@ export function isRtmLedgerPayload(
 ): value is import('@/types/conversation').RtmLedgerPayload {
   if (!value || typeof value !== 'object') return false;
   const obj = value as Record<string, unknown>;
-  if (obj.object === 'message.ledger_item') return true;
-  if (
-    typeof obj.tag === 'string' &&
-    ['FACT', 'HYPOTHESIS', 'CONTRADICTION', 'ACTION'].includes(obj.tag)
-  ) {
-    return true;
-  }
-  return false;
+  return obj.object === 'message.ledger_item';
 }
 
 // Parse an incoming RTM message payload into a structured LedgerItem.
@@ -146,16 +153,25 @@ export function parseLedgerItem(
   payload: import('@/types/conversation').RtmLedgerPayload,
   defaultSpeaker = 'EchoSphere',
 ): import('@/types/conversation').LedgerItem {
+  const now = Date.now();
+  const parsedTs =
+    typeof payload.timestampMs === 'number'
+      ? payload.timestampMs
+      : payload.timestamp && !Number.isNaN(Number(payload.timestamp))
+      ? Number(payload.timestamp)
+      : now;
+
   return {
-    id: `${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-    timestamp:
-      payload.timestamp ||
-      new Date().toLocaleTimeString('en-US', { hour12: false }),
+    id: `${now}-${Math.random().toString(36).substring(2, 7)}`,
+    timestampMs: parsedTs,
     speaker: payload.speaker || defaultSpeaker,
+    speakerUid: payload.speakerUid,
+    turnId: payload.turnId,
     text: payload.text || '',
     tag: payload.tag || 'HYPOTHESIS',
     status: payload.status || 'LOGGED',
     reason: payload.reason,
+    timestamp: payload.timestamp,
   };
 }
 

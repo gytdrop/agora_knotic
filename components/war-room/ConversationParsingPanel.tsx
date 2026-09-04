@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   MessageSquare,
   Activity,
@@ -19,6 +19,16 @@ interface ConversationParsingPanelProps {
 export function ConversationParsingPanel({ items }: ConversationParsingPanelProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState<'all' | 'facts' | 'hypotheses' | 'contradictions'>('all');
+
+  const filteredItems = useMemo(() => {
+    if (!items || activeTab === 'all') return items;
+    const tagMap: Record<string, string> = {
+      facts: 'FACT',
+      hypotheses: 'HYPOTHESIS',
+      contradictions: 'CONTRADICTION',
+    };
+    return items.filter((item) => item.tag === tagMap[activeTab]);
+  }, [items, activeTab]);
 
   return (
     <aside
@@ -54,7 +64,7 @@ export function ConversationParsingPanel({ items }: ConversationParsingPanelProp
         {/* Expanded Content Area */}
         {!isCollapsed && (
           <div className="flex-1 overflow-y-auto min-h-0 custom-scrollbar">
-            <StateLedgerPanel items={items} />
+            <StateLedgerPanel items={filteredItems} />
           </div>
         )}
 

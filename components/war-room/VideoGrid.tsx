@@ -2,7 +2,12 @@
 
 import React from 'react';
 import { Mic, MicOff, AlertTriangle, Eye, Radio } from 'lucide-react';
-import { RemoteUser, type IAgoraRTCRemoteUser } from 'agora-rtc-react';
+import {
+  LocalVideoTrack,
+  RemoteUser,
+  type IAgoraRTCRemoteUser,
+  type ICameraVideoTrack,
+} from 'agora-rtc-react';
 import { HitlGuardrailCard } from './HitlGuardrailCard';
 import { AgentSphereCard } from './AgentSphereCard';
 
@@ -29,24 +34,30 @@ export const DEFAULT_LOCAL_USER: Participant = {
 
 interface VideoGridProps {
   localParticipant?: Participant;
+  localCameraTrack?: ICameraVideoTrack | null;
+  isVideoOff?: boolean;
   localVideoStream?: MediaStream | null;
   isLocalMuted?: boolean;
   agentSpeaking?: boolean;
   agentStatus?: string;
+  agentStatement?: string;
   isHotfixStaged?: boolean;
   isResolved?: boolean;
-  onRemediateSuccess?: () => void;
+  onRemediateSuccess?: () => void | Promise<void>;
   remoteParticipants?: Participant[];
   remoteAgoraUsers?: IAgoraRTCRemoteUser[];
 }
 
 export function VideoGrid({
   localParticipant = DEFAULT_LOCAL_USER,
+  localCameraTrack = null,
+  isVideoOff = false,
   localVideoStream = null,
   isLocalMuted = false,
   agentSpeaking = false,
   agentStatus = 'Ambient Mode',
-  isHotfixStaged = true,
+  agentStatement,
+  isHotfixStaged = false,
   isResolved = false,
   onRemediateSuccess,
   remoteParticipants = [],
@@ -103,9 +114,15 @@ export function VideoGrid({
           </div>
         </div>
 
-        {/* Video Feed Area: Live Webcam Stream OR GMeet Avatar Card */}
+        {/* Video Feed Area: Live Agora Webcam Stream OR MediaStream OR GMeet Avatar Card */}
         <div className="relative flex flex-1 items-center justify-center bg-[#28292c] overflow-hidden">
-          {localVideoStream ? (
+          {!isVideoOff && localCameraTrack ? (
+            <LocalVideoTrack
+              track={localCameraTrack}
+              play={true}
+              className="h-full w-full object-cover"
+            />
+          ) : !isVideoOff && localVideoStream ? (
             <video
               ref={(videoEl) => {
                 if (videoEl && localVideoStream) {
@@ -130,12 +147,15 @@ export function VideoGrid({
                   {localParticipant.name.slice(0, 2).toUpperCase()}
                 </span>
               </div>
+              <span className="mt-2 text-xs text-zinc-400 font-medium">
+                Camera Off
+              </span>
             </div>
           )}
 
-          {/* Speech Overlay Bubble */}
+          {/* Speech Overlay Bubble - Continuous Subtitle */}
           {localParticipant.statement && !isResolved && (
-            <div className="absolute bottom-12 left-3 right-3 rounded-xl border border-zinc-700 bg-zinc-950/95 p-3 text-xs text-zinc-200 backdrop-blur-md shadow-lg">
+            <div className="absolute bottom-12 left-3 right-3 rounded-xl border border-zinc-700 bg-zinc-950/95 p-3 text-xs text-zinc-200 backdrop-blur-md shadow-lg transition-all duration-200">
               <p className="font-sans font-medium text-xs text-amber-300 leading-relaxed">
                 {localParticipant.statement}
               </p>
@@ -162,16 +182,22 @@ export function VideoGrid({
                 ? 'text-blue-400 font-semibold'
                 : isLocalMuted
                 ? 'text-zinc-500'
+                : !isVideoOff
+                ? 'text-emerald-400 font-semibold'
                 : 'text-zinc-400'
             }`}
           >
-            [{isLocalSpeaking ? 'Speaking' : isLocalMuted ? 'Muted' : 'Ambient Mode'}]
+            [{isLocalSpeaking ? 'Speaking' : isLocalMuted ? 'Muted' : !isVideoOff ? 'Video Active' : 'Ambient Mode'}]
           </span>
         </div>
       </div>
 
       {/* ── CARD 2: EchoSphere AI Agent (Rotating Vector Sphere) ── */}
-      <AgentSphereCard isSpeaking={agentSpeaking} statusText={agentStatus} />
+      <AgentSphereCard
+        isSpeaking={agentSpeaking}
+        statusText={agentStatus}
+        statement={agentStatement}
+      />
 
       {/* ── CARD 3: CLI Staged Hotfix Manifest (From Uploaded Screenshot) ── */}
       <HitlGuardrailCard

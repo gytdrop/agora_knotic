@@ -69,8 +69,18 @@ export default function LandingPage() {
   const [agoraData, setAgoraData] = useState<AgoraTokenData | null>(null);
   const [rtmClient, setRtmClient] = useState<RTMClient | null>(null);
   const [agentJoinError, setAgentJoinError] = useState(false);
+  const [mediaSettings, setMediaSettings] = useState({ videoEnabled: true, micEnabled: true });
 
-  const handleStartConversation = async () => {
+  const handleStartConversation = async (settings?: {
+    videoEnabled?: boolean;
+    micEnabled?: boolean;
+  }) => {
+    if (settings) {
+      setMediaSettings({
+        videoEnabled: settings.videoEnabled ?? true,
+        micEnabled: settings.micEnabled ?? true,
+      });
+    }
     setIsLoading(true);
     setError(null);
     setAgentJoinError(false);
@@ -99,6 +109,7 @@ export default function LandingPage() {
           body: JSON.stringify({
             requester_id: responseData.uid,
             channel_name: responseData.channel,
+            multiSpeaker: true,
           } as ClientStartRequest),
         })
           .then(async (res) => {
@@ -247,6 +258,8 @@ export default function LandingPage() {
                       rtmClient={rtmClient}
                       onTokenWillExpire={handleTokenWillExpire}
                       onEndConversation={handleEndConversation}
+                      initialVideoEnabled={mediaSettings.videoEnabled}
+                      initialMicEnabled={mediaSettings.micEnabled}
                     />
                   </AgoraProvider>
                 </ErrorBoundary>

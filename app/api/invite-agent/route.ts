@@ -56,9 +56,10 @@ export async function POST(request: NextRequest) {
     // --- 2. Build and start the agent ---
 
     // AgoraClient authenticates API calls to the Agora Conversational AI service.
-    // area: change to Area.EU or Area.AP for European or Asia-Pacific deployments.
+    // Default to Area.AP for Asia-Pacific/India latency, or Area.US via env
+    const clientArea = process.env.AGORA_AREA === 'US' ? Area.US : Area.AP;
     const client = new AgoraClient({
-      area: Area.US,
+      area: clientArea,
       appId,
       appCertificate,
     });
@@ -109,6 +110,9 @@ export async function POST(request: NextRequest) {
         new DeepgramSTT({
           model: 'nova-3',
           language: 'en',
+          smartFormat: true,
+          punctuation: true,
+          keyterm: 'EchoSphere,Kubernetes,kubectl,ingress,postgres,auth-svc,hotfix,targetPort',
         }),
         // BYOK: uncomment the following block and set NEXT_DEEPGRAM_API_KEY
         // new DeepgramSTT({
@@ -156,11 +160,12 @@ export async function POST(request: NextRequest) {
         // }),
       );
 
-    // remoteUids restricts the agent to only process audio from this user
+    // Multi-speaker incident war room: support wildcard '*' or scope to requester
+    const remoteUids = body.remoteUids ?? (body.multiSpeaker ? ['*'] : [requester_id]);
     const session = agent.createSession({
       channel: channel_name,
       agentUid,
-      remoteUids: [requester_id],
+      remoteUids,
       idleTimeout: 30,
       expiresIn: ExpiresIn.hours(1),
       debug: false, // enable debug to show restful API calls in the console
