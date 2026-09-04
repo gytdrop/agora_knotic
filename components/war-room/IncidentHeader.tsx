@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ShieldAlert, Clock } from 'lucide-react';
-import { UserButton } from '@clerk/nextjs';
+import { ShieldAlert, Clock, User } from 'lucide-react';
 
 interface IncidentHeaderProps {
   incidentId?: string;
@@ -18,12 +17,22 @@ export function IncidentHeader({
   isConnected = true,
 }: IncidentHeaderProps) {
   const [secondsElapsed, setSecondsElapsed] = useState(195); // 00:03:15 start
+  const [userName, setUserName] = useState('SRE');
 
   useEffect(() => {
     const timer = setInterval(() => {
       setSecondsElapsed((prev) => prev + 1);
     }, 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = sessionStorage.getItem('echosphere_user_name');
+      if (stored && stored.trim()) {
+        setUserName(stored.trim());
+      }
+    }
   }, []);
 
   const formatTimer = (totalSeconds: number) => {
@@ -33,6 +42,13 @@ export function IncidentHeader({
     const pad = (num: number) => String(num).padStart(2, '0');
     return `${pad(hrs)}:${pad(mins)}:${pad(secs)}`;
   };
+
+  const initials = userName
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase() || 'SR';
 
   return (
     <header className="flex h-14 w-full items-center justify-between border-b border-zinc-800/80 bg-[#202124] px-6 text-zinc-100 font-sans">
@@ -80,14 +96,12 @@ export function IncidentHeader({
           </span>
         </div>
 
-        {/* User Button */}
-        <UserButton
-          appearance={{
-            elements: {
-              userButtonAvatarBox: 'h-8 w-8',
-            },
-          }}
-        />
+        {/* User Badge */}
+        <div className="flex items-center gap-2">
+          <div className="relative h-8 w-8 overflow-hidden rounded-full border border-zinc-700 bg-zinc-800 flex items-center justify-center">
+            <span className="text-xs font-medium text-zinc-200">{initials}</span>
+          </div>
+        </div>
       </div>
     </header>
   );

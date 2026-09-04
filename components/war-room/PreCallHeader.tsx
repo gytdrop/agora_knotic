@@ -1,8 +1,7 @@
 'use client';
 
-import React from 'react';
-import { ShieldAlert } from 'lucide-react';
-import { SignInButton, SignUpButton, Show, UserButton } from '@clerk/nextjs';
+import React, { useState, useEffect } from 'react';
+import { ShieldAlert, User } from 'lucide-react';
 
 interface PreCallHeaderProps {
   title?: string;
@@ -18,6 +17,24 @@ export function PreCallHeader({
   incidentId = '#INC-8921',
   severity = 'SEV-1',
 }: PreCallHeaderProps) {
+  const [userName, setUserName] = useState('SRE');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = sessionStorage.getItem('echosphere_user_name');
+      if (stored && stored.trim()) {
+        setUserName(stored.trim());
+      }
+    }
+  }, []);
+
+  const initials = userName
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase() || 'SR';
+
   return (
     <header className="flex h-14 w-full items-center justify-between border-b border-zinc-800/80 bg-[#171717] px-6 text-zinc-100 font-sans">
       {/* Left Branding & Incident Metadata */}
@@ -46,29 +63,15 @@ export function PreCallHeader({
         </div>
       </div>
 
-      {/* Right User Profile / Auth Controls */}
+      {/* Right User Profile Avatar */}
       <div className="flex items-center gap-3">
-        <Show when="signed-out">
-          <SignInButton mode="modal">
-            <button className="rounded-md border border-zinc-700 bg-zinc-850 px-3 py-1.5 text-xs font-medium text-zinc-200 transition-colors hover:bg-zinc-750 hover:text-white cursor-pointer">
-              Sign In
-            </button>
-          </SignInButton>
-          <SignUpButton mode="modal">
-            <button className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition-colors hover:bg-blue-500 cursor-pointer">
-              Sign Up
-            </button>
-          </SignUpButton>
-        </Show>
-        <Show when="signed-in">
-          <UserButton
-            appearance={{
-              elements: {
-                userButtonAvatarBox: 'h-8 w-8',
-              },
-            }}
-          />
-        </Show>
+        <div className="flex items-center gap-2 rounded-lg bg-zinc-900 border border-zinc-800 px-2.5 py-1 text-xs text-zinc-300">
+          <User className="h-3.5 w-3.5 text-zinc-400" />
+          <span className="text-[11px] font-medium text-zinc-200 truncate max-w-[120px]">{userName}</span>
+        </div>
+        <div className="relative h-8 w-8 overflow-hidden rounded-full border border-zinc-700 bg-zinc-800 flex items-center justify-center">
+          <span className="text-xs font-medium text-zinc-200">{initials}</span>
+        </div>
       </div>
     </header>
   );

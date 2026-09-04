@@ -74,7 +74,7 @@ export function getWsUrl(path: string = ''): string {
  * Supports both standard NEXT_PUBLIC_AGORA_APP_ID and AGORA_APP_ID.
  */
 export function getAgoraAppId(): string | undefined {
-  return process.env.NEXT_PUBLIC_AGORA_APP_ID || process.env.AGORA_APP_ID;
+  return process.env.AGORA_APP_ID || process.env.NEXT_PUBLIC_AGORA_APP_ID;
 }
 
 /**

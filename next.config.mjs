@@ -12,6 +12,10 @@ const nextConfig = {
   turbopack: {
     root: rootDir,
   },
+  env: {
+    AGORA_APP_ID: process.env.AGORA_APP_ID || process.env.NEXT_PUBLIC_AGORA_APP_ID || '',
+    NEXT_PUBLIC_AGORA_APP_ID: process.env.AGORA_APP_ID || process.env.NEXT_PUBLIC_AGORA_APP_ID || '',
+  },
   experimental: {
     webpackBuildWorker: true,
     parallelServerBuildTraces: true,

@@ -138,7 +138,8 @@ export default function LandingPage() {
         // 2b. Set up RTM (dynamically imported to keep it client-only)
         (async () => {
           const { default: AgoraRTM } = await import('agora-rtm');
-          const agoraAppId = getAgoraAppId() || process.env.NEXT_PUBLIC_AGORA_APP_ID;
+          const agoraAppId =
+            getAgoraAppId() || process.env.AGORA_APP_ID || process.env.NEXT_PUBLIC_AGORA_APP_ID;
           if (!agoraAppId) {
             throw new Error('Agora App ID is not configured');
           }
