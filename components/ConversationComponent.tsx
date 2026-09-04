@@ -636,7 +636,7 @@ export default function ConversationComponent({
         isAgent ? 'color: #c084fc; font-weight: 500;' : 'color: #94a3b8;',
       );
     }
-  }, [currentInProgressMessage?.text, agentUID, localUserName]);
+  }, [currentInProgressMessage?.text, currentInProgressMessage?.uid, agentUID, localUserName]);
 
   // Clean subtitle for AI Agent (current in-progress speech or last completed sentence)
   const agentSubtitle = useMemo(() => {
