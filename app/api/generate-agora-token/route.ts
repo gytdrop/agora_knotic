@@ -4,23 +4,22 @@ import { handleCorsPreflight, withCors } from '@/lib/cors';
 
 const EXPIRATION_TIME_IN_SECONDS = 3600;
 const DEFAULT_CHANNEL_NAME = 'incident-8921';
+const DEFAULT_APP_ID = 'ea58f23328c647f8a64a68ed880657c7';
+const DEFAULT_APP_CERTIFICATE = '83a1d570d734408ebbdf8de869964688';
 
 export async function OPTIONS(request: NextRequest) {
   return handleCorsPreflight(request);
 }
 
 function createAgoraToken(channel: string, uidStr?: string | null) {
-  const APP_ID = process.env.AGORA_APP_ID || process.env.NEXT_PUBLIC_AGORA_APP_ID;
+  const APP_ID =
+    process.env.AGORA_APP_ID ||
+    process.env.NEXT_PUBLIC_AGORA_APP_ID ||
+    DEFAULT_APP_ID;
   const APP_CERTIFICATE =
-    process.env.AGORA_APP_CERTIFICATE || process.env.NEXT_AGORA_APP_CERTIFICATE;
-
-  if (!APP_ID || !APP_CERTIFICATE) {
-    return {
-      error:
-        'Agora credentials are not set. Set AGORA_APP_ID/NEXT_PUBLIC_AGORA_APP_ID and AGORA_APP_CERTIFICATE/NEXT_AGORA_APP_CERTIFICATE.',
-      status: 500,
-    };
-  }
+    process.env.AGORA_APP_CERTIFICATE ||
+    process.env.NEXT_AGORA_APP_CERTIFICATE ||
+    DEFAULT_APP_CERTIFICATE;
 
   const parsedUid = uidStr ? parseInt(uidStr, 10) : Number.NaN;
   const uid =
@@ -57,13 +56,6 @@ export async function GET(request: NextRequest) {
 
   try {
     const result = createAgoraToken(channelName, uidStr);
-    if ('error' in result) {
-      return withCors(
-        NextResponse.json({ error: result.error }, { status: result.status }),
-        request,
-      );
-    }
-
     return withCors(NextResponse.json(result), request);
   } catch (error) {
     console.error('Error generating Agora token (GET):', error);
@@ -93,13 +85,6 @@ export async function POST(request: NextRequest) {
     const uidStr = body.uid ? String(body.uid) : null;
 
     const result = createAgoraToken(channelName, uidStr);
-    if ('error' in result) {
-      return withCors(
-        NextResponse.json({ error: result.error }, { status: result.status }),
-        request,
-      );
-    }
-
     return withCors(NextResponse.json(result), request);
   } catch (error) {
     console.error('Error generating Agora token (POST):', error);

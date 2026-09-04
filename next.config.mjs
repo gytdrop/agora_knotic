@@ -13,8 +13,8 @@ const nextConfig = {
     root: rootDir,
   },
   env: {
-    AGORA_APP_ID: process.env.AGORA_APP_ID || process.env.NEXT_PUBLIC_AGORA_APP_ID || '',
-    NEXT_PUBLIC_AGORA_APP_ID: process.env.AGORA_APP_ID || process.env.NEXT_PUBLIC_AGORA_APP_ID || '',
+    AGORA_APP_ID: process.env.AGORA_APP_ID || process.env.NEXT_PUBLIC_AGORA_APP_ID || 'ea58f23328c647f8a64a68ed880657c7',
+    NEXT_PUBLIC_AGORA_APP_ID: process.env.AGORA_APP_ID || process.env.NEXT_PUBLIC_AGORA_APP_ID || 'ea58f23328c647f8a64a68ed880657c7',
   },
   experimental: {
     webpackBuildWorker: true,

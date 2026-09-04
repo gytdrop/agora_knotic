@@ -46,22 +46,14 @@ export async function POST(request: Request) {
       );
     }
 
-    const appId = process.env.AGORA_APP_ID || process.env.NEXT_PUBLIC_AGORA_APP_ID;
+    const appId =
+      process.env.AGORA_APP_ID ||
+      process.env.NEXT_PUBLIC_AGORA_APP_ID ||
+      'ea58f23328c647f8a64a68ed880657c7';
     const appCertificate =
-      process.env.AGORA_APP_CERTIFICATE || process.env.NEXT_AGORA_APP_CERTIFICATE;
-
-    if (!appId || !appCertificate) {
-      return withCors(
-        NextResponse.json(
-          {
-            error:
-              'Missing Agora configuration. Set AGORA_APP_ID and AGORA_APP_CERTIFICATE.',
-          },
-          { status: 500 },
-        ),
-        request,
-      );
-    }
+      process.env.AGORA_APP_CERTIFICATE ||
+      process.env.NEXT_AGORA_APP_CERTIFICATE ||
+      '83a1d570d734408ebbdf8de869964688';
 
     // area: change to Area.EU or Area.AP for European or Asia-Pacific deployments.
     const client = new AgoraClient({
