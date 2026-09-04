@@ -38,7 +38,7 @@ export function IncidentHeader({
       {/* Left Branding & Incident Badge */}
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600 font-bold text-white shadow-sm">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-zinc-100 font-bold text-zinc-950 shadow-sm">
             E
           </div>
           <span className="text-sm font-semibold tracking-wide text-white uppercase">

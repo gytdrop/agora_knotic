@@ -55,7 +55,7 @@ export function PreCallWarRoomCard({
       >
         <div className="flex items-start gap-3.5">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300">
-            <Bot className="h-4 w-4 text-blue-400" />
+            <Bot className="h-4 w-4 text-zinc-300" />
           </div>
           <div className="flex-1">
             <div className="flex items-center justify-between mb-1">
@@ -64,7 +64,7 @@ export function PreCallWarRoomCard({
               </span>
               <span
                 className={`h-2 w-2 rounded-full ${
-                  deploySentinel ? 'bg-blue-400' : 'border border-zinc-600'
+                  deploySentinel ? 'bg-emerald-400' : 'border border-zinc-600'
                 }`}
               />
             </div>
