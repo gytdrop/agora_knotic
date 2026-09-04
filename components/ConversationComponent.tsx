@@ -981,6 +981,23 @@ export default function ConversationComponent({
             <Headphones className="h-4 w-4" />
           </button>
 
+          {/* Agent Speech Mute (Silent Listening Mode) Circular Button */}
+          <button
+            onClick={handleSpeechMuteToggle}
+            className={`flex h-10 w-10 items-center justify-center rounded-full border transition-all shadow-sm ${
+              speechMuted
+                ? 'bg-rose-950/90 border-rose-700 text-rose-400 hover:bg-rose-900 ring-2 ring-rose-500/40'
+                : 'bg-zinc-800 border-emerald-600/70 text-emerald-400 hover:bg-zinc-700 hover:text-emerald-300'
+            }`}
+            title={
+              speechMuted
+                ? 'Agent Speaking: OFF (Silent Mode Active) — Click to Unmute Agent'
+                : 'Agent Speaking: ON — Click for Silent Listening Mode'
+            }
+          >
+            {speechMuted ? <VolumeX className="h-4 w-4 text-rose-400" /> : <Volume2 className="h-4 w-4 text-emerald-400" />}
+          </button>
+
           {/* Camera Toggle Circular Button */}
           <button
             onClick={toggleCamera}

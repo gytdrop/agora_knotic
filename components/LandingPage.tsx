@@ -285,31 +285,33 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* Persistent attribution footer for the pre-call and in-call views. */}
-      <footer className="fixed bottom-0 right-0 z-40 py-4 pr-4 md:py-6 md:pr-6">
-        <div className="flex items-center justify-end gap-2 text-muted-foreground">
-          <span className="text-xs font-medium tracking-wide uppercase">
-            Powered by
-          </span>
-          <a
-            href="https://agora.io/en/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-primary transition-colors"
-            aria-label="Visit Agora's website"
-          >
-            <Image
-              src="/agora-logo-rgb-blue.svg"
-              alt="Agora"
-              width={86}
-              height={24}
-              priority
-              className="h-6 w-auto hover:opacity-80 transition-opacity translate-y-1"
-            />
-            <span className="sr-only">Agora</span>
-          </a>
-        </div>
-      </footer>
+      {/* Persistent attribution footer for the pre-call view only so it does not occlude in-call controls. */}
+      {!showConversation && (
+        <footer className="fixed bottom-0 right-0 z-40 py-4 pr-4 md:py-6 md:pr-6">
+          <div className="flex items-center justify-end gap-2 text-muted-foreground">
+            <span className="text-xs font-medium tracking-wide uppercase">
+              Powered by
+            </span>
+            <a
+              href="https://agora.io/en/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-primary transition-colors"
+              aria-label="Visit Agora's website"
+            >
+              <Image
+                src="/agora-logo-rgb-blue.svg"
+                alt="Agora"
+                width={86}
+                height={24}
+                priority
+                className="h-6 w-auto hover:opacity-80 transition-opacity translate-y-1"
+              />
+              <span className="sr-only">Agora</span>
+            </a>
+          </div>
+        </footer>
+      )}
     </div>
   );
 }
