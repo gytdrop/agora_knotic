@@ -1,292 +1,124 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-import {
-  Mic,
-  MicOff,
-  Video,
-  VideoOff,
-  Volume2,
-  Wifi,
-  ChevronDown,
-  Lock,
-  CheckCircle2,
-  Loader2,
-  ArrowRight,
-  ShieldCheck,
-} from 'lucide-react';
+import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Mic, Volume2, Video, Wifi, ArrowRight, Loader2 } from "lucide-react";
 
-type QuickstartPreCallCardProps = {
-  isLoading: boolean;
-  error: string | null;
-  onStartConversation: () => void;
-};
+export interface QuickstartPreCallCardProps {
+  isLoading?: boolean;
+  error?: string | null;
+  onStartConversation?: () => void;
+}
 
 export function QuickstartPreCallCard({
-  isLoading,
-  error,
+  isLoading = false,
+  error: propError = null,
   onStartConversation,
-}: QuickstartPreCallCardProps) {
-  const [hasPermission, setHasPermission] = useState(false);
-  const [micEnabled, setMicEnabled] = useState(true);
-  const [videoEnabled, setVideoEnabled] = useState(true);
-  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
-  const [audioLevel, setAudioLevel] = useState(0);
-  const [permissionRequested, setPermissionRequested] = useState(false);
+}: QuickstartPreCallCardProps = {}) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
+  // Default to common incident channel or extract from URL query params
+  const channel = searchParams?.get("channel") || "incident-8921";
+  const [userName, setUserName] = useState(
+    typeof window !== "undefined"
+      ? sessionStorage.getItem("echosphere_user_name") || ""
+      : ""
+  );
+  const [error, setError] = useState(propError || "");
 
-  const handleRequestHardware = async () => {
-    setPermissionRequested(true);
-    try {
-      if (!navigator?.mediaDevices?.getUserMedia) {
-        setHasPermission(true);
-        return;
-      }
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: { ideal: 640 }, height: { ideal: 360 } },
-        audio: true,
-      });
-      setLocalStream(stream);
-      setHasPermission(true);
-
-      // Setup Web Audio Analyser for live microphone feedback
-      const AudioCtx =
-        window.AudioContext ||
-        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      const ctx = new AudioCtx();
-      audioContextRef.current = ctx;
-      const source = ctx.createMediaStreamSource(stream);
-      const analyser = ctx.createAnalyser();
-      analyser.fftSize = 64;
-      source.connect(analyser);
-
-      const dataArray = new Uint8Array(analyser.frequencyBinCount);
-      const pollVolume = () => {
-        analyser.getByteFrequencyData(dataArray);
-        let sum = 0;
-        for (let i = 0; i < dataArray.length; i++) {
-          sum += dataArray[i];
-        }
-        const avg = sum / dataArray.length;
-        setAudioLevel(Math.min(100, Math.round(avg * 1.8)));
-        requestAnimationFrame(pollVolume);
-      };
-      pollVolume();
-    } catch (err) {
-      console.warn('Hardware permission prompt error or rejected:', err);
-      setHasPermission(true); // Allow proceeding regardless in dev/fallback
+  const handleJoin = () => {
+    const trimmed = userName.trim();
+    if (!trimmed) {
+      setError("Please enter your name to join the War Room.");
+      return;
     }
-  };
-
-  useEffect(() => {
-    if (videoRef.current && localStream) {
-      videoRef.current.srcObject = localStream;
-    }
-  }, [localStream, videoEnabled]);
-
-  useEffect(() => {
-    return () => {
-      if (localStream) {
-        localStream.getTracks().forEach((track) => track.stop());
-      }
-      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
-        audioContextRef.current.close().catch(() => {});
-      }
-    };
-  }, [localStream]);
-
-  const toggleMic = () => {
-    const next = !micEnabled;
-    setMicEnabled(next);
-    if (localStream) {
-      localStream.getAudioTracks().forEach((t) => (t.enabled = next));
-    }
-  };
-
-  const toggleVideo = () => {
-    const next = !videoEnabled;
-    setVideoEnabled(next);
-    if (localStream) {
-      localStream.getVideoTracks().forEach((t) => (t.enabled = next));
+    // Store in sessionStorage so the War Room client picks it up
+    sessionStorage.setItem("echosphere_user_name", trimmed);
+    if (onStartConversation) {
+      onStartConversation();
+    } else {
+      router.push(`/?channel=${channel}`);
     }
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-md animate-fade-up flex-col items-center rounded-2xl border border-zinc-800 bg-zinc-950/90 p-6 text-center shadow-2xl font-sans antialiased">
-      {/* Header Badge */}
-      <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900/90 px-3 py-1 text-xs text-zinc-300">
-        <span className="flex h-2 w-2 rounded-full bg-emerald-500" />
-        <span className="font-mono text-zinc-400">#INC-8921</span>
-        <span className="text-zinc-600">•</span>
-        <span className="text-rose-400 font-semibold">[SEV-1]</span>
+    <div className="w-full max-w-md p-6 rounded-xl bg-zinc-900/90 border border-zinc-800 text-zinc-100 shadow-2xl backdrop-blur-md">
+      <div className="flex items-center justify-between mb-4">
+        <span className="text-xs font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">
+          #{channel.toUpperCase()}
+        </span>
+        <span className="text-xs font-bold px-2 py-0.5 rounded bg-rose-950/60 text-rose-300 border border-rose-900">
+          SEV-1 ACTIVE
+        </span>
       </div>
 
-      <h1 className="text-2xl font-semibold tracking-tight text-white">
-        Join War Room
+      <h1 className="text-xl font-semibold tracking-tight text-white mb-1">
+        Incident War Room
       </h1>
-      <p className="mt-1 text-xs text-zinc-400 leading-relaxed max-w-sm">
-        EchoSphere ambient sentinel monitors WebRTC audio streams to isolate contradictions and stage 1-click hotfixes.
+      <p className="text-xs text-zinc-400 mb-5">
+        Enter your responder identity to initialize WebRTC streams.
       </p>
 
-      {/* Live Hardware Feedback Preview Container */}
-      <div className="relative mt-4 flex aspect-video w-full flex-col items-center justify-center overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/60">
-        {!hasPermission ? (
-          <div className="flex flex-col items-center justify-center gap-3 p-4 text-center">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300">
-              <Lock className="h-4 w-4 text-zinc-400" />
-            </div>
-            <div>
-              <p className="text-xs font-medium text-zinc-200">
-                Hardware Initializer
-              </p>
-              <p className="text-[11px] text-zinc-500 mt-0.5">
-                Enable mic and camera for real-time audio telemetry.
-              </p>
-            </div>
-            <button
-              onClick={handleRequestHardware}
-              disabled={permissionRequested}
-              className="flex items-center gap-1.5 rounded-lg bg-zinc-100 px-3.5 py-1.5 text-xs font-semibold text-zinc-950 transition-all hover:bg-white active:scale-95 border border-zinc-300"
-            >
-              <ShieldCheck className="h-3.5 w-3.5 text-zinc-900" />
-              <span>Authorize Hardware</span>
-            </button>
-          </div>
-        ) : videoEnabled && localStream ? (
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            muted
-            className="h-full w-full object-cover scale-x-[-1]"
+      <div className="space-y-4">
+        <div>
+          <label className="block text-xs font-medium text-zinc-300 mb-1.5 uppercase tracking-wider">
+            Responder Name
+          </label>
+          <input
+            type="text"
+            placeholder="e.g., Sarah (Lead SRE)"
+            value={userName}
+            onChange={(e) => {
+              setUserName(e.target.value);
+              if (error) setError("");
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleJoin();
+            }}
+            className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-800 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-600 font-sans"
           />
-        ) : (
-          <div className="flex flex-col items-center justify-center gap-2">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full border border-zinc-700 bg-zinc-800 text-zinc-200 text-lg font-semibold font-mono">
-              AK
-            </div>
-            <div className="flex items-center gap-1 text-[11px] text-zinc-400">
-              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
-              <span>Hardware Approved ({videoEnabled ? 'Camera Active' : 'Camera Off'})</span>
-            </div>
-          </div>
-        )}
+          {error && <p className="text-xs text-rose-400 mt-1 font-sans">{error}</p>}
+        </div>
 
-        {/* Live Audio Feedback Waveform Meter */}
-        {hasPermission && (
-          <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 rounded-full bg-zinc-950/85 px-2.5 py-1 border border-zinc-800/80 backdrop-blur-md">
-            <Mic className="h-3 w-3 text-emerald-400" />
-            <div className="flex items-center gap-0.5">
-              {[...Array(5)].map((_, i) => (
-                <span
-                  key={i}
-                  className={`h-2 w-1 rounded-full transition-all duration-75 ${
-                    audioLevel > i * 18 ? 'bg-emerald-400' : 'bg-zinc-700'
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* In-Preview Quick Hardware Controls */}
-        {hasPermission && (
-          <div className="absolute bottom-2.5 flex items-center gap-2 rounded-xl bg-zinc-950/85 px-2.5 py-1 border border-zinc-800/80 backdrop-blur-md">
-            <button
-              onClick={toggleMic}
-              className={`flex h-7 w-7 items-center justify-center rounded-lg transition-colors border ${
-                micEnabled
-                  ? 'bg-zinc-800 text-zinc-200 hover:bg-zinc-700 border-zinc-700'
-                  : 'bg-rose-950/80 text-rose-300 border-rose-800'
-              }`}
-              title={micEnabled ? 'Mute Mic' : 'Unmute Mic'}
-            >
-              {micEnabled ? <Mic className="h-3 w-3" /> : <MicOff className="h-3 w-3" />}
-            </button>
-
-            <button
-              onClick={toggleVideo}
-              className={`flex h-7 w-7 items-center justify-center rounded-lg transition-colors border ${
-                videoEnabled
-                  ? 'bg-zinc-800 text-zinc-200 hover:bg-zinc-700 border-zinc-700'
-                  : 'bg-zinc-800 text-zinc-500 hover:bg-zinc-700 border-zinc-700'
-              }`}
-              title={videoEnabled ? 'Turn Off Video' : 'Turn On Video'}
-            >
-              {videoEnabled ? <Video className="h-3 w-3" /> : <VideoOff className="h-3 w-3" />}
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Contained Device Selection Dropdown Pills: No Floating Overflow */}
-      <div className="mt-3.5 w-full grid grid-cols-2 gap-2 text-xs font-sans">
-        <div className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-900/80 px-2.5 py-1.5 text-zinc-300 min-w-0">
-          <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
+        {/* Contained Device Readiness Pills */}
+        <div className="grid grid-cols-2 gap-2 text-xs font-sans">
+          <div className="flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-950/60 px-2.5 py-1.5 text-zinc-400">
             <Mic className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
-            <span className="truncate text-[11px]">
-              {hasPermission ? 'Default Mic' : 'Microphone'}
-            </span>
+            <span className="truncate text-[11px]">System Mic</span>
           </div>
-          <ChevronDown className="h-3 w-3 text-zinc-500 shrink-0 ml-1" />
-        </div>
-
-        <div className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-900/80 px-2.5 py-1.5 text-zinc-300 min-w-0">
-          <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
+          <div className="flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-950/60 px-2.5 py-1.5 text-zinc-400">
             <Volume2 className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
-            <span className="truncate text-[11px]">
-              {hasPermission ? 'Default Output' : 'Speaker'}
-            </span>
+            <span className="truncate text-[11px]">Audio Output</span>
           </div>
-          <ChevronDown className="h-3 w-3 text-zinc-500 shrink-0 ml-1" />
-        </div>
-
-        <div className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-900/80 px-2.5 py-1.5 text-zinc-300 min-w-0">
-          <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
+          <div className="flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-950/60 px-2.5 py-1.5 text-zinc-400">
             <Video className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
-            <span className="truncate text-[11px]">
-              {hasPermission ? 'Webcam 720p' : 'Camera'}
-            </span>
+            <span className="truncate text-[11px]">Camera Ready</span>
           </div>
-          <ChevronDown className="h-3 w-3 text-zinc-500 shrink-0 ml-1" />
-        </div>
-
-        <div className="flex items-center justify-between rounded-lg border border-zinc-800 bg-zinc-900/80 px-2.5 py-1.5 text-zinc-300 min-w-0">
-          <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
+          <div className="flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-950/60 px-2.5 py-1.5 text-emerald-400">
             <Wifi className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-            <span className="truncate text-[11px] text-emerald-400">
-              Agora RTC OK
-            </span>
+            <span className="truncate text-[11px]">Agora RTC OK</span>
           </div>
-          <ChevronDown className="h-3 w-3 text-zinc-500 shrink-0 ml-1" />
         </div>
+
+        <button
+          onClick={handleJoin}
+          disabled={isLoading}
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-semibold tracking-wide transition-colors disabled:opacity-50 cursor-pointer"
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin text-zinc-900" />
+              <span>Connecting to War Room...</span>
+            </>
+          ) : (
+            <>
+              <span>Join War Room</span>
+              <ArrowRight className="h-3.5 w-3.5 text-zinc-900" />
+            </>
+          )}
+        </button>
       </div>
-
-      {/* Enterprise Slate/Zinc Primary Action Button (Zero Light Blue) */}
-      <button
-        onClick={onStartConversation}
-        disabled={isLoading}
-        className="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-zinc-100 text-xs font-semibold text-zinc-950 shadow-sm transition-all hover:bg-white hover:text-black active:scale-[0.98] disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
-        aria-label={isLoading ? 'Connecting to War Room' : 'Join War Room'}
-      >
-        {isLoading ? (
-          <>
-            <Loader2 className="h-4 w-4 animate-spin text-zinc-900" />
-            <span>Connecting to Agora RTC...</span>
-          </>
-        ) : (
-          <>
-            <span>Join War Room</span>
-            <ArrowRight className="h-3.5 w-3.5 text-zinc-900" />
-          </>
-        )}
-      </button>
-
-      {error && (
-        <p className="mt-2.5 text-xs text-rose-400 font-sans">{error}</p>
-      )}
     </div>
   );
 }
