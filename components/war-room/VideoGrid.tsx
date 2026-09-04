@@ -10,6 +10,7 @@ import {
 } from 'agora-rtc-react';
 import { HitlGuardrailCard } from './HitlGuardrailCard';
 import { AgentSphereCard } from './AgentSphereCard';
+import { DEFAULT_AGENT_UID } from '@/lib/agora';
 
 export interface Participant {
   id: string;
@@ -238,7 +239,7 @@ export function VideoGrid({
                 <RemoteUser
                   user={user}
                   playVideo={true}
-                  playAudio={true}
+                  playAudio={String(user.uid) !== String(DEFAULT_AGENT_UID)}
                   className="h-full w-full object-cover"
                 />
               ) : (

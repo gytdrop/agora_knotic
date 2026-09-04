@@ -235,10 +235,10 @@ export default function ConversationComponent({
   const [isSpeakingLocal, setIsSpeakingLocal] = useState(false);
   const [isMonitoringSelf, setIsMonitoringSelf] = useState(false);
 
-  // Agent Speech Mute — silences TTS playback while keeping all analysis pipelines running.
-  const [speechMuted, setSpeechMuted] = useState(false);
+  // Agent Speech Mute — silences TTS playback while keeping all analysis pipelines running (Default: 100% Muted, Console Parsing Only).
+  const [speechMuted, setSpeechMuted] = useState(true);
   // Ref mirrors state so commitLedgerMutation (a stable useCallback) always reads the latest value.
-  const speechMutedRef = useRef(false);
+  const speechMutedRef = useRef(true);
   // Accumulates [TAG] alert strings generated while muted; drained to TTS on unmute.
   const mutedAlertQueueRef = useRef<string[]>([]);
 
@@ -609,6 +609,35 @@ export default function ConversationComponent({
     return spokenStatement || undefined;
   }, [currentInProgressMessage, client.uid, messageList, spokenStatement]);
 
+  // Console Parsing Banner on War Room mount
+  useEffect(() => {
+    console.log(
+      '%c[EchoSphere] 🚀 WAR ROOM ONLINE | MODE: 100% MUTE (CONSOLE PARSING ONLY)',
+      'color: #10b981; font-weight: bold; background: #09090b; padding: 4px 8px; border: 1px solid #27272a; border-radius: 4px;',
+    );
+    console.log(
+      '%c[EchoSphere] ℹ️ Real-time WebRTC audio playback for EchoSphere Sentinel is suppressed. All incoming transcripts, telemetry validations, contradiction detections, and AI responses stream exclusively to this console and the state ledger.',
+      'color: #a1a1aa;',
+    );
+  }, []);
+
+  // Real-time Console Parsing of In-Progress Speech Streams
+  const lastLoggedStreamRef = useRef<string>('');
+  useEffect(() => {
+    if (
+      currentInProgressMessage?.text &&
+      currentInProgressMessage.text !== lastLoggedStreamRef.current
+    ) {
+      lastLoggedStreamRef.current = currentInProgressMessage.text;
+      const isAgent = String(currentInProgressMessage.uid) === agentUID;
+      const speaker = isAgent ? 'EchoSphere Sentinel (AI)' : localUserName;
+      console.log(
+        `%c[EchoSphere:ConsoleParser:Streaming] 💭 ${speaker}: "${currentInProgressMessage.text}"`,
+        isAgent ? 'color: #c084fc; font-weight: 500;' : 'color: #94a3b8;',
+      );
+    }
+  }, [currentInProgressMessage?.text, agentUID, localUserName]);
+
   // Clean subtitle for AI Agent (current in-progress speech or last completed sentence)
   const agentSubtitle = useMemo(() => {
     const isAgentInProgress =
@@ -670,6 +699,29 @@ export default function ConversationComponent({
 
       const analyzed = analyzeStatement(speaker, turn.text, speakerRole);
 
+      // Detailed Console Parsing Output
+      console.log(
+        `%c[EchoSphere:ConsoleParser] 🎙️ TURN #${turn.turn_id} | ${speaker} (${speakerRole}) | UID: ${turn.uid}`,
+        'color: #38bdf8; font-weight: bold;',
+      );
+      console.log(`%c  Transcript: "${turn.text}"`, 'color: #f4f4f5;');
+      console.log(
+        `%c  Analysis: Tag=[${analyzed.tag}] Status=[${analyzed.status}] Contradiction=${analyzed.isContradiction} HotfixStaged=${analyzed.isHotfixStaged} Noise=${analyzed.isNoise}`,
+        'color: #a1a1aa;',
+      );
+      if (analyzed.reason) {
+        console.log(`%c  ⚠️ Reason: ${analyzed.reason}`, 'color: #f59e0b;');
+      }
+      if (analyzed.telemetryEvidence) {
+        console.log(`%c  📊 Telemetry Evidence: ${analyzed.telemetryEvidence}`, 'color: #10b981;');
+      }
+      if (isAgent) {
+        console.log(
+          `%c[EchoSphere:AI:Muted] 🤖 AI Sentinel Response (AUDIO 100% MUTED - CONSOLE PARSING ONLY): "${turn.text}"`,
+          'color: #c084fc; font-weight: bold; background: #18181b; padding: 3px 8px; border: 1px solid #7c3aed; border-radius: 4px;',
+        );
+      }
+
       // Skip non-ledger conversational noise (roll calls, audio checks, acknowledgements)
       if (analyzed.isNoise) {
         continue;
@@ -728,12 +780,37 @@ export default function ConversationComponent({
     if (mediaType === 'audio') {
       try {
         await client.subscribe(user, 'audio');
-        user.audioTrack?.play();
+        const isAgent = user.uid.toString() === agentUID;
+        if (isAgent) {
+          // AI 100% Mute - Console parsing only
+          try {
+            user.audioTrack?.stop();
+            user.audioTrack?.setVolume(0);
+          } catch {}
+          console.log(
+            `%c[VoicePipeline:RTC] 🔇 AI Agent (uid=${user.uid}) audio track 100% MUTED — console parsing only.`,
+            'color: #f43f5e; font-weight: bold; background: #18181b; padding: 2px 6px; border-radius: 4px;',
+          );
+        } else {
+          user.audioTrack?.play();
+        }
       } catch (err) {
-        console.warn('[Agora RTC] Failed to play audio track:', err);
+        console.warn('[Agora RTC] Failed to subscribe/play audio track:', err);
       }
     }
   });
+
+  // Permanently enforce 100% mute on AI Agent audio track whenever remoteUsers updates
+  useEffect(() => {
+    remoteUsers.forEach((user) => {
+      if (user.uid.toString() === agentUID && user.audioTrack) {
+        try {
+          user.audioTrack.stop();
+          user.audioTrack.setVolume(0);
+        } catch {}
+      }
+    });
+  }, [remoteUsers, agentUID]);
 
   useEffect(() => {
     const isAgentInRemoteUsers = remoteUsers.some(
@@ -898,9 +975,9 @@ export default function ConversationComponent({
             agentSpeaking={agentState === 'speaking'}
             agentStatus={
               agentState === 'speaking'
-                ? 'Speaking'
+                ? 'Console Parsing'
                 : isAgentConnected
-                ? 'Ambient Mode'
+                ? '100% Muted · Console Parsing'
                 : 'Connecting'
             }
             agentStatement={agentSubtitle}
@@ -916,13 +993,13 @@ export default function ConversationComponent({
           <ConversationParsingPanel items={ledgerItems} />
         )}
 
-        {/* Background Audio Playback for ALL Remote WebRTC Users (Specifically the AI Agent) */}
+        {/* Background Audio Playback for Remote WebRTC Users (AI Agent audio strictly 100% muted for console-only parsing) */}
         <div className="hidden" aria-hidden="true">
           {remoteUsers.map((user) => (
             <RemoteUser
               key={user.uid}
               user={user}
-              playAudio={!speechMuted}
+              playAudio={String(user.uid) !== agentUID && !speechMuted}
               playVideo={false}
             />
           ))}

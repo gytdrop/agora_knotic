@@ -106,7 +106,7 @@ export function PreCallWarRoomCard({
               />
             </div>
             <p className="text-xs leading-relaxed text-zinc-400">
-              EchoSphere silently parses WebRTC audio streams for contradictions and stages hotfixes via the state ledger.
+              EchoSphere audio is 100% muted. It silently parses WebRTC audio streams for contradictions and stages hotfixes via console & state ledger.
             </p>
           </div>
         </div>

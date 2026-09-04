@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Bot, Radio, Waves } from 'lucide-react';
+import { Bot, Terminal, VolumeX } from 'lucide-react';
 
 interface AgentSphereCardProps {
   isSpeaking?: boolean;
@@ -11,31 +11,30 @@ interface AgentSphereCardProps {
 
 export function AgentSphereCard({
   isSpeaking = false,
-  statusText = 'Ambient Mode',
+  statusText = '100% Muted · Console Parsing',
   statement,
 }: AgentSphereCardProps) {
   return (
     <div
       className={`relative flex flex-col justify-between overflow-hidden rounded-2xl bg-[#28292c] border shadow-md transition-all font-sans ${
         isSpeaking
-          ? 'ring-2 ring-emerald-500 border-emerald-500/80'
+          ? 'ring-2 ring-cyan-500/80 border-cyan-500/80'
           : 'border-zinc-800/80'
       }`}
     >
       {/* Top Bar Badges - Strict Matte, Zero Neon */}
       <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none">
         <span className="inline-flex items-center gap-1.5 rounded-md bg-zinc-900/90 px-2 py-0.5 font-sans text-[11px] font-medium text-zinc-300 border border-zinc-700 shadow-sm backdrop-blur-md">
-          <span className="h-1.5 w-1.5 rounded-full bg-zinc-400" />
+          <Terminal className="h-3 w-3 text-cyan-400" />
           AI Incident Sentinel
         </span>
 
-        {/* Sentinel Radio / Waveform Icon */}
-        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-950/80 text-zinc-400 backdrop-blur-md border border-zinc-800">
-          {isSpeaking ? (
-            <Waves className="h-3.5 w-3.5 text-emerald-400" />
-          ) : (
-            <Radio className="h-3.5 w-3.5 text-zinc-400" />
-          )}
+        {/* Sentinel Muted Speaker Indicator */}
+        <div
+          className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-950/80 text-zinc-400 backdrop-blur-md border border-zinc-800"
+          title="Audio 100% Muted · Console Parsing Only"
+        >
+          <VolumeX className="h-3.5 w-3.5 text-zinc-400" />
         </div>
       </div>
 
@@ -127,13 +126,10 @@ export function AgentSphereCard({
           </div>
         )}
 
-        {/* Audio Frequency Bars / Status below Sphere - Muted Zinc */}
-        <div className="absolute bottom-11 flex items-center gap-1">
-          <span className="h-2 w-1 rounded-full bg-zinc-500 animate-[bounce_1s_infinite_100ms]" />
-          <span className="h-3.5 w-1 rounded-full bg-zinc-500 animate-[bounce_1s_infinite_200ms]" />
-          <span className="h-2.5 w-1 rounded-full bg-zinc-400 animate-[bounce_1s_infinite_300ms]" />
-          <span className="h-4 w-1 rounded-full bg-zinc-500 animate-[bounce_1s_infinite_400ms]" />
-          <span className="h-2 w-1 rounded-full bg-zinc-500 animate-[bounce_1s_infinite_250ms]" />
+        {/* Audio Status below Sphere - 100% Muted / Console Parsing Badge */}
+        <div className="absolute bottom-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-900/90 border border-zinc-700/70 text-[10px] text-zinc-300 font-mono shadow-sm">
+          <VolumeX className="h-3 w-3 text-rose-400" />
+          <span>Audio Muted · Console Parsing</span>
         </div>
       </div>
 
@@ -145,8 +141,8 @@ export function AgentSphereCard({
         <span className="text-[11px] text-zinc-400 font-normal">
           (Incident Commander)
         </span>
-        <span className="ml-1 text-[10px] font-medium text-zinc-400">
-          [{statusText}]
+        <span className="ml-1 text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">
+          {statusText}
         </span>
       </div>
     </div>
