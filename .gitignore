@@ -149,3 +149,11 @@ install.ps1
 certificates
 .clerk/
 .worktrees
+
+# Backups and patches
+backups/
+patches/
+*.patch
+
+# Test output artifacts
+*-output.json

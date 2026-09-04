@@ -1,0 +1,298 @@
+IC: All right everyone, this is the incident bridge for SEV-1 payment processing failures. I am Incident Commander. Roll call please. Alice, Bob, Charlie, Dana, Eve, Frank, are you all here?
+
+Alice: Alice here, backend.
+
+Bob: Bob here, SRE.
+
+Charlie: Charlie here, database.
+
+Dana: Dana on frontend.
+
+Eve: Eve, security here.
+
+Frank: Frank from customer support. Hey folks, Zendesk is lighting up like a Christmas tree. Customers cannot complete orders.
+
+IC: Thanks everyone. Ground rules: keep communication concise, voice hypotheses clearly but separate them from verified data, and state timestamps when citing metrics. Frank, what is support seeing?
+
+Frank: We have over 180 tickets in the queue in the last ten minutes. Users report that clicking "Place Order" spins for fifteen seconds and then throws a generic "Payment Gateway Unavailable" modal. First ticket arrived at 09:05 UTC.
+
+Dana: I'm seeing it too on the frontend telemetry. Checkout funnel conversions just fell off a cliff. 
+
+IC: Bob, what do the dashboards show? Give us the hard numbers.
+
+Bob: Okay, pulling up Grafana. Deployment v2.14.0 finished rolling out at 09:02 UTC. Right at 09:04 UTC, HTTP 500 error rate on the checkout service spiked from our baseline 0.15% all the way up to 48%. 
+
+Alice: Wait, could this be the new payment retry logic in v2.14.0? I think the worker threads might be getting stuck in an infinite recursion loop on failed payment tokens.
+
+Bob: Hold on. Also, all global payment traffic is completely dead across every region.
+
+Dana: Bob, that's not accurate. Checking Datadog real-user monitoring right now. US-East and US-West are processing payments, though with slight latency. The payment failures are strictly isolated to EU-Central and APAC checkout flows. North American transactions are succeeding.
+
+Bob: Good catch, Dana. Looking at regional routing now. You're right. US ingress shows 98.8% success. Europe and Asia-Pacific are sitting at 2% success. So it is not global.
+
+IC: Let's log that as a confirmed fact: outage is regional to EU and APAC, US traffic is operational. Charlie, how does the database layer look?
+
+Charlie: Looking at Aurora Postgres primary. CPU utilization on the writer node jumped from 18% to 94% at 09:06 UTC.
+
+Alice: It has to be database migrations. The deployment must have triggered a heavy table lock during schema migration.
+
+Charlie: No, that's incorrect. v2.14.0 had zero database migrations. The migration lock table is completely empty and hasn't been touched since last Tuesday's release. The CPU spike is from connection churn, not locks.
+
+Alice: Sorry, you're right, migrations were postponed to v2.15. My bad.
+
+IC: Okay, no migrations in this release. Alice, what else changed in the backend deployment?
+
+Alice: We updated the Stripe SDK wrapper, bumped HTTP client connection timeouts from five seconds to fifteen seconds, and updated the routing proxy configuration.
+
+Bob: Could this be a DNS resolution failure inside our Amazon EKS cluster? Maybe CoreDNS pods are choking under the load.
+
+Eve: Or could we be under a DDoS attack? We had an anomalous volumetric spike yesterday from an eastern European IP range.
+
+IC: Eve, can you verify WAF and security telemetry? Bob, check CoreDNS. Charlie, keep eyes on Postgres. Alice, inspect pod logs for the payment service.
+
+Bob: Checking CoreDNS latency right now. Latency is under two milliseconds. DNS request drop rate is zero across all thirty-two CoreDNS replicas. DNS is completely healthy, ruling that out.
+
+Eve: WAF metrics are clean. Inbound request volume matches standard morning peak at 24,000 requests per minute. Zero Layer 7 rules triggered. No rate limiting kicks. We are not under attack.
+
+IC: Good. No DDoS, DNS is healthy. Alice, what are the logs saying?
+
+Alice: Hold on, you're cutting out. Can you hear me?
+
+IC: Yes, we can hear you Alice. Go ahead.
+
+Alice: Okay, checking `payment-service` pod stdout. I'm seeing a wall of `ConnectionResetException` and `GatewayTimeoutException` errors. They are all originating from calls to the upstream EU banking gateway proxy.
+
+Bob: P99 payment latency on the service mesh just hit 14.8 seconds at 09:09 UTC. Normal baseline is 220 milliseconds.
+
+Dana: That explains the frontend spinning. The frontend client has an eight-second timeout, so users get a timeout error before the backend even returns.
+
+Charlie: Postgres active connections just dropped back down to 42 out of our 500 connection limit. Database CPU fell to 22% at 09:11 UTC. The database has fully recovered and is idle.
+
+IC: Confirming: Postgres CPU is back to normal, connection pool is healthy. So the database is not the bottleneck.
+
+Frank: Team, enterprise customers are asking for an ETA. The CFO of OmniRetail just escalated to our VP because their flash sale in Germany is failing.
+
+IC: Frank, tell them we have all hands investigating a gateway connectivity issue in EU and APAC, and next update is in ten minutes at 09:25 UTC.
+
+Frank: On it.
+
+Bob: Hey, maybe Redis is failing? If the session cache or idempotent payment token cache crashed, every checkout would fail the idempotency validation step.
+
+Charlie: Let me check Redis ElastiCache cluster `redis-prod-payments`. Cluster status is available. Memory utilization is 34%. Engine CPU is 8%. Cache hit ratio is steady at 99.2%. Redis is not the problem.
+
+Alice: Wait, could this be a TLS handshake failure? Did an internal cert-manager certificate expire at midnight or during deployment?
+
+Eve: Checking all TLS certs in the Kubernetes cluster. `*.internal.payments.net` was renewed on August 14th and expires in 2027. Ingress TLS handshake duration is four milliseconds. That assumption is invalid.
+
+Dana: Maybe Cloudflare is caching broken error pages or corrupt CORS headers on the static checkout bundles?
+
+Dana: Actually, scratch that. I just bypassed Cloudflare using direct origin IP with our origin headers. The static assets load with 200 OK. The error happens strictly on the `POST /api/v2/checkout/charge` API payload.
+
+Bob: Wait, look at Kafka. The Stripe webhook queue `payment-events-stream` has 18,400 unconsumed messages backed up at 09:14 UTC. Consumer lag is climbing exponentially.
+
+Alice: The webhook consumers must have crashed.
+
+Bob: No, the consumers haven't crashed. The pods are alive, but they can't commit offsets because the downstream transaction table writer is blocked waiting on external gateway responses.
+
+IC: We have an action item here. We need to prevent Kafka partition exhaustion. Bob, can you scale the webhook consumer replica count?
+
+Bob: Action item taken. I am scaling `payment-webhook-worker` from four replicas to twelve. Executing now.
+
+Bob: Replica scale command sent at 09:16 UTC.
+
+Alice: I think the third-party Stripe API itself is down in Europe. That would explain why US works and EU fails.
+
+Bob: Checking Stripe status page. Stripe status page reports all systems operational.
+
+Alice: Status pages always lag twenty minutes behind real outages. Someone run a direct curl probe from our bastion host in Frankfurt to the Stripe live charge endpoint.
+
+Bob: Running curl probe with our test API key from `eu-central-1` bastion now...
+
+Bob: Probe finished. Direct POST to Stripe API returned HTTP 200 with charge ID `ch_3M4liveTest` in 182 milliseconds. Stripe API is completely fine.
+
+Charlie: So the issue is between our internal payment service and how it routes out to the external gateway.
+
+IC: That's a critical elimination. Stripe API is responsive. Our internal routing or proxy configuration is suspect.
+
+Dana: Wait, could the new frontend feature flag `ENABLE_SMART_ROUTING_V2` be sending invalid JSON payloads that break the backend deserializer?
+
+Alice: Checking deserialization errors in Kibana. Zero `JsonParseException` or 400 Bad Request logs. All errors are 502 and 504. The payload reaching the backend is well-formed. So the frontend feature flag is not causing this.
+
+Bob: Eight out of twenty-four `payment-service` pods in the EU cluster were OOMKilled and restarted at 09:19 UTC.
+
+Charlie: Why did they OOM? Memory leak in the new release?
+
+Alice: Yes, it looks like a severe memory leak in the connection pool. Every open socket that hangs for fifteen seconds retains a sixty-four kilobyte buffer. With thousands of retries, heap memory ran out.
+
+IC: Team, we have ongoing customer impact, error rate is still 48%, and pods are restarting. I propose an immediate rollback of the deployment to v2.13.8. Alice, Bob, any objections?
+
+Alice: No objections. Roll it back.
+
+Bob: Rolling back now. Executing `helm rollback payment-service 412` on `eu-central-1` and `ap-southeast-1` clusters. Timestamp is 09:21 UTC.
+
+IC: Action item logged: Bob executing Helm rollback to revision 412.
+
+Frank: Just to set expectations, Zendesk ticket volume is now at 340 tickets. Multiple customers report multiple authorization charges on their credit card statements!
+
+Alice: Oh no. Are we double-charging customers?
+
+Charlie: Let me inspect the `charges` ledger table in Postgres immediately. Querying for duplicate customer IDs with identical idempotency keys within the last thirty minutes.
+
+Charlie: Query returned. Exactly zero duplicate charges have gone through. Idempotency keys are working properly. Every failed attempt was aborted before reaching the card network.
+
+Frank: Then why are customers seeing pending charges on their banking apps?
+
+Dana: Those are temporary authorization holds that their banks show when a transaction initiates before it fails settlement. They drop off automatically in twenty-four hours.
+
+Frank: Got it. I will update our support macros so agents can reassure customers they have not been double-billed.
+
+Bob: Rollback pods have deployed. All twenty-four pods running v2.13.8 are in Ready state at 09:26 UTC.
+
+Alice: Wait, look at the dashboard! Metrics seem better! Error rate dropped to 36%!
+
+Dana: It looks fixed! The line is trending down!
+
+Bob: Hold on, do not celebrate yet. Wait for traffic to warm the pods.
+
+Bob: Dammit. At 09:28 UTC, error rate jumped right back up to 51%. The rollback did NOT fix it. I repeat, the code rollback did not resolve the issue.
+
+Alice: What? How is that possible? v2.13.8 was our stable production build for two weeks!
+
+Charlie: Did the rollback change database schema back?
+
+Charlie: As established earlier, there were no database schema changes. The database has been on schema migration 88 for twelve days.
+
+Eve: Could this be an infrastructure change that was applied outside of the Helm deployment? What about Terraform or AWS console changes this morning?
+
+Bob: Checking AWS CloudTrail audit logs for any infrastructure events between 08:30 and 09:15 UTC.
+
+Bob: CloudTrail audit log check finished: zero IAM changes, zero Security Group modifications, zero VPC route table changes. AWS infrastructure is completely unchanged.
+
+IC: If the code rollback didn't fix it and AWS didn't change, what else was included in the 09:02 release window? Alice, what else was in the deployment manifest?
+
+Alice: Let me review the GitHub release tag and deployment pipeline logs for release `rel-20260904-0902`.
+
+Alice: Wait. Oh god. The pipeline deployed a shared Kubernetes ConfigMap update along with the application containers. `payment-routing-config`.
+
+Bob: Was `payment-routing-config` rolled back by the Helm rollback?
+
+Alice: Checking Helm values. No! The ConfigMap is managed in a separate Terraform repository and applied via a pre-sync hook. The Helm rollback only rolled back the container image, not the ConfigMap!
+
+IC: What changed in `payment-routing-config`?
+
+Alice: Let me diff the revision history. `kubectl get configmap payment-routing-config -o yaml`.
+
+Alice: Found it. At 09:01:45 UTC, the upstream URL parameter `PAYMENT_GATEWAY_PROXY_URL` was changed from `https://proxy.eu.internal:8443` to `http://proxy.eu.internal:8080`.
+
+Bob: Why was it changed from HTTPS on 8443 to HTTP on 8080?
+
+Alice: The platform team opened a PR last week to offload TLS termination to Envoy sidecars. It was supposed to merge in staging, but someone backported it to production master this morning thinking it was a harmless performance optimization.
+
+Bob: But the Envoy sidecar rollout in production isn't scheduled until next month! The proxy container in `proxy.eu.internal` is still expecting mutual TLS on port 8443!
+
+Charlie: So every request sent to port 8080 over plain HTTP was hitting a dead listener or getting rejected by Envoy!
+
+Alice: Wait, Bob, is the proxy container crash-looping?
+
+Bob: Let me check `kubectl get pods -n proxy`. 
+
+Bob: No, the proxy pods are not crash-looping. They have eighteen days of uptime. They are healthy, but they are listening strictly on port 8443 with TLS certificates required. Port 8080 is an unmapped container port on the pod spec!
+
+Charlie: Does the proxy need database credentials restarted?
+
+Alice: No, the proxy is completely stateless NGINX reverse proxy. It does not touch any database.
+
+Dana: So every payment request from the backend was trying to open an unencrypted connection to port 8080, getting an immediate TCP RST packet, and then timing out after fifteen seconds!
+
+Alice: Exactly. And because our retry mechanism retries three times with fifteen-second timeouts, each request hung for forty-five seconds before failing, which starved the backend worker pool and crashed the pods with OOM!
+
+IC: We have our root cause. The ConfigMap `payment-routing-config` points to non-existent plain HTTP port 8080 instead of TLS port 8443. Alice, Bob, what is the fastest remediation path?
+
+Alice: I can patch the ConfigMap directly in production right now using `kubectl edit configmap payment-routing-config` and revert the URL back to `https://proxy.eu.internal:8443`.
+
+Bob: Once patched, we have to trigger a rolling restart of the `payment-service` pods so they reload the mounted config volume.
+
+IC: Alice, you are authorized to apply the ConfigMap patch. Bob, prepare the rolling restart command. Confirm when executed.
+
+Alice: Editing ConfigMap now. 
+
+Alice: ConfigMap `payment-routing-config` patched successfully at 09:31 UTC.
+
+Bob: Executing rolling restart: `kubectl rollout restart deployment payment-service -n payments`. Timestamp is 09:32 UTC.
+
+Bob: Rolling restart in progress. Four of twenty-four pods updated... twelve of twenty-four updated... all twenty-four pods updated and running with the new config at 09:34 UTC.
+
+Dana: Watching real-time traffic in Datadog. 
+
+Dana: Checkout error rate is starting to drop. It went from 51% down to 28% at 09:35 UTC.
+
+Frank: Are payments actually going through? Support is still getting tickets.
+
+Dana: Yes, payment transactions are registering in Datadog. 
+
+Bob: At 09:36 UTC, error rate is down to 8.4%. P99 latency dropped from 14.8 seconds down to 850 milliseconds.
+
+Charlie: Database connection count is at 68, perfectly stable. CPU is at 14%.
+
+Alice: What about the Kafka backlog? Did the webhook consumers recover?
+
+Bob: Checking Kafka lag. At 09:16 UTC we had 18,400 queued messages. With the twelve scaled consumers now processing against the working gateway, the queue is draining fast. At 09:37 UTC, lag is down to 6,100 messages.
+
+Dana: Wait, Dana here. I'm checking the live French store. The checkout button is still disabled for all French customers. The patch didn't work in France!
+
+Alice: Did France have a different ConfigMap?
+
+Dana: Hold on. Let me do a hard cache refresh on my browser. 
+
+Dana: Disregard my last statement! My browser had cached the old failed JavaScript session state. Doing a clean incognito session in Paris: checkout button is enabled, entered test card, and transaction completed in 310 milliseconds. France is working.
+
+Frank: Customers in our Slack VIP channel in Berlin just confirmed their payments went through.
+
+Bob: At 09:39 UTC, payment error rate across EU and APAC has dropped to 0.04%, which is below our normal baseline of 0.15%.
+
+Bob: P99 latency is now 235 milliseconds.
+
+Bob: Kafka consumer lag reached zero at 09:41 UTC. All 18,400 queued webhooks have been processed and acknowledged.
+
+Frank: Do we need to manually resubmit failed payments for customers who abandoned the checkout modal during the incident?
+
+Alice: No, we cannot do that legally without customer re-authorization. Frank, support should send an email notification to affected users inviting them to return to their saved cart.
+
+Frank: Understood. Our marketing automation team has an abandoned cart campaign ready to trigger for this cohort.
+
+IC: Let's do a comprehensive status check across all components.
+
+Alice: Backend payment service: twenty-four pods running healthy on v2.13.8, error rate 0.03%, memory usage 42%, zero OOM restarts in the last ten minutes.
+
+Bob: Infrastructure: EKS clusters stable, Envoy proxies routing TLS traffic cleanly on port 8443, Kafka lag zero, CoreDNS healthy.
+
+Charlie: Database: Aurora Postgres primary CPU 11%, zero replication lag on reader replicas, connection pool at 52 active connections.
+
+Dana: Frontend: client error rate 0.01%, checkout funnel conversion rate back to standard 3.8% across all global regions.
+
+Eve: Security: zero security incidents, audit trail verified for the emergency ConfigMap patch, access logs normal.
+
+Frank: Customer support: incoming ticket volume dropping rapidly, down to three new tickets in the last five minutes.
+
+IC: Excellent. At 09:44 UTC, I am officially downgrading this incident from SEV-1 to SEV-3 for monitoring, and declaring full technical recovery.
+
+IC: Let's summarize the incident for the record:
+Start time: 09:02 UTC upon rollout of deployment v2.14.0.
+End time: 09:40 UTC upon completion of the ConfigMap rollback and pod restart.
+Total outage duration: 38 minutes.
+Customer impact: Approximately 6,420 checkout attempts failed out of 13,380 total attempts during the window, representing a 47.9% failure rate across Europe and Asia-Pacific. Zero duplicate charges were incurred. US operations remained unaffected throughout.
+Root cause: ConfigMap `payment-routing-config` was inadvertently modified to route payment traffic over plain HTTP to port 8080 instead of HTTPS mutual TLS on port 8443, causing connection timeouts, worker thread exhaustion, and cascading OOM pod restarts.
+
+IC: Action items for the post-mortem:
+First, Alice will submit a PR to lock down the ConfigMap deployment pipeline so configuration changes require the same staging validation and automated canary checks as container deployments. Ticket INFRA-4421.
+Second, Bob will implement an alert specifically on payment proxy TCP connection resets and unmapped port connection refusals. Ticket MONITOR-1189.
+Third, Charlie and Alice will adjust the backend HTTP client timeout from fifteen seconds down to three seconds with circuit breakers to prevent thread pool starvation during future gateway failures. Ticket PAY-3309.
+Fourth, Frank will coordinate customer communications with marketing for all 6,420 affected cart sessions by 12:00 UTC today. Ticket SUP-9982.
+
+Alice: I will own INFRA-4421 and PAY-3309.
+
+Bob: I will own MONITOR-1189.
+
+Frank: Support team will execute SUP-9982.
+
+IC: Post-incident review meeting will be tomorrow at 14:00 UTC. Thank you everyone for the fast triage and coordinated execution. Incident call adjourned at 09:46 UTC.

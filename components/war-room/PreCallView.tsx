@@ -11,7 +11,7 @@ interface PreCallViewProps {
   responderCount?: number;
   isLoading?: boolean;
   error?: string | null;
-  onEnterWarRoom?: () => void;
+  onEnterWarRoom?: (mediaSettings?: { videoEnabled: boolean; micEnabled: boolean }) => void;
   onOtherWaysToJoin?: () => void;
 }
 
@@ -24,6 +24,13 @@ export function PreCallView({
   onEnterWarRoom,
   onOtherWaysToJoin,
 }: PreCallViewProps) {
+  const [videoEnabled, setVideoEnabled] = React.useState(true);
+  const [micEnabled, setMicEnabled] = React.useState(true);
+
+  const handleJoin = () => {
+    onEnterWarRoom?.({ videoEnabled, micEnabled });
+  };
+
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden bg-[#171717] text-zinc-100 font-sans">
       {/* Google Meet Style SEV-1 Header */}
@@ -34,7 +41,12 @@ export function PreCallView({
         <div className="grid w-full max-w-6xl grid-cols-1 gap-12 lg:grid-cols-12 items-center">
           {/* Left Column: Hardware Ingestion & Media Preview (7 cols) */}
           <section className="flex flex-col items-center lg:col-span-7">
-            <PreCallHardwarePreview />
+            <PreCallHardwarePreview
+              videoEnabled={videoEnabled}
+              onVideoChange={setVideoEnabled}
+              micEnabled={micEnabled}
+              onMicChange={setMicEnabled}
+            />
           </section>
 
           {/* Right Column: Join War Room Action Card (5 cols) */}
@@ -49,7 +61,7 @@ export function PreCallView({
               severity={severity}
               responderCount={responderCount}
               isLoading={isLoading}
-              onEnterWarRoom={onEnterWarRoom}
+              onEnterWarRoom={handleJoin}
               onOtherWaysToJoin={onOtherWaysToJoin}
             />
           </section>

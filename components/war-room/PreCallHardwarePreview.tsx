@@ -17,15 +17,26 @@ import {
 interface PreCallHardwarePreviewProps {
   onPermissionGranted?: () => void;
   isPermissionGranted?: boolean;
+  videoEnabled?: boolean;
+  onVideoChange?: (enabled: boolean) => void;
+  micEnabled?: boolean;
+  onMicChange?: (enabled: boolean) => void;
 }
 
 export function PreCallHardwarePreview({
   onPermissionGranted,
   isPermissionGranted = false,
+  videoEnabled: controlledVideoEnabled,
+  onVideoChange,
+  micEnabled: controlledMicEnabled,
+  onMicChange,
 }: PreCallHardwarePreviewProps) {
-  const [micEnabled, setMicEnabled] = useState(true);
+  const [internalMicEnabled, setInternalMicEnabled] = useState(true);
   const [audioEnabled, setAudioEnabled] = useState(true);
-  const [videoEnabled, setVideoEnabled] = useState(true);
+  const [internalVideoEnabled, setInternalVideoEnabled] = useState(true);
+
+  const micEnabled = controlledMicEnabled !== undefined ? controlledMicEnabled : internalMicEnabled;
+  const videoEnabled = controlledVideoEnabled !== undefined ? controlledVideoEnabled : internalVideoEnabled;
   const [hasPermission, setHasPermission] = useState(isPermissionGranted);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [audioLevel, setAudioLevel] = useState(0);
@@ -117,7 +128,8 @@ export function PreCallHardwarePreview({
   // Toggle mic track
   const toggleMic = () => {
     const next = !micEnabled;
-    setMicEnabled(next);
+    setInternalMicEnabled(next);
+    onMicChange?.(next);
     if (localStream) {
       localStream.getAudioTracks().forEach((track) => {
         track.enabled = next;
@@ -128,7 +140,8 @@ export function PreCallHardwarePreview({
   // Toggle video track
   const toggleVideo = () => {
     const next = !videoEnabled;
-    setVideoEnabled(next);
+    setInternalVideoEnabled(next);
+    onVideoChange?.(next);
     if (localStream) {
       localStream.getVideoTracks().forEach((track) => {
         track.enabled = next;

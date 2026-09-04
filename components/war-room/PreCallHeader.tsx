@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { ShieldAlert } from 'lucide-react';
+import { SignInButton, SignUpButton, Show, UserButton } from '@clerk/nextjs';
 
 interface PreCallHeaderProps {
   title?: string;
@@ -45,13 +46,29 @@ export function PreCallHeader({
         </div>
       </div>
 
-      {/* Right User Profile Avatar */}
-      <div className="flex items-center gap-4">
-        <div className="relative h-8 w-8 overflow-hidden rounded-full border border-zinc-700 bg-zinc-800">
-          <div className="flex h-full w-full items-center justify-center bg-zinc-700 text-xs font-medium text-zinc-200">
-            AK
-          </div>
-        </div>
+      {/* Right User Profile / Auth Controls */}
+      <div className="flex items-center gap-3">
+        <Show when="signed-out">
+          <SignInButton mode="modal">
+            <button className="rounded-md border border-zinc-700 bg-zinc-850 px-3 py-1.5 text-xs font-medium text-zinc-200 transition-colors hover:bg-zinc-750 hover:text-white cursor-pointer">
+              Sign In
+            </button>
+          </SignInButton>
+          <SignUpButton mode="modal">
+            <button className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white shadow-sm transition-colors hover:bg-blue-500 cursor-pointer">
+              Sign Up
+            </button>
+          </SignUpButton>
+        </Show>
+        <Show when="signed-in">
+          <UserButton
+            appearance={{
+              elements: {
+                userButtonAvatarBox: 'h-8 w-8',
+              },
+            }}
+          />
+        </Show>
       </div>
     </header>
   );

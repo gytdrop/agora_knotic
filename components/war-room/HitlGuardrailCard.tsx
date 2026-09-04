@@ -6,7 +6,7 @@ import { ShieldCheck, AlertOctagon, CheckCircle2, Loader2, Terminal, Flame } fro
 interface HitlGuardrailCardProps {
   isStaged?: boolean;
   isResolved?: boolean;
-  onRemediateSuccess?: () => void;
+  onRemediateSuccess?: () => void | Promise<void>;
 }
 
 export function HitlGuardrailCard({
@@ -21,24 +21,8 @@ export function HitlGuardrailCard({
     setIsAuthorizing(true);
     setErrorMsg(null);
     try {
-      const res = await fetch('/api/remediate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          actionId: 'act_hotfix_8080_8000',
-          actionType: 'K8S_INGRESS_PATCH',
-          targetService: 'ingress/auth-svc',
-          authorizedBy: 'Akthar (Lead SRE)',
-          passkeyUsed: true,
-        }),
-      });
-
-      if (!res.ok) {
-        throw new Error('Remediation webhook returned non-200 status');
-      }
-
       if (onRemediateSuccess) {
-        onRemediateSuccess();
+        await onRemediateSuccess();
       }
     } catch (err) {
       setErrorMsg('Failed to authorize patch. Try again.');

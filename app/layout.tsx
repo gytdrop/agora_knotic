@@ -1,3 +1,5 @@
+import { ClerkProvider } from '@clerk/nextjs';
+import { shadcn } from '@clerk/ui/themes';
 import type { Metadata, Viewport } from 'next';
 import { Montserrat } from 'next/font/google';
 import './globals.css';
@@ -47,7 +49,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`h-full ${montserrat.variable}`}>
-      <body className="h-full min-h-screen font-sans antialiased">{children}</body>
+      <body className="h-full min-h-screen font-sans antialiased">
+        <ClerkProvider appearance={{ theme: shadcn }}>
+          {children}
+        </ClerkProvider>
+      </body>
     </html>
   );
 }

@@ -1,22 +1,16 @@
 'use client';
 
 import React from 'react';
-import { ShieldAlert } from 'lucide-react';
+import { ShieldAlert, Activity } from 'lucide-react';
+import type { LedgerItem } from '@/types/conversation';
+import { formatLedgerTimestamp } from '@/lib/ledger';
 
-export interface LedgerItem {
-  id: string;
-  timestamp: string;
-  speaker: string;
-  text: string;
-  tag: 'FACT' | 'HYPOTHESIS' | 'CONTRADICTION' | 'ACTION';
-  status?: string;
-  reason?: string;
-}
+export type { LedgerItem } from '@/types/conversation';
 
 const DEFAULT_ITEMS: LedgerItem[] = [
   {
     id: '1',
-    timestamp: '12:30:15',
+    timestampMs: 1725432015000,
     speaker: 'Akthar',
     text: '"Database is locked up"',
     tag: 'HYPOTHESIS',
@@ -24,7 +18,7 @@ const DEFAULT_ITEMS: LedgerItem[] = [
   },
   {
     id: '2',
-    timestamp: '12:30:20',
+    timestampMs: 1725432020000,
     speaker: 'Ashrith',
     text: '"Ingress pods OOMing"',
     tag: 'FACT',
@@ -32,7 +26,7 @@ const DEFAULT_ITEMS: LedgerItem[] = [
   },
   {
     id: '3',
-    timestamp: '12:30:25',
+    timestampMs: 1725432025000,
     speaker: 'Akthar vs. Ashrith',
     text: 'Ingress health contradicts DB lockup',
     tag: 'CONTRADICTION',
@@ -61,7 +55,9 @@ export function StateLedgerPanel({ items = DEFAULT_ITEMS }: StateLedgerPanelProp
             {/* Header row: Timestamp (font-mono), Speaker (font-sans), Matte Tag Badge */}
             <div className="flex items-center justify-between mb-1.5">
               <div className="flex items-center gap-2">
-                <span className="font-mono text-zinc-400 text-xs">{item.timestamp}</span>
+                <span className="font-mono text-zinc-400 text-xs">
+                  {formatLedgerTimestamp(item)}
+                </span>
                 <span className="font-sans font-medium text-zinc-100 text-xs">
                   {item.speaker}
                 </span>
@@ -92,14 +88,40 @@ export function StateLedgerPanel({ items = DEFAULT_ITEMS }: StateLedgerPanelProp
             </p>
 
             {/* Contradiction Analysis Reason Box */}
-            {item.reason && (
-              <div className="mt-2.5 rounded-lg bg-zinc-950/90 p-2.5 font-sans text-xs leading-relaxed text-zinc-300 border border-zinc-800/80 shadow-sm">
+            {item.tag === 'CONTRADICTION' && item.reason && (
+              <div className="mt-2.5 rounded-lg bg-zinc-950/90 p-2.5 font-sans text-xs leading-relaxed text-zinc-300 border border-rose-900/50 shadow-sm">
                 <div className="flex items-center gap-1.5 font-medium text-rose-300 mb-1 text-xs">
                   <ShieldAlert className="h-3.5 w-3.5 text-rose-400" /> Contradiction Analysis:
                 </div>
                 <p className="font-sans font-normal text-xs text-zinc-300 leading-relaxed">
                   {item.reason}
                 </p>
+              </div>
+            )}
+
+            {/* Diagnostic Root Cause Action Box */}
+            {item.tag === 'ACTION' && item.reason && (
+              <div className="mt-2.5 rounded-lg bg-zinc-950/90 p-2.5 font-sans text-xs leading-relaxed text-zinc-300 border border-amber-900/50 shadow-sm">
+                <div className="flex items-center gap-1.5 font-medium text-amber-300 mb-1 text-xs">
+                  <Activity className="h-3.5 w-3.5 text-amber-400" /> Diagnostic Root Cause:
+                </div>
+                <p className="font-sans font-normal text-xs text-zinc-300 leading-relaxed">
+                  {item.reason}
+                </p>
+              </div>
+            )}
+
+            {/* Structured Telemetry Evidence Badge */}
+            {item.telemetryEvidence && (
+              <div className="mt-2 rounded bg-zinc-900/90 px-2.5 py-1.5 font-mono text-[10px] text-zinc-300 border border-zinc-800/80 flex items-center justify-between">
+                <span className="text-zinc-400 truncate">
+                  Telemetry: <span className="text-zinc-200 font-medium">{item.telemetryEvidence.component}</span>
+                </span>
+                {typeof item.telemetryEvidence.confidence === 'number' && (
+                  <span className="ml-2 shrink-0 rounded bg-zinc-800 px-1.5 py-0.5 text-[9px] text-emerald-400 border border-zinc-700">
+                    {Math.round(item.telemetryEvidence.confidence * 100)}% Conf
+                  </span>
+                )}
               </div>
             )}
           </div>
