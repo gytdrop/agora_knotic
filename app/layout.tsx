@@ -48,14 +48,20 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const hasClerkKey = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
+
   return (
     <html lang="en" className={`h-full ${montserrat.variable}`}>
       <body className="h-full min-h-screen font-sans antialiased">
-        <ClerkProvider appearance={{ theme: shadcn }}>
-          <ConvexClientProvider>
-            {children}
-          </ConvexClientProvider>
-        </ClerkProvider>
+        {hasClerkKey ? (
+          <ClerkProvider appearance={{ theme: shadcn }}>
+            <ConvexClientProvider>
+              {children}
+            </ConvexClientProvider>
+          </ClerkProvider>
+        ) : (
+          children
+        )}
       </body>
     </html>
   );
