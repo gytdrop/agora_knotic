@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { AgoraClient, Area } from 'agora-agents';
+import { handleCorsPreflight, withCors } from '@/lib/cors';
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -10,6 +11,10 @@ function requireEnv(name: string): string {
 export interface AgentSpeakRequest {
   agentId: string;
   alerts: string[];
+}
+
+export async function OPTIONS(request: Request) {
+  return handleCorsPreflight(request);
 }
 
 /**
@@ -30,7 +35,10 @@ export async function POST(request: NextRequest) {
     const { agentId, alerts } = body;
 
     if (!agentId || !alerts || alerts.length === 0) {
-      return NextResponse.json({ ok: true, skipped: true, reason: 'no_alerts_or_agent_id' });
+      return withCors(
+        NextResponse.json({ ok: true, skipped: true, reason: 'no_alerts_or_agent_id' }),
+        request,
+      );
     }
 
     const appId = requireEnv('NEXT_PUBLIC_AGORA_APP_ID');
@@ -54,14 +62,20 @@ export async function POST(request: NextRequest) {
       interruptable: false,
     });
 
-    return NextResponse.json({ ok: true, skipped: false, count: alerts.length });
+    return withCors(
+      NextResponse.json({ ok: true, skipped: false, count: alerts.length }),
+      request,
+    );
   } catch (error) {
     // Speak endpoint failure is non-fatal — alerts are already in the ledger.
     console.warn('[agent-speak] TTS replay failed (non-fatal):', error);
-    return NextResponse.json({
-      ok: true,
-      skipped: true,
-      reason: error instanceof Error ? error.message : 'unknown',
-    });
+    return withCors(
+      NextResponse.json({
+        ok: true,
+        skipped: true,
+        reason: error instanceof Error ? error.message : 'unknown',
+      }),
+      request,
+    );
   }
 }

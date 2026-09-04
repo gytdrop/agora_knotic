@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { analyzeStatement } from '@/lib/incident-analyzer';
 import { recordIncidentEvent } from '@/lib/event-store';
 import type { SpeakerRole, LedgerItem } from '@/types/conversation';
+import { handleCorsPreflight, withCors } from '@/lib/cors';
 
 export interface ClassifyStatementRequest {
   text: string;
@@ -11,6 +12,10 @@ export interface ClassifyStatementRequest {
   turnId?: number;
   incidentId?: string;
   recordEvent?: boolean;
+}
+
+export async function OPTIONS(request: Request) {
+  return handleCorsPreflight(request);
 }
 
 export async function POST(request: NextRequest) {
@@ -27,9 +32,12 @@ export async function POST(request: NextRequest) {
     } = body;
 
     if (!text || typeof text !== 'string') {
-      return NextResponse.json(
-        { error: 'Missing or invalid text parameter' },
-        { status: 400 },
+      return withCors(
+        NextResponse.json(
+          { error: 'Missing or invalid text parameter' },
+          { status: 400 },
+        ),
+        request,
       );
     }
 
@@ -64,20 +72,26 @@ export async function POST(request: NextRequest) {
       eventResult = recordIncidentEvent(incidentId, eventType, ledgerItem);
     }
 
-    return NextResponse.json(
-      {
-        success: true,
-        tag: analyzed.tag,
-        analysis: analyzed,
-        item: ledgerItem,
-        event: eventResult?.event,
-      },
-      { status: 200 },
+    return withCors(
+      NextResponse.json(
+        {
+          success: true,
+          tag: analyzed.tag,
+          analysis: analyzed,
+          item: ledgerItem,
+          event: eventResult?.event,
+        },
+        { status: 200 },
+      ),
+      request,
     );
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Failed to classify statement', details: String(error) },
-      { status: 500 },
+    return withCors(
+      NextResponse.json(
+        { error: 'Failed to classify statement', details: String(error) },
+        { status: 500 },
+      ),
+      request,
     );
   }
 }

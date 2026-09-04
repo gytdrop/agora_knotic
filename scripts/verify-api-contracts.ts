@@ -14,6 +14,10 @@ function getJson(response: Response) {
 
 process.env.NEXT_PUBLIC_AGORA_APP_ID = '0123456789abcdef0123456789abcdef';
 process.env.NEXT_AGORA_APP_CERTIFICATE = 'fedcba9876543210fedcba9876543210';
+process.env.AGORA_APP_ID = '0123456789abcdef0123456789abcdef';
+process.env.AGORA_APP_CERTIFICATE = 'fedcba9876543210fedcba9876543210';
+
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 async function verifyGenerateAgoraTokenRoute() {
   const { GET: generateAgoraToken } =
@@ -28,7 +32,7 @@ async function verifyGenerateAgoraTokenRoute() {
 
   try {
     const request = new NextRequest(
-      'http://localhost:3000/api/generate-agora-token?uid=4321&channel=test-channel',
+      `${BASE_URL}/api/generate-agora-token?uid=4321&channel=test-channel`,
     );
     const response = await generateAgoraToken(request);
     const body = await getJson(response);
@@ -80,7 +84,7 @@ async function verifyGenerateAgoraTokenReplacesZeroUid() {
 
   try {
     const request = new NextRequest(
-      'http://localhost:3000/api/generate-agora-token?uid=0&channel=test-channel',
+      `${BASE_URL}/api/generate-agora-token?uid=0&channel=test-channel`,
     );
     const response = await generateAgoraToken(request);
     const body = await getJson(response);
@@ -122,7 +126,7 @@ async function verifyChatCompletionsMissingEnv() {
 
   try {
     const request = new NextRequest(
-      'http://localhost:3000/api/chat/completions',
+      `${BASE_URL}/api/chat/completions`,
       {
         body: JSON.stringify({ messages: [] }),
         method: 'POST',
@@ -172,7 +176,7 @@ async function verifyChatCompletionsInvalidJson() {
 
   try {
     const request = new NextRequest(
-      'http://localhost:3000/api/chat/completions',
+      `${BASE_URL}/api/chat/completions`,
       {
         body: '{not json',
         method: 'POST',
@@ -236,7 +240,7 @@ async function verifyChatCompletionsSseDone() {
 
   try {
     const request = new NextRequest(
-      'http://localhost:3000/api/chat/completions',
+      `${BASE_URL}/api/chat/completions`,
       {
         body: JSON.stringify({
           model: 'caller-model-ignored-for-routing',
@@ -293,7 +297,7 @@ async function verifyChatCompletionsSseDone() {
 
 async function verifyInviteAgentValidation() {
   const { POST: inviteAgent } = await import('../app/api/invite-agent/route');
-  const request = new NextRequest('http://localhost:3000/api/invite-agent', {
+  const request = new NextRequest(`${BASE_URL}/api/invite-agent`, {
     body: JSON.stringify({ channel_name: 'missing-requester' }),
     method: 'POST',
   });
@@ -331,7 +335,7 @@ async function verifyInviteAgentSuccess() {
   }) as unknown as typeof Agent.prototype.createSession;
 
   try {
-    const request = new NextRequest('http://localhost:3000/api/invite-agent', {
+    const request = new NextRequest(`${BASE_URL}/api/invite-agent`, {
       body: JSON.stringify({
         requester_id: 'user-4321',
         channel_name: 'test-channel',
@@ -385,7 +389,7 @@ async function verifyStopConversationValidation() {
   const { POST: stopConversation } =
     await import('../app/api/stop-conversation/route');
   const request = new NextRequest(
-    'http://localhost:3000/api/stop-conversation',
+    `${BASE_URL}/api/stop-conversation`,
     {
       body: JSON.stringify({}),
       method: 'POST',
@@ -419,7 +423,7 @@ async function verifyStopConversationSuccess() {
 
   try {
     const request = new NextRequest(
-      'http://localhost:3000/api/stop-conversation',
+      `${BASE_URL}/api/stop-conversation`,
       {
         body: JSON.stringify({ agent_id: 'mock-agent-id' }),
         method: 'POST',

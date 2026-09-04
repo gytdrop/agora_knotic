@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { RtcTokenBuilder, RtcRole } from 'agora-token';
+import { handleCorsPreflight, withCors } from '@/lib/cors';
 
 const EXPIRATION_TIME_IN_SECONDS = 3600;
 
@@ -9,15 +10,23 @@ function generateChannelName(): string {
   return `ai-conversation-${timestamp}-${random}`;
 }
 
+export async function OPTIONS(request: NextRequest) {
+  return handleCorsPreflight(request);
+}
+
 export async function GET(request: NextRequest) {
-  // console.log('Generating Agora token...');
-  const APP_ID = process.env.NEXT_PUBLIC_AGORA_APP_ID;
-  const APP_CERTIFICATE = process.env.NEXT_AGORA_APP_CERTIFICATE;
+  // Supports both standard AGORA_* and NEXT_PUBLIC_AGORA_* variable names
+  const APP_ID = process.env.AGORA_APP_ID || process.env.NEXT_PUBLIC_AGORA_APP_ID;
+  const APP_CERTIFICATE =
+    process.env.AGORA_APP_CERTIFICATE || process.env.NEXT_AGORA_APP_CERTIFICATE;
 
   if (!APP_ID || !APP_CERTIFICATE) {
-    return NextResponse.json(
-      { error: 'Agora credentials are not set' },
-      { status: 500 },
+    return withCors(
+      NextResponse.json(
+        { error: 'Agora credentials are not set. Set AGORA_APP_ID/NEXT_PUBLIC_AGORA_APP_ID and AGORA_APP_CERTIFICATE/NEXT_AGORA_APP_CERTIFICATE.' },
+        { status: 500 },
+      ),
+      request,
     );
   }
 
@@ -33,7 +42,6 @@ export async function GET(request: NextRequest) {
     Math.floor(Date.now() / 1000) + EXPIRATION_TIME_IN_SECONDS;
 
   try {
-    // console.log('Building RTC+RTM token: uid =', uid, 'channel =', channelName);
     const token = RtcTokenBuilder.buildTokenWithRtm(
       APP_ID,
       APP_CERTIFICATE,
@@ -43,21 +51,26 @@ export async function GET(request: NextRequest) {
       expirationTime,
       expirationTime,
     );
-    // console.log('Token generated successfully (RTC + RTM)');
 
-    return NextResponse.json({
-      token,
-      uid: uid.toString(),
-      channel: channelName,
-    });
+    return withCors(
+      NextResponse.json({
+        token,
+        uid: uid.toString(),
+        channel: channelName,
+      }),
+      request,
+    );
   } catch (error) {
     console.error('Error generating Agora token:', error);
-    return NextResponse.json(
-      {
-        error: 'Failed to generate Agora token',
-        details: error instanceof Error ? error.message : String(error),
-      },
-      { status: 500 },
+    return withCors(
+      NextResponse.json(
+        {
+          error: 'Failed to generate Agora token',
+          details: error instanceof Error ? error.message : String(error),
+        },
+        { status: 500 },
+      ),
+      request,
     );
   }
 }

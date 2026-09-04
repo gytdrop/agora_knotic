@@ -53,6 +53,7 @@ import { VideoGrid } from './war-room/VideoGrid';
 import { ConversationParsingPanel } from './war-room/ConversationParsingPanel';
 import type { ConversationComponentProps, LedgerItem, SpeakerRole } from '@/types/conversation';
 import { applyLedgerMutation, type LedgerItemInput } from '@/lib/ledger';
+import { getApiUrl, getAgoraAppId } from '@/lib/api-config';
 
 // Cap the displayed issues list to avoid overwhelming the UI during a cascade of errors.
 const MAX_CONNECTION_ISSUES = 6;
@@ -96,7 +97,7 @@ export default function ConversationComponent({
 
   // Hardware & Video State
   const [isVideoOff, setIsVideoOff] = useState(!initialVideoEnabled);
-  const [localVideoStream, setLocalVideoStream] = useState<MediaStream | null>(null);
+  const [localVideoStream, _setLocalVideoStream] = useState<MediaStream | null>(null);
   const [isSideDrawerOpen, setIsSideDrawerOpen] = useState(true);
 
   // Incident & Remediation State
@@ -153,7 +154,7 @@ export default function ConversationComponent({
       if (itemToSync) {
         onLedgerItemReceived?.(itemToSync);
         // Authoritative event store sync
-        fetch('/api/incident/events', {
+        fetch(getApiUrl('/api/incident/events'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -189,7 +190,7 @@ export default function ConversationComponent({
   // Hydrate ledger from authoritative event store on mount / reconnect
   useEffect(() => {
     let isCancelled = false;
-    fetch('/api/incident/events?incidentId=%23INC-8921')
+    fetch(getApiUrl('/api/incident/events?incidentId=%23INC-8921'))
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (!isCancelled && data?.ledgerItems && Array.isArray(data.ledgerItems) && data.ledgerItems.length > 0) {
@@ -250,7 +251,7 @@ export default function ConversationComponent({
 
   const { isConnected: joinSuccess } = useJoin(
     {
-      appid: process.env.NEXT_PUBLIC_AGORA_APP_ID!,
+      appid: (getAgoraAppId() || process.env.NEXT_PUBLIC_AGORA_APP_ID)!,
       channel: agoraData.channel,
       token: agoraData.token,
       uid: parseInt(agoraData.uid, 10),
@@ -531,7 +532,7 @@ export default function ConversationComponent({
   // 1-Click Hotfix Remediation
   const handleRemediateSuccess = useCallback(async () => {
     try {
-      const res = await fetch('/api/remediate', {
+      const res = await fetch(getApiUrl('/api/remediate'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -799,7 +800,7 @@ export default function ConversationComponent({
       const alerts = [...mutedAlertQueueRef.current];
       mutedAlertQueueRef.current = [];
       console.log(`[SilentMode] Unmuted — replaying ${alerts.length} queued alert(s) via TTS.`);
-      fetch('/api/agent-speak', {
+      fetch(getApiUrl('/api/agent-speak'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ agentId: agoraData.agentId, alerts }),
@@ -823,7 +824,7 @@ export default function ConversationComponent({
     }
     if (localVideoStream && nextVideoOff) {
       localVideoStream.getTracks().forEach((t) => t.stop());
-      setLocalVideoStream(null);
+      _setLocalVideoStream(null);
     }
     setIsVideoOff(nextVideoOff);
   }, [isVideoOff, localCameraTrack, localVideoStream]);
@@ -999,7 +1000,7 @@ export default function ConversationComponent({
           <button
             onClick={async () => {
               try {
-                const res = await fetch('/api/holmesgpt', {
+                const res = await fetch(getApiUrl('/api/holmesgpt'), {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({

@@ -1,5 +1,6 @@
 import { ClerkProvider } from '@clerk/nextjs';
 import { shadcn } from '@clerk/ui/themes';
+import { ConvexClientProvider } from '@/components/ConvexClientProvider';
 import type { Metadata, Viewport } from 'next';
 import { Montserrat } from 'next/font/google';
 import './globals.css';
@@ -51,7 +52,9 @@ export default function RootLayout({
     <html lang="en" className={`h-full ${montserrat.variable}`}>
       <body className="h-full min-h-screen font-sans antialiased">
         <ClerkProvider appearance={{ theme: shadcn }}>
-          {children}
+          <ConvexClientProvider>
+            {children}
+          </ConvexClientProvider>
         </ClerkProvider>
       </body>
     </html>
