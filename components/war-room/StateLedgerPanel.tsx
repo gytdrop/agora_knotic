@@ -46,6 +46,8 @@ export function StateLedgerPanel({ items = DEFAULT_ITEMS }: StateLedgerPanelProp
       {items.map((item) => {
         const isFact = item.tag === 'FACT';
         const isHypothesis = item.tag === 'HYPOTHESIS';
+        const isAction = item.tag === 'ACTION';
+        const isQuestion = item.tag === 'QUESTION';
 
         return (
           <div
@@ -70,6 +72,10 @@ export function StateLedgerPanel({ items = DEFAULT_ITEMS }: StateLedgerPanelProp
                     ? 'bg-zinc-800 text-emerald-300 border-zinc-700'
                     : isHypothesis
                     ? 'bg-zinc-800 text-amber-300 border-zinc-700'
+                    : isAction
+                    ? 'bg-zinc-800 text-blue-300 border-zinc-700'
+                    : isQuestion
+                    ? 'bg-zinc-800 text-sky-300 border-zinc-700'
                     : 'bg-zinc-800 text-rose-300 border-zinc-700'
                 }`}
               >

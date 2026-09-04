@@ -621,7 +621,7 @@ function checkActionItem(transcriptText: string): {
   const COMPLETED =
     /\b(returned|have deployed|has deployed|deployed|finished|completed|spiked|dropped)\b/i;
   const GENERIC_ACTION_REGEX =
-    /^(let(\x27s| us)\s+)?(check\s+[a-z0-9]|verify\s+[a-z0-9]|inspect\s+[a-z0-9]|compare\s+[a-z0-9]|look at\s+[a-z0-9]|query\s+(the|our|[a-z0-9_-]+)|restart\s+[a-z0-9]|roll\s*back\s+(the|deployment|[a-z0-9_-]+)|patch\s+(the|[a-z0-9_-]+)|apply\s+[a-z0-9]|scale\s+(up|the)\s+[a-z0-9]|page\s+(the|[a-z0-9_-]+)|drain\s+[a-z0-9]|kill\s+[a-z0-9])/i;
+    /^((can\s+(you|we|someone)\s+|could\s+(you|we|someone)\s+|please\s+|let(\x27s| us)\s+)?(check\b|verify\b|inspect\b|compare\b|look at\b|look into\b|investigate\b|query\b|restart\b|roll\s*back\b|patch\b|apply\b|scale\b|page\b|drain\b|kill\b))/i;
 
   if (!COMPLETED.test(t) && GENERIC_ACTION_REGEX.test(t)) {
     return {
@@ -656,7 +656,7 @@ function checkHypothesis(transcriptText: string): {
     ) ||
     /\b(what if|assume|assumption)\b/i.test(t)
   ) {
-    let lifecycle: HypothesisLifecycle = 'CONTRADICTED';
+    let lifecycle: HypothesisLifecycle = 'PENDING';
     if (
       /\b(temporary authorization holds|trying to open an unencrypted connection to port 8080|root cause|payment failures may be caused by fraud service timeouts)\b/i.test(
         t,
@@ -693,7 +693,10 @@ function checkConfirmedFact(transcriptText: string): {
 
   // Infrastructure and cluster events:
   if (
-    /\b(kubernetes restarted .* pods|readiness probe failures)\b/i.test(t)
+    /\b(kubernetes restarted .* pods|readiness probe failures|ingress pods are ooming|pods are ooming|ooming|crashloop|crash-looping|bad gateway|502 bad gateway|connection pool exhaustion|service unavailable)\b/i.test(
+      t,
+    ) &&
+    !/\b(could|might|maybe|think|suspect|what if|why did)\b/i.test(t)
   ) {
     return { isFact: true, status: 'Verified Infrastructure Telemetry' };
   }
@@ -779,6 +782,9 @@ function checkQuestionOrMissingInfo(transcriptText: string): {
   const t = transcriptText.trim();
   if (
     /\?$/.test(t) ||
+    /^(what|why|how|who|where|when|which|is|are|can|could|should|would|did|does|do|has|have|was|were)\b/i.test(
+      t,
+    ) ||
     /^(what changed|is the database unavailable|did rollback fix|are those fresh failures|is that related|not sure yet\.?|unknown\.?|no evidence yet\.?)$/i.test(
       t,
     )

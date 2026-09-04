@@ -724,6 +724,7 @@ export default function ConversationComponent({
 
       // Skip non-ledger conversational noise (roll calls, audio checks, acknowledgements)
       if (analyzed.isNoise) {
+        console.log('[IncidentAnalyzer] Skipped conversational noise turn:', turn.text);
         continue;
       }
 

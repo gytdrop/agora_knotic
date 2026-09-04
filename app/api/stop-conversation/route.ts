@@ -55,9 +55,10 @@ export async function POST(request: Request) {
       process.env.NEXT_AGORA_APP_CERTIFICATE ||
       '83a1d570d734408ebbdf8de869964688';
 
-    // area: change to Area.EU or Area.AP for European or Asia-Pacific deployments.
+    // Area alignment: match invite-agent area configuration
+    const clientArea = process.env.AGORA_AREA === 'US' ? Area.US : Area.AP;
     const client = new AgoraClient({
-      area: Area.US,
+      area: clientArea,
       appId,
       appCertificate,
     });
