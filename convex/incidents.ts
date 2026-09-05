@@ -88,3 +88,86 @@ export const resolveIncident = mutation({
     return incident._id;
   },
 });
+
+export const listActiveIncidents = query({
+  args: {},
+  handler: async (ctx) => {
+    const all = await ctx.db.query("incidents").order("desc").collect();
+    return all.filter((inc) => inc.status !== "RESOLVED");
+  },
+});
+
+export const seedDefaultIncidents = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const existing = await ctx.db.query("incidents").first();
+    if (existing) return;
+
+    const defaults = [
+      {
+        incidentId: "#7134",
+        title: "Alluring Muse",
+        severity: "SEV2",
+        status: "ACTIVE",
+        rootCause: "No summary for this incident",
+        createdAt: Date.now() - 3600 * 1000, // 1h ago
+      },
+      {
+        incidentId: "#7126",
+        title: "Code Deployment Error Leads to Service Degradation",
+        severity: "SEV0",
+        status: "ACTIVE",
+        rootCause: "A recent deployment of new code to the production environment inadvertently introduced an error...",
+        createdAt: Date.now() - 22 * 3600 * 1000, // 22h ago
+      },
+      {
+        incidentId: "#7125",
+        title: "Memory Leak in Main Application Server",
+        severity: "SEV1",
+        status: "ACTIVE",
+        rootCause: "Users reported unusual slowdowns and service interruptions traced back to a memory leak...",
+        createdAt: Date.now() - 22 * 3600 * 1000,
+      },
+      {
+        incidentId: "#7124",
+        title: "Security Vulnerability Discovered in Auth Module",
+        severity: "SEV2",
+        status: "ACTIVE",
+        rootCause: "A significant security flaw was identified within the authentication module of our core platform...",
+        createdAt: Date.now() - 22 * 3600 * 1000,
+      },
+      {
+        incidentId: "#7123",
+        title: "Unexpected Database Downtime After Upgrade",
+        severity: "SEV3",
+        status: "ACTIVE",
+        rootCause: "During a routine update, a critical database unexpectedly went offline, leading to widespread...",
+        createdAt: Date.now() - 22 * 3600 * 1000,
+      },
+    ];
+
+    for (const item of defaults) {
+      await ctx.db.insert("incidents", item);
+    }
+  },
+});
+
+export const createIncident = mutation({
+  args: {
+    title: v.string(),
+    severity: v.string(),
+    summary: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const count = (await ctx.db.query("incidents").collect()).length;
+    const incidentId = `#${7135 + count}`;
+    return await ctx.db.insert("incidents", {
+      incidentId,
+      title: args.title,
+      severity: args.severity,
+      status: "ACTIVE",
+      rootCause: args.summary || "No summary for this incident",
+      createdAt: Date.now(),
+    });
+  },
+});
