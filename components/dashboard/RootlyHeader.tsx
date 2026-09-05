@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { Search, Sparkles, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -68,10 +69,12 @@ export function RootlyHeader({
       <div className="flex items-center gap-3 min-w-0">
         <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 text-xs font-bold text-white shadow-xs overflow-visible">
           {avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={avatarUrl}
               alt={userName}
+              width={36}
+              height={36}
+              unoptimized
               className="h-full w-full rounded-full object-cover"
             />
           ) : (
