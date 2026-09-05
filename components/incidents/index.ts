@@ -22,3 +22,12 @@ export type {
   IncidentsViewTab,
   IncidentSortOption,
 } from './IncidentsFilterBar';
+
+export { IncidentsHeader } from './IncidentsHeader';
+export type { IncidentsHeaderProps } from './IncidentsHeader';
+
+export {
+  IncidentsDirectory,
+  DEFAULT_DIRECTORY_INCIDENTS,
+} from './IncidentsDirectory';
+export type { IncidentsDirectoryProps } from './IncidentsDirectory';
