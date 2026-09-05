@@ -1,10 +1,10 @@
 import { Suspense } from 'react';
-import LandingPage from '@/components/LandingPage';
+import { IncidentDashboard } from '@/components/dashboard/IncidentDashboard';
 
 export default function Home() {
   return (
     <Suspense fallback={null}>
-      <LandingPage />
+      <IncidentDashboard />
     </Suspense>
   );
 }

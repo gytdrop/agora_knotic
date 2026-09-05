@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { Search, Sparkles, X } from 'lucide-react';
+import { Menu, Search, Sparkles, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface RootlyHeaderProps {
@@ -13,6 +13,8 @@ export interface RootlyHeaderProps {
   searchQuery?: string;
   onSearchChange?: (query: string) => void;
   onCreateIncident?: () => void;
+  onToggleMobileMenu?: () => void;
+  searchInputRef?: React.Ref<HTMLInputElement>;
   className?: string;
 }
 
@@ -23,6 +25,8 @@ export function RootlyHeader({
   searchQuery,
   onSearchChange,
   onCreateIncident,
+  onToggleMobileMenu,
+  searchInputRef,
   className,
 }: RootlyHeaderProps) {
   // Default to "Good Afternoon" to preserve deterministic SSR matching screenshot
@@ -66,7 +70,18 @@ export function RootlyHeader({
       )}
     >
       {/* Left Section: Avatar + Greeting */}
-      <div className="flex items-center gap-3 min-w-0">
+      <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+        {onToggleMobileMenu && (
+          <button
+            type="button"
+            onClick={onToggleMobileMenu}
+            aria-label="Open sidebar menu"
+            className="inline-flex md:hidden items-center justify-center p-1.5 -ml-1 rounded-lg text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 focus:outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer shrink-0"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+        )}
+
         <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 text-xs font-bold text-white shadow-xs overflow-visible">
           {avatarUrl ? (
             <Image
@@ -104,6 +119,7 @@ export function RootlyHeader({
         <div className="relative flex items-center">
           <Search className="absolute left-3 h-3.5 w-3.5 text-zinc-400 pointer-events-none" />
           <input
+            ref={searchInputRef}
             type="text"
             value={currentSearchValue}
             onChange={handleSearchInputChange}
