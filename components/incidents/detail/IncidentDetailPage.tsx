@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { useQuery, useMutation } from 'convex/react';
+import { useConvex, useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import {
   getFallbackIncident,
   normalizeIncidentId,
+  type IncidentDetailRecord,
 } from '@/lib/incident-detail-data';
 import { normalizeSeverity } from '@/lib/incident-severity';
 import { IncidentDetailHeader } from './IncidentDetailHeader';
@@ -31,105 +32,77 @@ export interface IncidentDetailPageProps {
   className?: string;
 }
 
-export function IncidentDetailPage({
-  incidentId,
+interface IncidentDetailPageViewProps {
+  normId: string;
+  initialRecord: IncidentDetailRecord;
+  ledgerEvents: LedgerEventItem[];
+  onUpdateStatus: (newStatus: IncidentLifecycleStage) => Promise<void> | void;
+  onUpdateSeverity: (newSeverity: 'Critical' | 'Major' | 'Minor') => Promise<void> | void;
+  onUpdateSummary: (summary: {
+    problem: string;
+    impact: string;
+    causes: string;
+    mitigation: string;
+  }) => Promise<void> | void;
+  className?: string;
+}
+
+/**
+ * Pure presentation view for incident detail page.
+ * Manages UI state (tabs, expand/collapse, optimistic edits) and renders layout.
+ */
+function IncidentDetailPageView({
+  normId,
+  initialRecord,
+  ledgerEvents,
+  onUpdateStatus,
+  onUpdateSeverity,
+  onUpdateSummary,
   className,
-}: IncidentDetailPageProps) {
-  const normId = useMemo(() => normalizeIncidentId(incidentId), [incidentId]);
-  const fallbackRecord = useMemo(() => getFallbackIncident(normId), [normId]);
-
-  // Convex reactive queries (safe: null if not yet loaded or if Convex is unconfigured)
-  const rawConvexIncident = useQuery(api.incidents.getIncident, { incidentId: normId });
-  const rawLedgerEvents = useQuery(api.incidents.listLedgerEvents, { incidentId: normId });
-
-  // Mutations
-  const mutateStatus = useMutation(api.incidents.updateIncidentStatus);
-  const mutateSeverity = useMutation(api.incidents.updateIncidentSeverity);
-  const mutateSummary = useMutation(api.incidents.updateIncidentSummary);
-
-  // Local optimistic state initialized from fallback or Convex
-  const [localTitle, setLocalTitle] = useState(fallbackRecord.title);
-  const [localStatus, setLocalStatus] = useState<string>(fallbackRecord.status);
-  const [localSeverity, setLocalSeverity] = useState<string>(fallbackRecord.severity);
+}: IncidentDetailPageViewProps) {
+  const [localTitle, setLocalTitle] = useState(initialRecord.title);
+  const [localStatus, setLocalStatus] = useState<string>(initialRecord.status);
+  const [localSeverity, setLocalSeverity] = useState<string>(initialRecord.severity);
   const [localSummary, setLocalSummary] = useState({
-    problem: fallbackRecord.problem,
-    impact: fallbackRecord.impact,
-    causes: fallbackRecord.causes,
-    mitigation: fallbackRecord.mitigation,
+    problem: initialRecord.problem,
+    impact: initialRecord.impact,
+    causes: initialRecord.causes,
+    mitigation: initialRecord.mitigation,
   });
   const [activeTab, setActiveTab] = useState<IncidentDetailTab>('timeline');
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Sync when Convex incident data loads
   useEffect(() => {
-    if (rawConvexIncident) {
-      if (rawConvexIncident.title) setLocalTitle(rawConvexIncident.title);
-      if (rawConvexIncident.status) setLocalStatus(rawConvexIncident.status);
-      if (rawConvexIncident.severity) setLocalSeverity(rawConvexIncident.severity);
-      setLocalSummary((prev) => ({
-        problem: rawConvexIncident.problem || prev.problem,
-        impact: rawConvexIncident.impact || prev.impact,
-        causes: rawConvexIncident.causes || prev.causes,
-        mitigation: rawConvexIncident.mitigation || prev.mitigation,
-      }));
-    }
-  }, [rawConvexIncident]);
+    if (initialRecord.title) setLocalTitle(initialRecord.title);
+    if (initialRecord.status) setLocalStatus(initialRecord.status);
+    if (initialRecord.severity) setLocalSeverity(initialRecord.severity);
+    setLocalSummary({
+      problem: initialRecord.problem,
+      impact: initialRecord.impact,
+      causes: initialRecord.causes,
+      mitigation: initialRecord.mitigation,
+    });
+  }, [initialRecord]);
 
-  const handleUpdateStatus = async (newStatus: IncidentLifecycleStage) => {
+  const handleUpdateStatus = (newStatus: IncidentLifecycleStage) => {
     setLocalStatus(newStatus);
-    try {
-      await mutateStatus({ incidentId: normId, status: newStatus });
-    } catch {
-      // Offline fallback: optimistic state persists in UI
-    }
+    onUpdateStatus(newStatus);
   };
 
-  const handleUpdateSeverity = async (newSeverity: 'Critical' | 'Major' | 'Minor') => {
+  const handleUpdateSeverity = (newSeverity: 'Critical' | 'Major' | 'Minor') => {
     setLocalSeverity(newSeverity);
-    try {
-      await mutateSeverity({ incidentId: normId, severity: newSeverity });
-    } catch {
-      // Offline fallback: optimistic state persists
-    }
+    onUpdateSeverity(newSeverity);
   };
 
-  const handleUpdateSummary = async (newSummary: {
+  const handleUpdateSummary = (newSummary: {
     problem: string;
     impact: string;
     causes: string;
     mitigation: string;
   }) => {
     setLocalSummary(newSummary);
-    try {
-      await mutateSummary({
-        incidentId: normId,
-        problem: newSummary.problem,
-        impact: newSummary.impact,
-        causes: newSummary.causes,
-        mitigation: newSummary.mitigation,
-      });
-    } catch {
-      // Offline fallback: optimistic state persists
-    }
+    onUpdateSummary(newSummary);
   };
-
-  const handleUpdateTitle = (newTitle: string) => {
-    setLocalTitle(newTitle);
-  };
-
-  const formattedLedgerEvents: LedgerEventItem[] = useMemo(() => {
-    if (rawLedgerEvents && rawLedgerEvents.length > 0) {
-      return rawLedgerEvents.map((evt) => ({
-        _id: evt._id,
-        incidentId: evt.incidentId,
-        timestamp: evt.timestamp,
-        speaker: evt.speaker,
-        tag: evt.tag,
-        text: evt.text,
-      }));
-    }
-    return [];
-  }, [rawLedgerEvents]);
 
   const activeSeverity = normalizeSeverity(localSeverity);
 
@@ -144,7 +117,7 @@ export function IncidentDetailPage({
       <IncidentDetailHeader
         incidentId={normId}
         title={localTitle}
-        onUpdateTitle={handleUpdateTitle}
+        onUpdateTitle={setLocalTitle}
         onResolve={() => handleUpdateStatus('RESOLVED')}
       />
 
@@ -152,12 +125,12 @@ export function IncidentDetailPage({
       <IncidentLifecycleStepper
         status={localStatus}
         severity={activeSeverity}
-        durationString={fallbackRecord.durationString}
+        durationString={initialRecord.durationString}
         onUpdateStatus={handleUpdateStatus}
         onUpdateSeverity={handleUpdateSeverity}
       />
 
-      {/* Two Column Layout: Main Content (Summary, Tabs, Stream) + Right Attributes Sidebar */}
+      {/* Two Column Layout */}
       <div className="flex flex-col lg:flex-row gap-6 items-start">
         {/* Main Column */}
         <div className="flex-1 min-w-0 w-full space-y-6">
@@ -174,28 +147,28 @@ export function IncidentDetailPage({
           <IncidentDetailTabs
             activeTab={activeTab}
             onTabChange={setActiveTab}
-            actionCount={fallbackRecord.actions.length}
+            actionCount={initialRecord.actions.length}
             isExpanded={isExpanded}
             onToggleExpand={() => setIsExpanded((prev) => !prev)}
-            dateIndicator={fallbackRecord.timelineEvents[0]?.timeFormatted ? 'Today' : 'Active'}
+            dateIndicator={initialRecord.timelineEvents[0]?.timeFormatted ? 'Today' : 'Active'}
           />
 
           {/* Active Tab View */}
           <div className="min-h-[300px]">
             {activeTab === 'timeline' && (
               <IncidentTimelineView
-                timelineEvents={fallbackRecord.timelineEvents}
-                ledgerEvents={formattedLedgerEvents}
+                timelineEvents={initialRecord.timelineEvents}
+                ledgerEvents={ledgerEvents}
                 isExpanded={isExpanded}
               />
             )}
 
             {activeTab === 'actions' && (
-              <IncidentActionsView actions={fallbackRecord.actions} />
+              <IncidentActionsView actions={initialRecord.actions} />
             )}
 
             {activeTab === 'follow-ups' && (
-              <IncidentFollowUpsView followUps={fallbackRecord.followUps} />
+              <IncidentFollowUpsView followUps={initialRecord.followUps} />
             )}
 
             {activeTab === 'updates' && (
@@ -212,15 +185,152 @@ export function IncidentDetailPage({
         <IncidentDetailSidebar
           incidentId={normId}
           severity={activeSeverity}
-          lead={rawConvexIncident?.lead || fallbackRecord.lead}
-          reporter={fallbackRecord.reporter}
-          participants={fallbackRecord.participants}
-          slackChannel={rawConvexIncident?.slackChannel || fallbackRecord.slackChannel}
-          jiraKey={rawConvexIncident?.jiraKey || fallbackRecord.jiraKey}
-          affectedTeam={fallbackRecord.affectedTeam}
-          reviewer={fallbackRecord.reviewer}
+          lead={initialRecord.lead}
+          reporter={initialRecord.reporter}
+          participants={initialRecord.participants}
+          slackChannel={initialRecord.slackChannel}
+          jiraKey={initialRecord.jiraKey}
+          affectedTeam={initialRecord.affectedTeam}
+          reviewer={initialRecord.reviewer}
         />
       </div>
     </div>
   );
 }
+
+/**
+ * Convex-connected implementation that executes live queries and mutations.
+ * Mounted ONLY when an active Convex client is present in the React tree.
+ */
+function ConvexIncidentDetailPage({
+  incidentId,
+  className,
+}: IncidentDetailPageProps) {
+  const normId = useMemo(() => normalizeIncidentId(incidentId), [incidentId]);
+  const fallbackRecord = useMemo(() => getFallbackIncident(normId), [normId]);
+
+  const rawConvexIncident = useQuery(api.incidents.getIncident, { incidentId: normId });
+  const rawLedgerEvents = useQuery(api.incidents.listLedgerEvents, { incidentId: normId });
+
+  const mutateStatus = useMutation(api.incidents.updateIncidentStatus);
+  const mutateSeverity = useMutation(api.incidents.updateIncidentSeverity);
+  const mutateSummary = useMutation(api.incidents.updateIncidentSummary);
+
+  const mergedRecord: IncidentDetailRecord = useMemo(() => {
+    if (!rawConvexIncident) return fallbackRecord;
+    return {
+      ...fallbackRecord,
+      _id: rawConvexIncident._id,
+      title: rawConvexIncident.title || fallbackRecord.title,
+      severity: (rawConvexIncident.severity as 'Critical' | 'Major' | 'Minor') || fallbackRecord.severity,
+      status: (rawConvexIncident.status as 'INVESTIGATING' | 'FIXING' | 'MONITORING' | 'RESOLVED') || fallbackRecord.status,
+      problem: rawConvexIncident.problem || fallbackRecord.problem,
+      impact: rawConvexIncident.impact || fallbackRecord.impact,
+      causes: rawConvexIncident.causes || fallbackRecord.causes,
+      mitigation: rawConvexIncident.mitigation || fallbackRecord.mitigation,
+      lead: (rawConvexIncident as { lead?: string }).lead || fallbackRecord.lead,
+      slackChannel: (rawConvexIncident as { slackChannel?: string }).slackChannel || fallbackRecord.slackChannel,
+      jiraKey: (rawConvexIncident as { jiraKey?: string }).jiraKey || fallbackRecord.jiraKey,
+    };
+  }, [rawConvexIncident, fallbackRecord]);
+
+  const formattedLedgerEvents: LedgerEventItem[] = useMemo(() => {
+    if (rawLedgerEvents && rawLedgerEvents.length > 0) {
+      return rawLedgerEvents.map((evt) => ({
+        _id: evt._id,
+        incidentId: evt.incidentId,
+        timestamp: evt.timestamp,
+        speaker: evt.speaker,
+        tag: evt.tag,
+        text: evt.text,
+      }));
+    }
+    return [];
+  }, [rawLedgerEvents]);
+
+  const handleUpdateStatus = async (newStatus: IncidentLifecycleStage) => {
+    try {
+      await mutateStatus({ incidentId: normId, status: newStatus });
+    } catch (err) {
+      console.warn('Failed to update status in Convex:', err);
+    }
+  };
+
+  const handleUpdateSeverity = async (newSeverity: 'Critical' | 'Major' | 'Minor') => {
+    try {
+      await mutateSeverity({ incidentId: normId, severity: newSeverity });
+    } catch (err) {
+      console.warn('Failed to update severity in Convex:', err);
+    }
+  };
+
+  const handleUpdateSummary = async (newSummary: {
+    problem: string;
+    impact: string;
+    causes: string;
+    mitigation: string;
+  }) => {
+    try {
+      await mutateSummary({
+        incidentId: normId,
+        problem: newSummary.problem,
+        impact: newSummary.impact,
+        causes: newSummary.causes,
+        mitigation: newSummary.mitigation,
+      });
+    } catch (err) {
+      console.warn('Failed to update summary in Convex:', err);
+    }
+  };
+
+  return (
+    <IncidentDetailPageView
+      normId={normId}
+      initialRecord={mergedRecord}
+      ledgerEvents={formattedLedgerEvents}
+      onUpdateStatus={handleUpdateStatus}
+      onUpdateSeverity={handleUpdateSeverity}
+      onUpdateSummary={handleUpdateSummary}
+      className={className}
+    />
+  );
+}
+
+/**
+ * Offline resilient implementation rendered when Convex client or provider is not present.
+ */
+function OfflineIncidentDetailPage({
+  incidentId,
+  className,
+}: IncidentDetailPageProps) {
+  const normId = useMemo(() => normalizeIncidentId(incidentId), [incidentId]);
+  const fallbackRecord = useMemo(() => getFallbackIncident(normId), [normId]);
+
+  return (
+    <IncidentDetailPageView
+      normId={normId}
+      initialRecord={fallbackRecord}
+      ledgerEvents={[]}
+      onUpdateStatus={() => {}}
+      onUpdateSeverity={() => {}}
+      onUpdateSummary={() => {}}
+      className={className}
+    />
+  );
+}
+
+/**
+ * Main IncidentDetailPage container export.
+ * Automatically adapts between live Convex subscriptions and zero-dependency offline fallback.
+ */
+export function IncidentDetailPage(props: IncidentDetailPageProps) {
+  const convex = useConvex();
+
+  if (convex) {
+    return <ConvexIncidentDetailPage {...props} />;
+  }
+
+  return <OfflineIncidentDetailPage {...props} />;
+}
+
+export default IncidentDetailPage;
