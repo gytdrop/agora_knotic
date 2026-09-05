@@ -123,13 +123,13 @@ function getSeverityConfig(severity: string): SeverityConfig {
       return {
         label: 'SEV2',
         dotColor: 'bg-amber-500',
-        badgeClasses: 'border-amber-200 bg-amber-800',
+        badgeClasses: 'border-amber-200 bg-amber-50 text-amber-800',
       };
     case 'SEV3':
       return {
         label: 'SEV3',
         dotColor: 'bg-indigo-500',
-        badgeClasses: 'border-indigo-200 bg-indigo-700',
+        badgeClasses: 'border-indigo-200 bg-indigo-50 text-indigo-700',
       };
     default:
       return {
