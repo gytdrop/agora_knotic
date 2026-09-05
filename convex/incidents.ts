@@ -97,6 +97,13 @@ export const listActiveIncidents = query({
   },
 });
 
+export const listAllIncidents = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db.query("incidents").order("desc").collect();
+  },
+});
+
 export const seedDefaultIncidents = mutation({
   args: {},
   handler: async (ctx) => {
