@@ -17,6 +17,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { NumberTicker } from '@/components/ui/number-ticker';
+import { BorderBeam } from '@/components/ui/border-beam';
 
 export type IncidentSeverity = 'SEV0' | 'SEV1' | 'SEV2' | 'SEV3';
 
@@ -278,7 +280,7 @@ function ActiveIncidentCardsView({
               Active Incidents
             </h2>
             <span className="inline-flex items-center justify-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-bold text-red-700">
-              {totalCount}
+              <NumberTicker value={totalCount} className="text-red-700 dark:text-red-700 text-xs font-bold tracking-normal" />
             </span>
           </div>
 
@@ -385,8 +387,17 @@ function ActiveIncidentCardsView({
             return (
               <div
                 key={incident.incidentId}
-                className="group relative flex flex-col justify-between rounded-xl border border-zinc-200/90 bg-white p-4 shadow-xs transition-all duration-150 hover:border-purple-300 hover:shadow-md"
+                className="group relative flex flex-col justify-between rounded-xl border border-zinc-200/90 bg-white p-4 shadow-xs transition-all duration-150 hover:border-purple-300 hover:shadow-md overflow-hidden"
               >
+                {incident.severity === 'SEV0' && (
+                  <BorderBeam
+                    size={80}
+                    duration={6}
+                    colorFrom="#ef4444"
+                    colorTo="#f87171"
+                    borderWidth={1.5}
+                  />
+                )}
                 {/* Top: Incident ID & Title */}
                 <div>
                   <div className="flex items-center justify-between text-xs font-mono font-medium text-zinc-400">

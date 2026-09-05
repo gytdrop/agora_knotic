@@ -10,6 +10,13 @@ import {
   TrendingDown,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { NumberTicker } from '@/components/ui/number-ticker';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 export interface IncidentInsightsHeatmapProps {
   className?: string;
@@ -198,26 +205,33 @@ export function IncidentInsightsHeatmap({
                 </div>
 
                 {/* 52-Week Cells Matrix: 7 rows x 52 columns */}
-                <div
-                  className="grid grid-flow-col grid-rows-7 gap-[3px] flex-1"
-                  style={{ gridAutoColumns: 'minmax(0, 1fr)' }}
-                >
-                  {cells.map((cell) => {
-                    const cellColor = getCellIntensity(cell.count);
-                    const tooltipText = `${cell.dateStr}: ${cell.count} incident${cell.count === 1 ? '' : 's'}`;
+                <TooltipProvider delayDuration={150}>
+                  <div
+                    className="grid grid-flow-col grid-rows-7 gap-[3px] flex-1"
+                    style={{ gridAutoColumns: 'minmax(0, 1fr)' }}
+                  >
+                    {cells.map((cell) => {
+                      const cellColor = getCellIntensity(cell.count);
+                      const tooltipText = `${cell.dateStr}: ${cell.count} incident${cell.count === 1 ? '' : 's'}`;
 
-                    return (
-                      <div
-                        key={`${cell.week}-${cell.day}`}
-                        title={tooltipText}
-                        className={cn(
-                          'h-2.5 sm:h-3 w-full rounded-[2px] transition-all duration-100 cursor-pointer',
-                          cellColor
-                        )}
-                      />
-                    );
-                  })}
-                </div>
+                      return (
+                        <Tooltip key={`${cell.week}-${cell.day}`}>
+                          <TooltipTrigger asChild>
+                            <div
+                              className={cn(
+                                'h-2.5 sm:h-3 w-full rounded-[2px] transition-all duration-100 cursor-pointer hover:ring-1 hover:ring-purple-500',
+                                cellColor
+                              )}
+                            />
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="text-xs py-1 px-2 font-medium">
+                            {tooltipText}
+                          </TooltipContent>
+                        </Tooltip>
+                      );
+                    })}
+                  </div>
+                </TooltipProvider>
               </div>
             </div>
           </div>
@@ -267,7 +281,7 @@ export function IncidentInsightsHeatmap({
             </div>
             <div className="mt-2 flex items-baseline gap-2">
               <span className="text-2xl font-bold tracking-tight text-zinc-900">
-                {totalIncidents}
+                <NumberTicker value={totalIncidents} className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-900" />
               </span>
               <span className="text-[11px] font-medium text-emerald-600 flex items-center gap-0.5">
                 <TrendingDown className="h-3 w-3" />
@@ -317,7 +331,7 @@ export function IncidentInsightsHeatmap({
             </div>
             <div className="mt-2 flex items-baseline gap-2">
               <span className="text-2xl font-bold tracking-tight text-zinc-900">
-                {openActions}
+                <NumberTicker value={openActions} className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-900" />
               </span>
               <span className="text-[11px] font-medium text-zinc-500">
                 items pending
