@@ -189,12 +189,15 @@ function ActiveIncidentCardsView({
 
   // 5-second ticker indicator
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
     const interval = setInterval(() => {
       setIsTickSpin(true);
-      const timeout = setTimeout(() => setIsTickSpin(false), 700);
-      return () => clearTimeout(timeout);
+      timeoutId = setTimeout(() => setIsTickSpin(false), 700);
     }, 5000);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, []);
 
   const totalCount = incidents.length;

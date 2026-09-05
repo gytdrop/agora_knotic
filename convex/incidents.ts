@@ -159,9 +159,12 @@ export const createIncident = mutation({
     summary: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const count = (await ctx.db.query("incidents").collect()).length;
-    const incidentId = `#${7135 + count}`;
-    return await ctx.db.insert("incidents", {
+    const latest = await ctx.db.query("incidents").order("desc").first();
+    const nextNum = latest?.incidentId?.startsWith("#")
+      ? parseInt(latest.incidentId.slice(1), 10) + 1
+      : 7135;
+    const incidentId = `#${isNaN(nextNum) ? 7135 : nextNum}`;
+    const docId = await ctx.db.insert("incidents", {
       incidentId,
       title: args.title,
       severity: args.severity,
@@ -169,5 +172,6 @@ export const createIncident = mutation({
       rootCause: args.summary || "No summary for this incident",
       createdAt: Date.now(),
     });
+    return { docId, incidentId };
   },
 });

@@ -37,6 +37,7 @@ export interface RootlySidebarProps {
   className?: string;
   onCreateIncident?: () => void;
   onOpenSearch?: () => void;
+  onNavigate?: () => void;
 }
 
 interface NavItem {
@@ -51,6 +52,7 @@ export function RootlySidebar({
   className,
   onCreateIncident,
   onOpenSearch,
+  onNavigate,
 }: RootlySidebarProps) {
   const pathname = usePathname();
   const currentPath = activePath ?? pathname ?? '/';
@@ -169,6 +171,7 @@ export function RootlySidebar({
       <Link
         key={item.label}
         href={item.href}
+        onClick={() => onNavigate?.()}
         className={cn(
           'group flex items-center gap-3 px-3 py-2 text-xs font-medium transition-colors border-l-4 rounded-r-md',
           active
@@ -197,7 +200,11 @@ export function RootlySidebar({
     >
       {/* Top Header & Logo */}
       <div className="flex items-center justify-between px-4 py-3.5 border-b border-zinc-100">
-        <Link href="/" className="flex items-center gap-2.5 group">
+        <Link
+          href="/"
+          onClick={() => onNavigate?.()}
+          className="flex items-center gap-2.5 group"
+        >
           <div className="flex h-7 w-7 items-center justify-center rounded-md bg-purple-600 text-white shadow-xs transition-colors group-hover:bg-purple-700">
             <Asterisk className="h-5 w-5 stroke-[2.5]" />
           </div>

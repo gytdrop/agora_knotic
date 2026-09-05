@@ -154,17 +154,22 @@ function CreateIncidentModalForm({
 
     try {
       let createdDocId: string | undefined;
+      let createdIncidentId: string | undefined;
 
       // Attempt Convex mutation if client is connected
       if (mutateFn) {
         try {
-          const result = await mutateFn({
+          const result = (await mutateFn({
             title: trimmedTitle,
             severity,
             summary: trimmedSummary || undefined,
-          });
+          })) as { docId?: string; incidentId?: string } | string | null | undefined;
+
           if (typeof result === 'string') {
             createdDocId = result;
+          } else if (result && typeof result === 'object') {
+            createdDocId = result.docId;
+            createdIncidentId = result.incidentId;
           }
         } catch (convexError) {
           console.warn(
@@ -174,9 +179,7 @@ function CreateIncidentModalForm({
         }
       }
 
-      // Generate realistic incident ID e.g. #7135
-      const fallbackNum = Math.floor(7135 + Math.random() * 500);
-      const incidentId = createdDocId ? `#${createdDocId.slice(-4)}` : `#${fallbackNum}`;
+      const incidentId = createdIncidentId || '#7135';
 
       const newIncident: CreatedIncident = {
         _id: createdDocId,

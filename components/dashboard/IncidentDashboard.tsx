@@ -4,7 +4,11 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import { RootlySidebar } from './RootlySidebar';
 import { RootlyHeader } from './RootlyHeader';
-import { ActiveIncidentCards, type ActiveIncidentItem } from './ActiveIncidentCards';
+import {
+  ActiveIncidentCards,
+  DEFAULT_ACTIVE_INCIDENTS,
+  type ActiveIncidentItem,
+} from './ActiveIncidentCards';
 import { IncidentInsightsHeatmap } from './IncidentInsightsHeatmap';
 import { CreateIncidentModal, type CreatedIncident } from './CreateIncidentModal';
 import { cn } from '@/lib/utils';
@@ -31,6 +35,17 @@ export function IncidentDashboard({
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // Maintain local incidents for optimistic and offline accumulation
+  const [localIncidents, setLocalIncidents] = useState<ActiveIncidentItem[]>(
+    () => initialIncidents || DEFAULT_ACTIVE_INCIDENTS
+  );
+
+  useEffect(() => {
+    if (initialIncidents) {
+      setLocalIncidents(initialIncidents);
+    }
+  }, [initialIncidents]);
+
   // Search input ref for keyboard shortcut & sidebar search trigger focus
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -56,7 +71,17 @@ export function IncidentDashboard({
     setIsMobileMenuOpen(false);
   }, []);
 
-  const handleIncidentCreated = useCallback((_newIncident: CreatedIncident) => {
+  const handleIncidentCreated = useCallback((newIncident: CreatedIncident) => {
+    const formattedIncident: ActiveIncidentItem = {
+      _id: newIncident._id,
+      incidentId: newIncident.incidentId,
+      title: newIncident.title,
+      severity: newIncident.severity,
+      status: newIncident.status,
+      rootCause: newIncident.rootCause,
+      createdAt: newIncident.createdAt,
+    };
+    setLocalIncidents((prev) => [formattedIncident, ...prev]);
     setIsCreateIncidentOpen(false);
   }, []);
 
@@ -127,6 +152,7 @@ export function IncidentDashboard({
                 handleOpenCreateIncident();
               }}
               onOpenSearch={handleOpenSearch}
+              onNavigate={() => setIsMobileMenuOpen(false)}
             />
           </div>
         </div>
@@ -153,7 +179,7 @@ export function IncidentDashboard({
           <section id="incidents" aria-label="Active Incidents" className="scroll-mt-20">
             <ActiveIncidentCards
               searchQuery={searchQuery}
-              initialIncidents={initialIncidents}
+              initialIncidents={localIncidents}
             />
           </section>
 
