@@ -172,10 +172,13 @@ function CreateIncidentModalForm({
             createdIncidentId = result.incidentId;
           }
         } catch (convexError) {
-          console.warn(
-            'Convex createIncident mutation encountered an error. Falling back to local state:',
-            convexError
-          );
+          console.error('Convex createIncident mutation failed:', convexError);
+          const message =
+            convexError instanceof Error
+              ? convexError.message
+              : 'Failed to create incident on server. Please try again.';
+          setErrorMessage(message);
+          return;
         }
       }
 

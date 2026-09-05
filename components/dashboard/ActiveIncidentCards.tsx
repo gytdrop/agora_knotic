@@ -506,7 +506,7 @@ function ConvexActiveIncidentCards(props: ActiveIncidentCardsProps) {
   }, [rawIncidents, hasTriggeredSeed, seedDefault]);
 
   const incidents: ActiveIncidentItem[] = useMemo(() => {
-    if (rawIncidents && rawIncidents.length > 0) {
+    if (rawIncidents !== undefined) {
       return rawIncidents.map((inc) => ({
         _id: inc._id,
         incidentId: inc.incidentId,

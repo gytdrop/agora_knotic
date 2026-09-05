@@ -159,11 +159,17 @@ export const createIncident = mutation({
     summary: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const latest = await ctx.db.query("incidents").order("desc").first();
-    const nextNum = latest?.incidentId?.startsWith("#")
-      ? parseInt(latest.incidentId.slice(1), 10) + 1
-      : 7135;
-    const incidentId = `#${isNaN(nextNum) ? 7135 : nextNum}`;
+    const all = await ctx.db.query("incidents").collect();
+    let maxId = 7134;
+    for (const inc of all) {
+      if (inc.incidentId?.startsWith("#")) {
+        const parsed = parseInt(inc.incidentId.slice(1), 10);
+        if (!isNaN(parsed) && parsed > maxId) {
+          maxId = parsed;
+        }
+      }
+    }
+    const incidentId = `#${maxId + 1}`;
     const docId = await ctx.db.insert("incidents", {
       incidentId,
       title: args.title,

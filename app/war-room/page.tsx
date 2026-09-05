@@ -64,10 +64,15 @@ function WarRoomMeetingOrchestrator() {
   const incidentParam = searchParams?.get('incident');
   const severityParam = searchParams?.get('severity');
 
+  // Sanitize and constrain channelName to prevent arbitrary channel parameter injection
+  const safeChannel = channelParam && /^incident-[a-zA-Z0-9_-]{1,64}$/.test(channelParam)
+    ? channelParam
+    : null;
+
   const channelName =
-    channelParam ||
+    safeChannel ||
     (incidentParam
-      ? `incident-${incidentParam.replace(/[^a-zA-Z0-9_-]/g, '')}`
+      ? `incident-${incidentParam.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 32)}`
       : 'incident-8921');
 
   const incidentId = incidentParam
