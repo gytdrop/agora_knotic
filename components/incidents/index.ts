@@ -31,3 +31,7 @@ export {
   DEFAULT_DIRECTORY_INCIDENTS,
 } from './IncidentsDirectory';
 export type { IncidentsDirectoryProps } from './IncidentsDirectory';
+
+export { IncidentsPageLayout } from './IncidentsPageLayout';
+export type { IncidentsPageLayoutProps } from './IncidentsPageLayout';
+
