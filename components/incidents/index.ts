@@ -35,3 +35,6 @@ export type { IncidentsDirectoryProps } from './IncidentsDirectory';
 export { IncidentsPageLayout } from './IncidentsPageLayout';
 export type { IncidentsPageLayoutProps } from './IncidentsPageLayout';
 
+export { IncidentDetailPage } from './detail/IncidentDetailPage';
+export type { IncidentDetailPageProps } from './detail/IncidentDetailPage';
+

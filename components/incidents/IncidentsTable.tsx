@@ -307,6 +307,7 @@ export function IncidentsTable({
               const avatarGradient = getLeadAvatarGradient(leadName);
               const slackChannelTag =
                 incident.slackChannel || `#incident-${cleanId.toLowerCase()}`;
+              const detailUrl = `/incidents/${encodeURIComponent(cleanId)}`;
               const warRoomUrl = `/war-room?incident=${encodeURIComponent(
                 cleanId
               )}&sev=${encodeURIComponent(
@@ -315,8 +316,7 @@ export function IncidentsTable({
 
               const handleRowClick = () => {
                 onRowClick?.(incident);
-                onEnterWarRoom?.(incident.incidentId, incident.severity);
-                router.push(warRoomUrl);
+                router.push(detailUrl);
               };
 
               return (
@@ -333,13 +333,10 @@ export function IncidentsTable({
                           {incident.incidentId}
                         </span>
                         <Link
-                          href={warRoomUrl}
+                          href={detailUrl}
                           onClick={(e) => {
                             e.stopPropagation();
-                            onEnterWarRoom?.(
-                              incident.incidentId,
-                              incident.severity
-                            );
+                            onRowClick?.(incident);
                           }}
                           className="font-semibold text-sm text-zinc-900 dark:text-zinc-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors line-clamp-1"
                         >

@@ -13,10 +13,11 @@ export interface IncidentsPageLayoutProps {
   onEnterWarRoom?: (incidentId: string, severity: string) => void;
   onCreateIncident?: () => void;
   onOpenSearch?: () => void;
+  children?: React.ReactNode;
 }
 
 /**
- * IncidentsPageLayout combines the Rootly navigation sidebar with the IncidentsDirectory.
+ * IncidentsPageLayout combines the Rootly navigation sidebar with the IncidentsDirectory or custom children.
  * Provides a responsive desktop sticky sidebar and mobile drawer with dual-theme styling.
  */
 export function IncidentsPageLayout({
@@ -25,6 +26,7 @@ export function IncidentsPageLayout({
   onEnterWarRoom,
   onCreateIncident,
   onOpenSearch,
+  children,
 }: IncidentsPageLayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -141,12 +143,14 @@ export function IncidentsPageLayout({
           </div>
         )}
 
-        {/* Main Content Container with IncidentsDirectory taking full remaining width */}
+        {/* Main Content Container with IncidentsDirectory or custom children taking full remaining width */}
         <main className="flex-1 w-full min-w-0">
-          <IncidentsDirectory
-            initialIncidents={initialIncidents}
-            onEnterWarRoom={onEnterWarRoom}
-          />
+          {children ?? (
+            <IncidentsDirectory
+              initialIncidents={initialIncidents}
+              onEnterWarRoom={onEnterWarRoom}
+            />
+          )}
         </main>
       </div>
     </div>
