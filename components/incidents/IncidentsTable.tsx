@@ -7,7 +7,14 @@ import { Video, Check, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { IncidentsEmptyState } from './IncidentsEmptyState';
 
-export type IncidentSeverity = 'SEV0' | 'SEV1' | 'SEV2' | 'SEV3' | string;
+import {
+  type IncidentSeverity,
+  getSeverityConfig,
+  normalizeSeverity,
+} from '@/lib/incident-severity';
+
+export type { IncidentSeverity };
+export { getSeverityConfig, normalizeSeverity };
 
 export interface IncidentItem {
   _id?: string;
@@ -46,53 +53,6 @@ export function SlackIcon({ className }: { className?: string }) {
       <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z" />
     </svg>
   );
-}
-
-interface SeverityConfig {
-  label: string;
-  dotColor: string;
-  badgeClasses: string;
-}
-
-export function getSeverityConfig(severity: string): SeverityConfig {
-  const normalized = severity.toUpperCase().replace('-', '');
-  switch (normalized) {
-    case 'SEV0':
-      return {
-        label: 'SEV0',
-        dotColor: 'bg-red-500',
-        badgeClasses:
-          'border-red-200 bg-red-50 text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300',
-      };
-    case 'SEV1':
-      return {
-        label: 'SEV1',
-        dotColor: 'bg-rose-500',
-        badgeClasses:
-          'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-300',
-      };
-    case 'SEV2':
-      return {
-        label: 'SEV2',
-        dotColor: 'bg-amber-500',
-        badgeClasses:
-          'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-300',
-      };
-    case 'SEV3':
-      return {
-        label: 'SEV3',
-        dotColor: 'bg-indigo-500',
-        badgeClasses:
-          'border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-indigo-900/60 dark:bg-indigo-950/40 dark:text-indigo-300',
-      };
-    default:
-      return {
-        label: severity,
-        dotColor: 'bg-zinc-500',
-        badgeClasses:
-          'border-zinc-200 bg-zinc-50 text-zinc-700 dark:border-zinc-800 dark:bg-zinc-800 dark:text-zinc-300',
-      };
-  }
 }
 
 interface StatusConfig {
@@ -408,7 +368,7 @@ export function IncidentsTable({
                     </div>
                   </td>
 
-                  {/* Column 2: SEVERITY (Pill badge with color dot) */}
+                  {/* Column 2: SEVERITY (Pill badge with signal bars) */}
                   <td className="px-4 py-3.5 align-middle whitespace-nowrap">
                     <div
                       className={cn(
@@ -416,17 +376,26 @@ export function IncidentsTable({
                         sevConfig.badgeClasses
                       )}
                     >
-                      <span className="flex items-center gap-0.5">
+                      <span className="flex items-end gap-0.5 h-3">
                         <span
                           className={cn(
-                            'h-1.5 w-1.5 rounded-full',
-                            sevConfig.dotColor
+                            'w-0.5 rounded-xs transition-colors',
+                            sevConfig.barCount >= 1 ? sevConfig.dotColor : 'bg-zinc-300 dark:bg-zinc-700',
+                            'h-1.5'
                           )}
                         />
                         <span
                           className={cn(
-                            'h-1.5 w-1.5 rounded-full',
-                            sevConfig.dotColor
+                            'w-0.5 rounded-xs transition-colors',
+                            sevConfig.barCount >= 2 ? sevConfig.dotColor : 'bg-zinc-300 dark:bg-zinc-700',
+                            'h-2'
+                          )}
+                        />
+                        <span
+                          className={cn(
+                            'w-0.5 rounded-xs transition-colors',
+                            sevConfig.barCount >= 3 ? sevConfig.dotColor : 'bg-zinc-300 dark:bg-zinc-700',
+                            'h-2.5'
                           )}
                         />
                       </span>

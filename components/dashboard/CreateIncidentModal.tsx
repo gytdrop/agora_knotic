@@ -6,7 +6,7 @@ import { useConvex, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { cn } from '@/lib/utils';
 
-export type IncidentSeverity = 'SEV0' | 'SEV1' | 'SEV2' | 'SEV3';
+export type IncidentSeverity = 'Critical' | 'Major' | 'Minor' | string;
 
 export interface CreatedIncident {
   _id?: string;
@@ -36,36 +36,28 @@ interface SeverityOption {
 
 const SEVERITY_OPTIONS: SeverityOption[] = [
   {
-    id: 'SEV0',
-    label: 'SEV0',
-    impact: 'Critical',
+    id: 'Critical',
+    label: 'Critical',
+    impact: 'System Outage / Emergency',
     dotColor: 'bg-red-500',
     activeClasses: 'bg-red-50 text-red-700 border-red-500 ring-2 ring-red-500/20 font-semibold',
     hoverClasses: 'hover:border-red-300 hover:bg-red-50/50',
   },
   {
-    id: 'SEV1',
-    label: 'SEV1',
-    impact: 'High',
-    dotColor: 'bg-rose-500',
-    activeClasses: 'bg-rose-50 text-rose-700 border-rose-500 ring-2 ring-rose-500/20 font-semibold',
-    hoverClasses: 'hover:border-rose-300 hover:bg-rose-50/50',
-  },
-  {
-    id: 'SEV2',
-    label: 'SEV2',
-    impact: 'Medium',
+    id: 'Major',
+    label: 'Major',
+    impact: 'Partial Outage / Degradation',
     dotColor: 'bg-amber-500',
     activeClasses: 'bg-amber-50 text-amber-800 border-amber-500 ring-2 ring-amber-500/20 font-semibold',
     hoverClasses: 'hover:border-amber-300 hover:bg-amber-50/50',
   },
   {
-    id: 'SEV3',
-    label: 'SEV3',
-    impact: 'Low',
-    dotColor: 'bg-indigo-500',
-    activeClasses: 'bg-indigo-50 text-indigo-700 border-indigo-500 ring-2 ring-indigo-500/20 font-semibold',
-    hoverClasses: 'hover:border-indigo-300 hover:bg-indigo-50/50',
+    id: 'Minor',
+    label: 'Minor',
+    impact: 'Localized / Low Urgency',
+    dotColor: 'bg-blue-500',
+    activeClasses: 'bg-blue-50 text-blue-700 border-blue-500 ring-2 ring-blue-500/20 font-semibold',
+    hoverClasses: 'hover:border-blue-300 hover:bg-blue-50/50',
   },
 ];
 
@@ -75,7 +67,7 @@ interface CreateIncidentModalFormProps extends CreateIncidentModalProps {
     | null;
 }
 
-function CreateIncidentModalForm({
+export function CreateIncidentModalForm({
   isOpen,
   onClose,
   onCreated,
@@ -83,7 +75,7 @@ function CreateIncidentModalForm({
   mutateFn,
 }: CreateIncidentModalFormProps) {
   const [title, setTitle] = useState('');
-  const [severity, setSeverity] = useState<IncidentSeverity>('SEV1');
+  const [severity, setSeverity] = useState<IncidentSeverity>('Major');
   const [summary, setSummary] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);

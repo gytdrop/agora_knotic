@@ -49,10 +49,9 @@ interface SeverityOption {
 
 const SEVERITY_OPTIONS: SeverityOption[] = [
   { value: 'ALL', label: 'All Severities' },
-  { value: 'SEV0', label: 'SEV0', dotColor: 'bg-red-500' },
-  { value: 'SEV1', label: 'SEV1', dotColor: 'bg-rose-500' },
-  { value: 'SEV2', label: 'SEV2', dotColor: 'bg-amber-500' },
-  { value: 'SEV3', label: 'SEV3', dotColor: 'bg-indigo-500' },
+  { value: 'Critical', label: 'Critical', dotColor: 'bg-red-500' },
+  { value: 'Major', label: 'Major', dotColor: 'bg-amber-500' },
+  { value: 'Minor', label: 'Minor', dotColor: 'bg-blue-500' },
 ];
 
 interface StatusOption {

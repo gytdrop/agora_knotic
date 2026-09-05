@@ -19,6 +19,7 @@ import {
   CreateIncidentModal,
   type CreatedIncident,
 } from '@/components/dashboard/CreateIncidentModal';
+import { normalizeSeverity } from '@/lib/incident-severity';
 import { cn } from '@/lib/utils';
 
 export interface IncidentsDirectoryProps {
@@ -218,9 +219,9 @@ function IncidentsDirectoryView({
 
       // 3. Severity filter
       if (selectedSeverity !== 'ALL') {
-        const incSev = inc.severity.toUpperCase().replace('-', '');
-        const targetSev = selectedSeverity.toUpperCase().replace('-', '');
-        if (incSev !== targetSev) return false;
+        if (normalizeSeverity(inc.severity) !== normalizeSeverity(selectedSeverity)) {
+          return false;
+        }
       }
 
       // 4. Status filter
