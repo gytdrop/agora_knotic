@@ -15,3 +15,10 @@ export type {
   IncidentSeverity,
   IncidentsTableProps,
 } from './IncidentsTable';
+
+export { IncidentsFilterBar } from './IncidentsFilterBar';
+export type {
+  IncidentsFilterBarProps,
+  IncidentsViewTab,
+  IncidentSortOption,
+} from './IncidentsFilterBar';
