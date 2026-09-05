@@ -3,6 +3,8 @@
 import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useConvex, useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
 import {
   Asterisk,
   BarChart3,
@@ -47,6 +49,43 @@ interface NavItem {
   badge?: React.ReactNode;
 }
 
+const FALLBACK_ACTIVE_INCIDENTS_COUNT = 5;
+
+/**
+ * Convex-connected badge that queries dynamic active incident count.
+ */
+function ConvexIncidentsActiveCountBadge() {
+  const activeIncidents = useQuery(api.incidents.listActiveIncidents);
+  const count =
+    activeIncidents !== undefined
+      ? activeIncidents.length
+      : FALLBACK_ACTIVE_INCIDENTS_COUNT;
+
+  return (
+    <span className="ml-auto inline-flex items-center justify-center rounded-full border border-red-200/80 bg-red-50 px-2 py-0.5 text-[10px] font-semibold text-red-600 tabular-nums">
+      {count}
+    </span>
+  );
+}
+
+/**
+ * Dynamic active incident count badge beside Incidents navigation link.
+ * Automatically adapts between Convex real-time query and resilient offline fallback (5).
+ */
+function IncidentsActiveCountBadge() {
+  const convex = useConvex();
+
+  if (convex) {
+    return <ConvexIncidentsActiveCountBadge />;
+  }
+
+  return (
+    <span className="ml-auto inline-flex items-center justify-center rounded-full border border-red-200/80 bg-red-50 px-2 py-0.5 text-[10px] font-semibold text-red-600 tabular-nums">
+      {FALLBACK_ACTIVE_INCIDENTS_COUNT}
+    </span>
+  );
+}
+
 export function RootlySidebar({
   activePath,
   className,
@@ -71,9 +110,6 @@ export function RootlySidebar({
   }, [onOpenSearch]);
 
   const isItemActive = (href: string) => {
-    if (activePath) {
-      return activePath === href;
-    }
     if (href === '/') {
       return currentPath === '/' || currentPath === '';
     }
@@ -88,8 +124,9 @@ export function RootlySidebar({
     },
     {
       label: 'Incidents',
-      href: '/#incidents',
+      href: '/incidents',
       icon: Flame,
+      badge: <IncidentsActiveCountBadge />,
     },
     {
       label: 'Retrospectives',
