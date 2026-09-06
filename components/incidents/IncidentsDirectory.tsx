@@ -280,27 +280,6 @@ function IncidentsDirectoryView({
     }
   };
 
-  const handleExportCsv = () => {
-    const headers = ['Incident', 'Title', 'Severity', 'Status', 'Type', 'Lead'];
-    const rows = sortedIncidents.map((i) => [
-      i.incidentId,
-      `"${i.title.replace(/"/g, '""')}"`,
-      i.severity,
-      i.status,
-      i.type || 'Default',
-      i.lead || 'Unassigned',
-    ]);
-    const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `incidents-${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
   // War Room navigation
   const handleEnterWarRoom = (incidentId: string, severity: string) => {
     if (onEnterWarRoom) {
@@ -329,7 +308,6 @@ function IncidentsDirectoryView({
           totalCount={counts.all}
           activeCount={counts.active}
           onDeclareIncident={() => setIsCreateModalOpen(true)}
-          onExportCsv={handleExportCsv}
         />
 
         {/* View Tabs & Multi-attribute Filter Bar */}

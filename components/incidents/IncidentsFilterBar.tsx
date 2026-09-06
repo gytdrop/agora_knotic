@@ -165,7 +165,7 @@ export function IncidentsFilterBar({
       )}
     >
       {/* Segmented View Tabs (Active, All, Resolved) */}
-      <div className="flex items-center overflow-x-auto pb-1 md:pb-0">
+      <div className="flex items-center shrink-0">
         <div
           role="tablist"
           aria-label="Incident views"
@@ -220,7 +220,7 @@ export function IncidentsFilterBar({
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Filter incidents... (⌘K)"
             aria-label="Filter incidents"
-            className="h-9 w-full rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 pl-8.5 pr-8 text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 shadow-2xs transition-all hover:border-zinc-300 dark:hover:border-zinc-700 focus:border-purple-600 dark:focus:border-purple-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+            className="h-9 w-full rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 pl-9 pr-8 text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 shadow-2xs transition-all hover:border-zinc-300 dark:hover:border-zinc-700 focus:border-purple-600 dark:focus:border-purple-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
           />
           {searchQuery ? (
             <button

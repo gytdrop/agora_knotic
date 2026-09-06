@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Download, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { NumberTicker } from '@/components/ui/number-ticker';
 import { cn } from '@/lib/utils';
 
@@ -10,20 +10,18 @@ export interface IncidentsHeaderProps {
   activeCount?: number;
   count?: number;
   onDeclareIncident?: () => void;
-  onExportCsv?: () => void;
   className?: string;
 }
 
 /**
  * Top page header matching incident.io clean layout adapted to Ecosphere branding.
- * Displays page heading, live animated incident count pill, subtitle, and primary actions (Export CSV & Declare Incident).
+ * Displays page heading, live animated incident count pill, subtitle, and primary action.
  */
 export function IncidentsHeader({
   totalCount,
   activeCount,
   count,
   onDeclareIncident,
-  onExportCsv,
   className,
 }: IncidentsHeaderProps) {
   // Determine count to display: prefer totalCount, fallback to count or activeCount
@@ -54,24 +52,15 @@ export function IncidentsHeader({
         </p>
       </div>
 
-      {/* Right Actions: Export CSV + Declare Incident */}
-      <div className="flex items-center gap-2.5">
-        <button
-          type="button"
-          onClick={onExportCsv}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-2 text-xs font-medium text-zinc-700 dark:text-zinc-300 shadow-2xs transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer"
-        >
-          <Download className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
-          <span>Export CSV</span>
-        </button>
-
+      {/* Right: + Declare Incident Action */}
+      <div className="flex items-center gap-3">
         <button
           type="button"
           onClick={onDeclareIncident}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 hover:bg-black dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 px-3.5 py-2 text-xs font-semibold shadow-xs transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-zinc-900/40 active:scale-[0.98] cursor-pointer"
+          className="inline-flex items-center gap-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white px-3.5 py-2 text-sm font-medium shadow-sm transition-all duration-150 ring-1 ring-purple-500/20 focus:outline-none focus:ring-2 focus:ring-purple-500/40 active:scale-[0.98] cursor-pointer"
         >
           <Plus className="h-4 w-4 shrink-0" />
-          <span>Declare incident</span>
+          <span>Declare Incident</span>
         </button>
       </div>
     </header>
