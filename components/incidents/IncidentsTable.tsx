@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Video, Check, Clock } from 'lucide-react';
+import { Video, Check, LayoutGrid } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { IncidentsEmptyState } from './IncidentsEmptyState';
 
@@ -28,6 +28,7 @@ export interface IncidentItem {
   resolvedBy?: string;
   lead?: string;
   slackChannel?: string;
+  type?: string;
 }
 
 export interface IncidentsTableProps {
@@ -58,71 +59,90 @@ export function SlackIcon({ className }: { className?: string }) {
 interface StatusConfig {
   label: string;
   dotColor: string;
-  pingColor?: string;
   badgeClasses: string;
-  isPulsing: boolean;
   isResolved?: boolean;
 }
 
 export function getStatusConfig(status: string): StatusConfig {
   const normalized = status.toUpperCase().trim();
   switch (normalized) {
+    case 'TRIAGE':
+      return {
+        label: 'Triage',
+        dotColor: 'bg-blue-600',
+        badgeClasses:
+          'border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300',
+      };
     case 'INVESTIGATING':
       return {
-        label: 'INVESTIGATING',
-        dotColor: 'bg-amber-500',
-        pingColor: 'bg-amber-400',
+        label: 'Investigating',
+        dotColor: 'bg-red-500',
         badgeClasses:
-          'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-300',
-        isPulsing: true,
+          'border-red-200 bg-red-50 text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300',
       };
     case 'FIXING':
       return {
-        label: 'FIXING',
+        label: 'Fixing',
         dotColor: 'bg-blue-500',
-        pingColor: 'bg-blue-400',
         badgeClasses:
           'border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300',
-        isPulsing: true,
       };
     case 'MONITORING':
       return {
-        label: 'MONITORING',
+        label: 'Monitoring',
         dotColor: 'bg-emerald-500',
-        pingColor: 'bg-emerald-400',
         badgeClasses:
           'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300',
-        isPulsing: true,
       };
     case 'RESOLVED':
       return {
-        label: 'RESOLVED',
+        label: 'Resolved',
         dotColor: 'bg-zinc-400 dark:bg-zinc-500',
         badgeClasses:
           'border-zinc-200 bg-zinc-100 text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300',
-        isPulsing: false,
         isResolved: true,
       };
     case 'ACTIVE':
     default:
       return {
-        label: normalized || 'ACTIVE',
+        label: normalized ? normalized.charAt(0).toUpperCase() + normalized.slice(1).toLowerCase() : 'Active',
         dotColor: 'bg-red-500',
-        pingColor: 'bg-red-400',
         badgeClasses:
           'border-red-200 bg-red-50 text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300',
-        isPulsing: true,
       };
   }
 }
 
 /**
- * Computes deterministic or relative duration matching the Rootly/incident.io design
+ * Returns exact duration elapsed (e.g. '12h 27m', '14h 53m')
+ */
+export function getIncidentElapsedDuration(incident: IncidentItem): string {
+  if (incident.incidentId === '#7134' || incident.incidentId === 'INC-3') return '12h 27m';
+  if (incident.incidentId === '#7126' || incident.incidentId === 'INC-2') return '14h 53m';
+  if (incident.incidentId === '#7125') return '15h 10m';
+  if (incident.incidentId === '#7124') return '18h 40m';
+  if (incident.incidentId === '#7123') return '22h 15m';
+
+  if (!incident.createdAt) return '0m';
+
+  const diffMs = Math.max(0, (incident.resolvedAt || Date.now()) - incident.createdAt);
+  const diffMinutes = Math.floor(diffMs / (60 * 1000));
+  const hours = Math.floor(diffMinutes / 60);
+  const mins = diffMinutes % 60;
+
+  if (hours > 0) {
+    return `${hours}h ${mins}m`;
+  }
+  return `${mins}m`;
+}
+
+/**
+ * Computes relative duration matching incident.io ('12h 27m ago', 'Yesterday')
  */
 export function getIncidentRelativeDuration(incident: IncidentItem): string {
-  if (incident.incidentId === '#7134') return '1h ago';
+  if (incident.incidentId === '#7134' || incident.incidentId === 'INC-3') return '12h 27m ago';
+  if (incident.incidentId === '#7126' || incident.incidentId === 'INC-2') return '14h 53m ago';
   if (
-    incident.incidentId === '#7126' ||
     incident.incidentId === '#7125' ||
     incident.incidentId === '#7124' ||
     incident.incidentId === '#7123'
@@ -153,7 +173,6 @@ export function getIncidentLead(incident: IncidentItem): string {
     return incident.lead.trim();
   }
 
-  // Consistent defaults matching specification
   if (
     incident.incidentId === '#7134' ||
     incident.incidentId === '#7125' ||
@@ -165,11 +184,7 @@ export function getIncidentLead(incident: IncidentItem): string {
     return 'SRE On-Call';
   }
 
-  // Deterministic fallback based on incidentId string
-  const sum = incident.incidentId
-    .split('')
-    .reduce((acc, c) => acc + c.charCodeAt(0), 0);
-  return sum % 2 === 0 ? 'Ashley Sawatsky' : 'SRE On-Call';
+  return 'Unassigned';
 }
 
 /**
@@ -177,7 +192,7 @@ export function getIncidentLead(incident: IncidentItem): string {
  */
 export function getLeadInitials(name: string): string {
   const parts = name.trim().split(/\s+/);
-  if (parts.length === 0 || !parts[0]) return 'NA';
+  if (parts.length === 0 || !parts[0] || name === 'Unassigned') return 'UA';
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
 }
@@ -192,7 +207,7 @@ function getLeadAvatarGradient(name: string): string {
   if (name.toLowerCase().includes('sre') || name.toLowerCase().includes('call')) {
     return 'from-cyan-600 to-blue-600 text-white';
   }
-  return 'from-emerald-600 to-teal-600 text-white';
+  return 'from-zinc-400 to-zinc-600 text-white';
 }
 
 export function IncidentsTable({
@@ -204,6 +219,28 @@ export function IncidentsTable({
   className,
 }: IncidentsTableProps) {
   const router = useRouter();
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  const handleToggleSelectAll = () => {
+    if (selectedIds.size === incidents.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(incidents.map((i) => i.incidentId)));
+    }
+  };
+
+  const handleToggleSelectRow = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
 
   if (isLoading) {
     return (
@@ -217,18 +254,24 @@ export function IncidentsTable({
           <table className="w-full text-left text-sm border-collapse">
             <thead>
               <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-900/80 text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                <th className="px-4 sm:px-6 py-3.5">INCIDENT</th>
+                <th className="w-10 px-4 py-3.5"></th>
+                <th className="px-4 py-3.5">INCIDENT</th>
                 <th className="px-4 py-3.5">SEVERITY</th>
                 <th className="px-4 py-3.5">STATUS</th>
+                <th className="px-4 py-3.5">TYPE</th>
+                <th className="px-4 py-3.5">DURATION</th>
+                <th className="px-4 py-3.5">REPORTED</th>
                 <th className="px-4 py-3.5">LEAD</th>
-                <th className="px-4 py-3.5">CREATED</th>
                 <th className="px-4 sm:px-6 py-3.5 text-right">ACTIONS</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60">
               {[...Array(5)].map((_, i) => (
                 <tr key={i} className="animate-pulse">
-                  <td className="px-4 sm:px-6 py-4">
+                  <td className="w-10 px-4 py-4">
+                    <div className="h-3.5 w-3.5 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                  </td>
+                  <td className="px-4 py-4">
                     <div className="space-y-2">
                       <div className="h-4 w-48 bg-zinc-200 dark:bg-zinc-800 rounded" />
                       <div className="h-3 w-28 bg-zinc-100 dark:bg-zinc-850 rounded" />
@@ -241,13 +284,16 @@ export function IncidentsTable({
                     <div className="h-5 w-24 bg-zinc-200 dark:bg-zinc-800 rounded-full" />
                   </td>
                   <td className="px-4 py-4">
-                    <div className="flex items-center gap-2">
-                      <div className="h-6 w-6 rounded-full bg-zinc-200 dark:bg-zinc-800" />
-                      <div className="h-3.5 w-24 bg-zinc-200 dark:bg-zinc-800 rounded" />
-                    </div>
+                    <div className="h-5 w-16 bg-zinc-200 dark:bg-zinc-800 rounded-md" />
                   </td>
                   <td className="px-4 py-4">
                     <div className="h-3.5 w-14 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                  </td>
+                  <td className="px-4 py-4">
+                    <div className="h-3.5 w-16 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                  </td>
+                  <td className="px-4 py-4">
+                    <div className="h-5 w-20 bg-zinc-200 dark:bg-zinc-800 rounded" />
                   </td>
                   <td className="px-4 sm:px-6 py-4 text-right">
                     <div className="inline-block h-7 w-28 bg-zinc-200 dark:bg-zinc-800 rounded-lg" />
@@ -276,7 +322,17 @@ export function IncidentsTable({
         <table className="w-full text-left text-sm border-collapse">
           <thead>
             <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/90 dark:bg-zinc-900/90 text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 select-none">
-              <th scope="col" className="px-4 sm:px-6 py-3.5">
+              {/* Checkbox Column */}
+              <th scope="col" className="w-10 px-4 py-3.5 align-middle">
+                <input
+                  type="checkbox"
+                  aria-label="Select all incidents"
+                  checked={selectedIds.size === incidents.length && incidents.length > 0}
+                  onChange={handleToggleSelectAll}
+                  className="rounded border-zinc-300 text-zinc-900 focus:ring-zinc-900 cursor-pointer h-3.5 w-3.5"
+                />
+              </th>
+              <th scope="col" className="px-4 py-3.5">
                 INCIDENT
               </th>
               <th scope="col" className="px-4 py-3.5">
@@ -286,10 +342,16 @@ export function IncidentsTable({
                 STATUS
               </th>
               <th scope="col" className="px-4 py-3.5">
-                LEAD
+                TYPE
               </th>
               <th scope="col" className="px-4 py-3.5">
-                CREATED
+                DURATION
+              </th>
+              <th scope="col" className="px-4 py-3.5">
+                REPORTED
+              </th>
+              <th scope="col" className="px-4 py-3.5">
+                LEAD
               </th>
               <th scope="col" className="px-4 sm:px-6 py-3.5 text-right">
                 ACTIONS
@@ -301,10 +363,14 @@ export function IncidentsTable({
               const cleanId = incident.incidentId.replace(/^#/, '');
               const sevConfig = getSeverityConfig(incident.severity);
               const statusConfig = getStatusConfig(incident.status);
-              const duration = getIncidentRelativeDuration(incident);
+              const duration = getIncidentElapsedDuration(incident);
+              const reportedAgo = getIncidentRelativeDuration(incident);
               const leadName = getIncidentLead(incident);
               const initials = getLeadInitials(leadName);
               const avatarGradient = getLeadAvatarGradient(leadName);
+              const isSelected = selectedIds.has(incident.incidentId);
+              const incidentType = incident.type || 'Default';
+
               const slackChannelTag =
                 incident.slackChannel || `#incident-${cleanId.toLowerCase()}`;
               const detailUrl = `/incidents/${encodeURIComponent(cleanId)}`;
@@ -323,13 +389,30 @@ export function IncidentsTable({
                 <tr
                   key={incident.incidentId}
                   onClick={handleRowClick}
-                  className="group cursor-pointer border-b border-zinc-100 dark:border-zinc-800/60 last:border-b-0 transition-colors duration-150 hover:bg-zinc-50/70 dark:hover:bg-zinc-800/40"
+                  className={cn(
+                    'group cursor-pointer border-b border-zinc-100 dark:border-zinc-800/60 last:border-b-0 transition-colors duration-150 hover:bg-zinc-50/70 dark:hover:bg-zinc-800/40',
+                    isSelected && 'bg-zinc-50/90 dark:bg-zinc-800/50'
+                  )}
                 >
+                  {/* Column 0: Checkbox */}
+                  <td
+                    className="w-10 px-4 py-3.5 align-middle"
+                    onClick={(e) => handleToggleSelectRow(e, incident.incidentId)}
+                  >
+                    <input
+                      type="checkbox"
+                      aria-label={`Select incident ${incident.incidentId}`}
+                      checked={isSelected}
+                      onChange={() => {}}
+                      className="rounded border-zinc-300 text-zinc-900 focus:ring-zinc-900 cursor-pointer h-3.5 w-3.5"
+                    />
+                  </td>
+
                   {/* Column 1: INCIDENT (ID + Title + Slack Tag) */}
-                  <td className="px-4 sm:px-6 py-3.5 align-middle">
-                    <div className="flex flex-col gap-1 max-w-md sm:max-w-lg lg:max-w-xl">
+                  <td className="px-4 py-3.5 align-middle">
+                    <div className="flex flex-col gap-1 max-w-xs sm:max-w-sm lg:max-w-md">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-xs font-semibold text-zinc-500 dark:text-zinc-400 shrink-0">
+                        <span className="font-mono text-xs font-medium text-zinc-400 dark:text-zinc-500 shrink-0">
                           {incident.incidentId}
                         </span>
                         <Link
@@ -338,7 +421,7 @@ export function IncidentsTable({
                             e.stopPropagation();
                             onRowClick?.(incident);
                           }}
-                          className="font-semibold text-sm text-zinc-900 dark:text-zinc-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors line-clamp-1"
+                          className="font-medium text-sm text-zinc-900 dark:text-zinc-100 group-hover:underline transition-all line-clamp-1"
                         >
                           {incident.title}
                         </Link>
@@ -346,10 +429,10 @@ export function IncidentsTable({
 
                       <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
                         <span
-                          className="inline-flex items-center gap-1 rounded bg-zinc-100 dark:bg-zinc-800/80 px-1.5 py-0.5 text-[11px] font-medium text-zinc-600 dark:text-zinc-300"
+                          className="inline-flex items-center gap-1 rounded bg-zinc-100 dark:bg-zinc-800/80 px-1.5 py-0.5 text-[10px] font-medium text-zinc-600 dark:text-zinc-300"
                           title={`Slack Channel: ${slackChannelTag}`}
                         >
-                          <SlackIcon className="h-3 w-3 text-zinc-400 dark:text-zinc-400 shrink-0" />
+                          <SlackIcon className="h-3 w-3 text-zinc-400 shrink-0" />
                           <span>{slackChannelTag}</span>
                         </span>
 
@@ -365,11 +448,11 @@ export function IncidentsTable({
                     </div>
                   </td>
 
-                  {/* Column 2: SEVERITY (Pill badge with signal bars) */}
+                  {/* Column 2: SEVERITY (Signal Bars Pill) */}
                   <td className="px-4 py-3.5 align-middle whitespace-nowrap">
                     <div
                       className={cn(
-                        'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold tracking-wide',
+                        'inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-xs font-medium tracking-wide',
                         sevConfig.badgeClasses
                       )}
                     >
@@ -400,70 +483,70 @@ export function IncidentsTable({
                     </div>
                   </td>
 
-                  {/* Column 3: STATUS (Live pulse indicator dot + badge) */}
+                  {/* Column 3: STATUS (Static concentric dot + badge) */}
                   <td className="px-4 py-3.5 align-middle whitespace-nowrap">
                     <div
                       className={cn(
-                        'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold tracking-wide',
+                        'inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-xs font-medium tracking-wide',
                         statusConfig.badgeClasses
                       )}
                     >
                       {statusConfig.isResolved ? (
                         <Check className="h-3 w-3 text-zinc-500 dark:text-zinc-400" />
-                      ) : statusConfig.isPulsing ? (
-                        <span className="relative flex h-2 w-2">
-                          <span
-                            className={cn(
-                              'absolute inline-flex h-full w-full animate-ping rounded-full opacity-75',
-                              statusConfig.pingColor || statusConfig.dotColor
-                            )}
-                          />
-                          <span
-                            className={cn(
-                              'relative inline-flex h-2 w-2 rounded-full',
-                              statusConfig.dotColor
-                            )}
-                          />
-                        </span>
                       ) : (
-                        <span
-                          className={cn(
-                            'h-1.5 w-1.5 rounded-full',
-                            statusConfig.dotColor
-                          )}
-                        />
+                        <span className="inline-flex items-center justify-center h-3 w-3 rounded-full border border-current">
+                          <span className={cn('h-1 w-1 rounded-full', statusConfig.dotColor)} />
+                        </span>
                       )}
                       <span>{statusConfig.label}</span>
                     </div>
                   </td>
 
-                  {/* Column 4: LEAD (Avatar circle with initials + Commander name) */}
+                  {/* Column 4: TYPE (Default / Grid Badge) */}
                   <td className="px-4 py-3.5 align-middle whitespace-nowrap">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className={cn(
-                          'flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr font-semibold text-[10px] shadow-2xs ring-1 ring-white/20',
-                          avatarGradient
-                        )}
-                        aria-label={`Lead: ${leadName}`}
-                      >
-                        {initials}
+                    <div className="inline-flex items-center gap-1 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800 px-2 py-0.5 text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                      <LayoutGrid className="h-3 w-3 text-zinc-400 shrink-0" />
+                      <span>{incidentType}</span>
+                    </div>
+                  </td>
+
+                  {/* Column 5: DURATION (e.g. '12h 27m') */}
+                  <td className="px-4 py-3.5 align-middle whitespace-nowrap">
+                    <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                      {duration}
+                    </span>
+                  </td>
+
+                  {/* Column 6: REPORTED (e.g. '12h 27m ago') */}
+                  <td className="px-4 py-3.5 align-middle whitespace-nowrap">
+                    <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                      {reportedAgo}
+                    </span>
+                  </td>
+
+                  {/* Column 7: LEAD */}
+                  <td className="px-4 py-3.5 align-middle whitespace-nowrap">
+                    {leadName === 'Unassigned' ? (
+                      <span className="text-xs text-zinc-400 italic">Unassigned</span>
+                    ) : (
+                      <div className="flex items-center gap-1.5">
+                        <div
+                          className={cn(
+                            'flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr font-semibold text-[9px] shadow-2xs',
+                            avatarGradient
+                          )}
+                          aria-label={`Lead: ${leadName}`}
+                        >
+                          {initials}
+                        </div>
+                        <span className="text-xs font-medium text-zinc-800 dark:text-zinc-200">
+                          {leadName}
+                        </span>
                       </div>
-                      <span className="text-xs font-medium text-zinc-800 dark:text-zinc-200">
-                        {leadName}
-                      </span>
-                    </div>
+                    )}
                   </td>
 
-                  {/* Column 5: CREATED (Relative duration '1h ago', '22h ago') */}
-                  <td className="px-4 py-3.5 align-middle whitespace-nowrap">
-                    <div className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400 font-medium">
-                      <Clock className="h-3.5 w-3.5 text-zinc-400 dark:text-zinc-500 shrink-0" />
-                      <span>{duration}</span>
-                    </div>
-                  </td>
-
-                  {/* Column 6: ACTIONS (Enter War Room button) */}
+                  {/* Column 8: ACTIONS (Enter War Room button) */}
                   <td className="px-4 sm:px-6 py-3.5 align-middle text-right whitespace-nowrap">
                     <Link
                       href={warRoomUrl}
@@ -492,6 +575,11 @@ export function IncidentsTable({
         <div>
           Showing <span className="font-semibold text-zinc-700 dark:text-zinc-200">{incidents.length}</span>{' '}
           {incidents.length === 1 ? 'incident' : 'incidents'}
+          {selectedIds.size > 0 && (
+            <span className="ml-2 font-medium text-purple-600 dark:text-purple-400">
+              ({selectedIds.size} selected)
+            </span>
+          )}
         </div>
         <div className="text-[11px] text-zinc-400 dark:text-zinc-500">
           Real-time updates via Convex

@@ -294,6 +294,8 @@ export const createIncident = mutation({
     title: v.string(),
     severity: v.string(),
     summary: v.optional(v.string()),
+    status: v.optional(v.string()),
+    lead: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const all = await ctx.db.query("incidents").collect();
@@ -311,7 +313,8 @@ export const createIncident = mutation({
       incidentId,
       title: args.title,
       severity: args.severity,
-      status: "ACTIVE",
+      status: args.status || "INVESTIGATING",
+      lead: args.lead,
       rootCause: args.summary || "No summary for this incident",
       createdAt: Date.now(),
     });

@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Asterisk, Menu, X } from 'lucide-react';
 import { RootlySidebar } from '@/components/dashboard/RootlySidebar';
 import { IncidentsDirectory } from './IncidentsDirectory';
+import { AskIncidentWidget } from './AskIncidentWidget';
 import type { IncidentItem } from './IncidentsTable';
 import { cn } from '@/lib/utils';
 
@@ -152,6 +153,9 @@ export function IncidentsPageLayout({
             />
           )}
         </main>
+
+        {/* Floating Ask Ecosphere Assistant Widget */}
+        <AskIncidentWidget />
       </div>
     </div>
   );

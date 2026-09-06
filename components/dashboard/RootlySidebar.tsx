@@ -174,7 +174,7 @@ export function RootlySidebar({
 
   const platformNavItems: NavItem[] = [
     {
-      label: 'Rootly AI',
+      label: 'Ecosphere AI',
       href: '/#ai',
       icon: Sparkles,
       badge: (
@@ -246,7 +246,7 @@ export function RootlySidebar({
             <Asterisk className="h-5 w-5 stroke-[2.5]" />
           </div>
           <span className="text-lg font-bold tracking-tight text-zinc-900">
-            rootly
+            ecosphere
           </span>
         </Link>
       </div>
