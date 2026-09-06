@@ -8,9 +8,9 @@ import { api } from '@/convex/_generated/api';
 import {
   Asterisk,
   BarChart3,
+  Bell,
   CheckCircle2,
   ChevronDown,
-  FileText,
   Flame,
   Home,
   Plus,
@@ -129,9 +129,9 @@ export function RootlySidebar({
       badge: <IncidentsActiveCountBadge />,
     },
     {
-      label: 'Retrospectives',
-      href: '/#retrospectives',
-      icon: FileText,
+      label: 'Events',
+      href: '/events',
+      icon: Bell,
     },
     {
       label: 'Action Items',
