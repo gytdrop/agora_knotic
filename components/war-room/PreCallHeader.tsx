@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ShieldAlert, User } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowLeft, ShieldAlert, User } from 'lucide-react';
 
 interface PreCallHeaderProps {
   title?: string;
@@ -39,6 +40,13 @@ export function PreCallHeader({
     <header className="flex h-14 w-full items-center justify-between border-b border-zinc-800/80 bg-[#171717] px-6 text-zinc-100 font-sans">
       {/* Left Branding & Incident Metadata */}
       <div className="flex items-center gap-3">
+        <Link
+          href="/"
+          className="flex items-center gap-1.5 rounded-md border border-zinc-700 bg-zinc-800/80 px-2.5 py-1 text-xs text-zinc-300 transition-colors hover:bg-zinc-700 hover:text-white"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          <span>Dashboard</span>
+        </Link>
         <div className="flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-600 font-bold text-white text-sm shadow-sm">
             E
