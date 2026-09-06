@@ -41,6 +41,7 @@ export function HitlGuardrailCard({
             targetService: 'ingress/auth-svc',
             authorizedBy: 'Akthar (Lead SRE)',
             passkeyUsed: true,
+            incidentId: cleanIncidentId,
           }),
         });
 

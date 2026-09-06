@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { handleCorsPreflight, withCors } from '@/lib/cors';
+import { recordIncidentEvent, getIncidentState } from '@/lib/event-store';
 
 export interface RemediationRequest {
+  incidentId?: string;
   actionId?: string;
   actionType?: string;
   targetService?: string;
@@ -27,6 +29,28 @@ export async function POST(request: Request) {
     
     const actionId = body.actionId || `act_${Date.now()}`;
     const authorizedBy = body.authorizedBy || "Incident Commander";
+    const rawIncidentId = body.incidentId || 'INC-8921';
+    const cleanId = rawIncidentId.replace(/^#/, '');
+    const normalizedIncidentId = `#${cleanId}`;
+
+    try {
+      const incident = getIncidentState(normalizedIncidentId);
+      incident.isResolved = true;
+      recordIncidentEvent(normalizedIncidentId, 'REMEDIATION_EXECUTED', {
+        id: actionId,
+        speaker: authorizedBy,
+        text: `Remediation hotfix executed: Ingress port restored (8080 -> 8000). Rolling restart deployed.`,
+        tag: 'ACTION',
+        status: 'Remediation Executed (Active)',
+        telemetryEvidence: {
+          source: 'k8s-api',
+          component: 'ingress-nginx',
+          details: 'Ingress port 8000 target restored, pod health checks passed.',
+        },
+      });
+    } catch (storeErr) {
+      console.warn('[remediate] failed to record event in store:', storeErr);
+    }
 
     return withCors(
       NextResponse.json<RemediationResponse>(
