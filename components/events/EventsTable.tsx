@@ -114,6 +114,7 @@ export function EventsTable({ events, onStatusChange }: EventsTableProps) {
                 checked={events.length > 0 && selectedIds.size === events.length}
                 onChange={handleSelectAll}
                 className="h-3.5 w-3.5 rounded border border-zinc-300 bg-transparent text-purple-600 focus:ring-purple-500 cursor-pointer"
+                style={{ backgroundColor: 'transparent' }}
               />
             </div>
             <div>ID</div>
@@ -167,6 +168,7 @@ export function EventsTable({ events, onStatusChange }: EventsTableProps) {
                       checked={isSelected}
                       onChange={() => handleToggleRow(event.id)}
                       className="h-3.5 w-3.5 rounded border border-zinc-300 bg-transparent text-purple-600 focus:ring-purple-500 cursor-pointer"
+                      style={{ backgroundColor: 'transparent' }}
                     />
                   </div>
 

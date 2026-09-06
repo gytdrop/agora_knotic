@@ -221,6 +221,7 @@ export function IncidentsFilterBar({
             placeholder="Filter incidents... (⌘K)"
             aria-label="Filter incidents"
             className="h-9 w-full rounded-lg border border-zinc-200 bg-transparent pl-9 pr-8 text-xs text-zinc-900 placeholder:text-zinc-400 shadow-2xs transition-all hover:border-zinc-300 focus:border-purple-600 focus:bg-transparent focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+            style={{ backgroundColor: 'transparent' }}
           />
           {searchQuery ? (
             <button

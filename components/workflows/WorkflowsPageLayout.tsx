@@ -94,6 +94,22 @@ export function WorkflowsPageLayout() {
   const [isCreateIncidentOpen, setIsCreateIncidentOpen] = useState(false);
   const [expandedWorkflows, setExpandedWorkflows] = useState<Record<string, boolean>>({});
 
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filteredWorkflows.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredWorkflows.map((w) => w.id));
+    }
+  };
+
   const toggleWorkflow = (id: string) => {
     setWorkflows((prev) =>
       prev.map((w) => (w.id === id ? { ...w, enabled: !w.enabled } : w))
@@ -286,13 +302,14 @@ export function WorkflowsPageLayout() {
               {/* Table Toolbar Search & Actions */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
                 <div className="relative flex-1 max-w-sm">
-                  <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-zinc-400" />
+                  <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-zinc-400 pointer-events-none" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search workflows"
                     className="w-full pl-9 pr-3 py-1.5 rounded-lg border border-zinc-200 bg-transparent text-xs text-zinc-900 placeholder-zinc-400 outline-none focus:ring-2 focus:ring-purple-500/20"
+                    style={{ backgroundColor: 'transparent' }}
                   />
                 </div>
 
@@ -323,7 +340,13 @@ export function WorkflowsPageLayout() {
                   </button>
 
                   <label className="flex items-center gap-1.5 cursor-pointer select-none">
-                    <input type="checkbox" className="rounded border border-zinc-300 bg-transparent text-purple-600 focus:ring-purple-500" />
+                    <input
+                      type="checkbox"
+                      checked={filteredWorkflows.length > 0 && selectedIds.length === filteredWorkflows.length}
+                      onChange={toggleSelectAll}
+                      className="h-3.5 w-3.5 rounded border border-zinc-300 bg-transparent text-purple-600 focus:ring-purple-500 shrink-0 cursor-pointer"
+                      style={{ backgroundColor: 'transparent' }}
+                    />
                     <span>Select all</span>
                   </label>
                 </div>
@@ -343,7 +366,10 @@ export function WorkflowsPageLayout() {
                         <div className="flex items-center gap-3 min-w-0">
                           <input
                             type="checkbox"
-                            className="rounded border border-zinc-300 bg-transparent text-purple-600 focus:ring-purple-500 shrink-0"
+                            checked={selectedIds.includes(wf.id)}
+                            onChange={() => toggleSelect(wf.id)}
+                            className="h-3.5 w-3.5 rounded border border-zinc-300 bg-transparent text-purple-600 focus:ring-purple-500 shrink-0 cursor-pointer"
+                            style={{ backgroundColor: 'transparent' }}
                           />
 
                           {/* Toggle Switch */}

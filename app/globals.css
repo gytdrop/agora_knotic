@@ -138,6 +138,10 @@
 }
 
 @layer base {
+  html {
+    color-scheme: light;
+  }
+
   body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -145,19 +149,38 @@
     font-family: var(--font-sans);
     color: hsl(var(--foreground));
     background-color: hsl(var(--background));
+    color-scheme: light;
+  }
+
+  /* Force all search and text inputs to be transparent with no dark browser background */
+  input[type="text"],
+  input[type="search"],
+  input[type="email"],
+  input[type="password"],
+  input:not([type]) {
+    background-color: transparent !important;
+    color: #18181b !important;
+    color-scheme: light !important;
+  }
+
+  input[type="text"]::placeholder,
+  input[type="search"]::placeholder,
+  input::placeholder {
+    color: #a1a1aa !important;
   }
 
   /* Transparent checkboxes with custom border & checked SVG checkmark */
   input[type="checkbox"] {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background-color: transparent;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    background-color: transparent !important;
+    color-scheme: light !important;
     margin: 0;
     width: 0.9375rem;
     height: 0.9375rem;
-    border: 1.5px solid #d4d4d8;
-    border-radius: 0.25rem;
+    border: 1.5px solid #d4d4d8 !important;
+    border-radius: 0.25rem !important;
     display: inline-grid;
     place-content: center;
     cursor: pointer;
@@ -166,7 +189,7 @@
   }
 
   input[type="checkbox"]:hover {
-    border-color: #a1a1aa;
+    border-color: #a1a1aa !important;
   }
 
   input[type="checkbox"]:focus-visible {

@@ -50,8 +50,8 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider appearance={{ theme: shadcn }}>
-      <html lang="en" className={`h-full ${montserrat.variable}`}>
-        <body className="h-full min-h-screen font-sans antialiased bg-[#171717] text-zinc-100">
+      <html lang="en" className={`h-full ${montserrat.variable}`} style={{ colorScheme: 'light' }}>
+        <body className="h-full min-h-screen font-sans antialiased bg-white text-zinc-900" style={{ colorScheme: 'light' }}>
           <ConvexClientProvider>
             {children}
           </ConvexClientProvider>
