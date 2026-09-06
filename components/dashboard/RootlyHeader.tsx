@@ -124,7 +124,7 @@ export function RootlyHeader({
             value={currentSearchValue}
             onChange={handleSearchInputChange}
             placeholder="Search Incidents..."
-            className="h-9 w-40 sm:w-56 md:w-72 rounded-lg border border-zinc-200 bg-zinc-50/80 pl-9 pr-8 text-xs text-zinc-900 placeholder:text-zinc-400 shadow-2xs transition-all hover:border-zinc-300 focus:border-purple-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+            className="h-9 w-40 sm:w-56 md:w-72 rounded-lg border border-zinc-200 bg-transparent pl-9 pr-8 text-xs text-zinc-900 placeholder:text-zinc-400 shadow-2xs transition-all hover:border-zinc-300 focus:border-purple-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20"
           />
           {currentSearchValue ? (
             <button

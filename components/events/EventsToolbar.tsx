@@ -100,7 +100,7 @@ export function EventsToolbar({
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search events..."
-            className="w-full pl-9 pr-8 py-1.5 text-xs text-zinc-900 placeholder-zinc-400 bg-zinc-50 hover:bg-zinc-100/60 focus:bg-white border border-zinc-200 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 rounded-md transition-colors outline-none"
+            className="w-full pl-9 pr-8 py-1.5 text-xs text-zinc-900 placeholder-zinc-400 bg-transparent hover:bg-zinc-50/50 focus:bg-transparent border border-zinc-200 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 rounded-md transition-colors outline-none"
           />
           {searchQuery && (
             <button

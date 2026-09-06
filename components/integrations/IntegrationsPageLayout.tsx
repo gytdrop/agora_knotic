@@ -277,7 +277,7 @@ export function IntegrationsPageLayout() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search integrations..."
-                className="w-full pl-9 pr-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 outline-none focus:ring-2 focus:ring-purple-500/30"
+                className="w-full pl-9 pr-3 py-1.5 rounded-lg border border-zinc-200 bg-transparent text-xs text-zinc-900 placeholder-zinc-400 outline-none focus:ring-2 focus:ring-purple-500/30"
               />
             </div>
           </div>

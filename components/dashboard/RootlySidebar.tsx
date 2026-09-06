@@ -373,29 +373,33 @@ export function RootlySidebar({
               </button>
             )}
           </DropdownMenuTrigger>
-          <DropdownMenuContent align={isCollapsed ? 'center' : 'start'} side={isCollapsed ? 'right' : 'bottom'} className="w-56">
-            <DropdownMenuLabel className="text-[11px] font-medium text-zinc-400">
+          <DropdownMenuContent
+            align={isCollapsed ? 'center' : 'start'}
+            side={isCollapsed ? 'right' : 'bottom'}
+            className="w-56 bg-white border border-zinc-200 shadow-lg rounded-xl text-zinc-900 z-50 p-1"
+          >
+            <DropdownMenuLabel className="text-[11px] font-semibold text-zinc-500 px-2 py-1">
               Organizations
             </DropdownMenuLabel>
             <DropdownMenuGroup>
-              <DropdownMenuItem className="gap-2 text-xs font-medium cursor-pointer">
-                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold text-white">
+              <DropdownMenuItem className="gap-2.5 text-xs font-medium text-zinc-800 hover:bg-zinc-100 hover:text-zinc-900 focus:bg-zinc-100 cursor-pointer rounded-lg px-2 py-1.5 transition-colors">
+                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold text-white shadow-2xs">
                   A
                 </div>
                 <span className="flex-1 truncate">Acme, Inc.</span>
-                <span className="text-[10px] text-emerald-600 font-semibold">
+                <span className="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200/60">
                   Active
                 </span>
               </DropdownMenuItem>
-              <DropdownMenuItem className="gap-2 text-xs text-zinc-600 cursor-pointer">
-                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-zinc-400 text-[10px] font-bold text-white">
+              <DropdownMenuItem className="gap-2.5 text-xs text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 focus:bg-zinc-100 cursor-pointer rounded-lg px-2 py-1.5 transition-colors">
+                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-zinc-400 text-[10px] font-bold text-white shadow-2xs">
                   S
                 </div>
                 <span className="flex-1 truncate">Acme Staging</span>
               </DropdownMenuItem>
             </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="gap-2 text-xs text-zinc-600 cursor-pointer">
+            <DropdownMenuSeparator className="my-1 bg-zinc-100" />
+            <DropdownMenuItem className="gap-2 text-xs text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 focus:bg-zinc-100 cursor-pointer rounded-lg px-2 py-1.5 transition-colors">
               <Plus className="h-3.5 w-3.5 text-zinc-500" />
               <span>Add Organization</span>
             </DropdownMenuItem>
@@ -409,7 +413,7 @@ export function RootlySidebar({
           <button
             type="button"
             onClick={onOpenSearch}
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-200/80 bg-zinc-50/70 text-zinc-500 hover:bg-zinc-100/90 focus:outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer"
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-200/80 bg-transparent text-zinc-500 hover:bg-zinc-100/90 focus:outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer"
             title="Search (⌘K)"
           >
             <Search className="h-4 w-4 text-zinc-500" />
@@ -418,7 +422,7 @@ export function RootlySidebar({
           <button
             type="button"
             onClick={onOpenSearch}
-            className="flex w-full items-center justify-between rounded-lg border border-zinc-200/80 bg-zinc-50/70 px-2.5 py-1.5 text-xs text-zinc-500 transition-colors hover:border-zinc-300 hover:bg-zinc-100/90 focus:outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer"
+            className="flex w-full items-center justify-between rounded-lg border border-zinc-200/80 bg-transparent px-2.5 py-1.5 text-xs text-zinc-500 transition-colors hover:border-zinc-300 hover:bg-zinc-100/90 focus:outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer"
           >
             <span className="flex items-center gap-2">
               <Search className="h-3.5 w-3.5 text-zinc-400" />
@@ -513,19 +517,26 @@ export function RootlySidebar({
               </button>
             )}
           </DropdownMenuTrigger>
-          <DropdownMenuContent align={isCollapsed ? 'center' : 'end'} side={isCollapsed ? 'right' : 'top'} className="w-56 mb-1">
-            <DropdownMenuLabel className="text-xs font-semibold text-zinc-900">
+          <DropdownMenuContent
+            align={isCollapsed ? 'center' : 'end'}
+            side={isCollapsed ? 'right' : 'top'}
+            className="w-56 mb-1.5 bg-white border border-zinc-200 shadow-lg rounded-xl text-zinc-900 z-50 p-1"
+          >
+            <DropdownMenuLabel className="px-2.5 py-1.5 text-xs font-semibold text-zinc-900">
               Ashley Sawatsky
+              <span className="block font-normal text-[11px] text-zinc-500">
+                ashley@acme.inc
+              </span>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-xs cursor-pointer">
+            <DropdownMenuSeparator className="my-1 bg-zinc-100" />
+            <DropdownMenuItem className="px-2.5 py-1.5 text-xs text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 focus:bg-zinc-100 cursor-pointer rounded-lg transition-colors">
               Profile Settings
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-xs cursor-pointer">
+            <DropdownMenuItem className="px-2.5 py-1.5 text-xs text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 focus:bg-zinc-100 cursor-pointer rounded-lg transition-colors">
               Notification Preferences
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-xs text-rose-600 cursor-pointer">
+            <DropdownMenuSeparator className="my-1 bg-zinc-100" />
+            <DropdownMenuItem className="px-2.5 py-1.5 text-xs text-rose-600 hover:bg-rose-50 hover:text-rose-700 focus:bg-rose-50 cursor-pointer rounded-lg transition-colors">
               Sign Out
             </DropdownMenuItem>
           </DropdownMenuContent>

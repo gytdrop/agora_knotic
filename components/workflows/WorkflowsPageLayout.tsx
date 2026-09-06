@@ -292,7 +292,7 @@ export function WorkflowsPageLayout() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search workflows"
-                    className="w-full pl-9 pr-3 py-1.5 rounded-lg border border-zinc-200 text-xs text-zinc-900 placeholder-zinc-400 outline-none focus:ring-2 focus:ring-purple-500/20"
+                    className="w-full pl-9 pr-3 py-1.5 rounded-lg border border-zinc-200 bg-transparent text-xs text-zinc-900 placeholder-zinc-400 outline-none focus:ring-2 focus:ring-purple-500/20"
                   />
                 </div>
 
