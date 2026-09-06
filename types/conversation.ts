@@ -85,3 +85,4 @@ export interface ConversationComponentProps {
   initialMicEnabled?: boolean;
 }
 
+export * from './war-room';
