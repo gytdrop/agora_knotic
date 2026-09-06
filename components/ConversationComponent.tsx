@@ -24,20 +24,6 @@ import {
   type UserTranscription,
   type AgentTranscription,
 } from 'agora-agent-client-toolkit';
-import {
-  Mic,
-  MicOff,
-  Video,
-  VideoOff,
-  FileText,
-  Terminal,
-  PhoneOff,
-  ShieldCheck,
-  Flame,
-  Headphones,
-  Volume2,
-  VolumeX,
-} from 'lucide-react';
 import { DEFAULT_AGENT_UID } from '@/lib/agora';
 import {
   getCurrentInProgressMessage,
@@ -50,7 +36,9 @@ import {
 import { analyzeStatement } from '@/lib/incident-analyzer';
 import { IncidentHeader } from './war-room/IncidentHeader';
 import { VideoGrid } from './war-room/VideoGrid';
-import { ConversationParsingPanel } from './war-room/ConversationParsingPanel';
+import { WarRoomSidebar } from './war-room/WarRoomSidebar';
+import { FloatingControlDock } from './war-room/FloatingControlDock';
+import type { WarRoomToolTab } from '@/types/war-room';
 import type { ConversationComponentProps, LedgerItem, SpeakerRole } from '@/types/conversation';
 import { applyLedgerMutation, type LedgerItemInput } from '@/lib/ledger';
 import { getApiUrl, getAgoraAppId } from '@/lib/api-config';
@@ -110,6 +98,26 @@ export default function ConversationComponent({
   const [isVideoOff, setIsVideoOff] = useState(!initialVideoEnabled);
   const [localVideoStream, _setLocalVideoStream] = useState<MediaStream | null>(null);
   const [isSideDrawerOpen, setIsSideDrawerOpen] = useState(true);
+  const [activeSidebarTab, setActiveSidebarTab] = useState<WarRoomToolTab>('actions');
+
+  // Dynamic Incident State (Derived from URL or sessionStorage)
+  const [incidentId, setIncidentId] = useState('INC-2026-0912-001');
+  const [incidentTitle, setIncidentTitle] = useState('Payment service latency and failures');
+  const [incidentSeverity, setIncidentSeverity] = useState('P1');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const qId = urlParams.get('incidentId') || urlParams.get('id') || sessionStorage.getItem('echosphere_incident_id');
+      if (qId) setIncidentId(qId);
+
+      const qTitle = urlParams.get('title') || urlParams.get('incidentName') || sessionStorage.getItem('echosphere_incident_title') || sessionStorage.getItem('echosphere_incident_name');
+      if (qTitle) setIncidentTitle(qTitle);
+
+      const qSev = urlParams.get('severity') || sessionStorage.getItem('echosphere_incident_severity');
+      if (qSev) setIncidentSeverity(qSev);
+    }
+  }, []);
 
   // Incident & Remediation State
   const [isHotfixStaged, setIsHotfixStaged] = useState(false);
@@ -942,19 +950,20 @@ export default function ConversationComponent({
 
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden bg-[#171717] text-zinc-100 font-sans">
-      {/* Top Bar: Google Meet Style Incident Header */}
+      {/* Top Bar: Zoom/Teams Style Incident Header */}
       <IncidentHeader
-        incidentId="#INC-8921"
-        severity="SEV-1"
-        title="AGORA ECHOSPHERE"
+        incidentId={incidentId}
+        severity={incidentSeverity}
+        title={incidentTitle}
         isConnected={connectionState === 'CONNECTED'}
         speechMuted={speechMuted}
+        participantCount={humanRemoteUsers.length + 2}
       />
 
       {/* Main War Room Content */}
-      <main className="flex flex-1 min-h-0 w-full overflow-hidden">
+      <main className="relative flex flex-1 min-h-0 w-full overflow-hidden bg-[#121316]">
         {/* Left Side: Dynamic Video Grid */}
-        <section className="flex-1 min-w-0 overflow-hidden">
+        <section className="flex-1 min-w-0 overflow-hidden pb-16">
           <VideoGrid
             localParticipant={{
               id: 'local-user',
@@ -989,10 +998,42 @@ export default function ConversationComponent({
           />
         </section>
 
-        {/* Right Side: Conversation Parsing Side Drawer */}
+        {/* Right Side: 5-Tool War Room Sidebar */}
         {isSideDrawerOpen && (
-          <ConversationParsingPanel items={ledgerItems} />
+          <WarRoomSidebar
+            activeTab={activeSidebarTab}
+            onTabChange={(tab) => setActiveSidebarTab(tab)}
+            onClose={() => setIsSideDrawerOpen(false)}
+            ledgerItems={ledgerItems}
+            isHotfixStaged={isHotfixStaged}
+            isResolved={isResolved}
+            onRemediateSuccess={handleRemediateSuccess}
+          />
         )}
+
+        {/* Floating Meeting Control Dock (Zoom / Teams 2.1 floating pill bar) */}
+        <div className="absolute bottom-5 left-0 right-0 z-30 flex justify-center pointer-events-none">
+          <FloatingControlDock
+            isMicMuted={!isEnabled}
+            isVideoOff={isVideoOff}
+            isSharing={false}
+            participantCount={humanRemoteUsers.length + 2}
+            activeSidebarTab={activeSidebarTab}
+            isSidebarOpen={isSideDrawerOpen}
+            speechMuted={speechMuted}
+            isMonitoringSelf={isMonitoringSelf}
+            onToggleMic={handleMicToggle}
+            onToggleVideo={toggleCamera}
+            onToggleSpeechMute={handleSpeechMuteToggle}
+            onToggleSelfMonitor={toggleSelfMonitor}
+            onSelectSidebarTab={(tab) => {
+              setActiveSidebarTab(tab);
+              setIsSideDrawerOpen(true);
+            }}
+            onToggleSidebar={() => setIsSideDrawerOpen(!isSideDrawerOpen)}
+            onEndCall={handleEndConversation}
+          />
+        </div>
 
         {/* Background Audio Playback for Remote WebRTC Users (AI Agent audio strictly 100% muted for console-only parsing) */}
         <div className="hidden" aria-hidden="true">
@@ -1006,211 +1047,6 @@ export default function ConversationComponent({
           ))}
         </div>
       </main>
-
-      {/* Bottom Control Toolbar (GMeet Floating Control Dock) */}
-      <footer className="flex h-16 w-full items-center justify-between border-t border-zinc-800/80 bg-[#202124] px-6 text-zinc-200">
-        {/* Left Status */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 rounded-full bg-zinc-800/80 px-3.5 py-1.5 border border-zinc-700/60 text-xs font-sans text-zinc-300">
-            <span className="h-2 w-2 rounded-full bg-zinc-400" />
-            <span>
-              Ambient Sentinel Mode ({humanRemoteUsers.length + 1} connected)
-            </span>
-          </div>
-          {/* Silent Mode status badge — footer secondary indicator */}
-          {speechMuted && (
-            <div className="flex items-center gap-1.5 rounded-full bg-amber-950/80 px-3 py-1 border border-amber-700/60 text-xs font-medium text-amber-300">
-              <VolumeX className="h-3 w-3 text-amber-400" />
-              <span>Listening&nbsp;•&nbsp;Silent Mode</span>
-            </div>
-          )}
-        </div>
-
-        {/* Center Google Meet Circular Control Buttons */}
-        <div className="flex items-center gap-3">
-          {/* Mute Toggle Circular Button */}
-          <button
-            onClick={handleMicToggle}
-            className={`flex h-10 w-10 items-center justify-center rounded-full border transition-colors shadow-sm ${
-              !isEnabled
-                ? 'bg-zinc-800 border-rose-800/80 text-rose-400 hover:bg-zinc-700'
-                : 'bg-zinc-800 border-zinc-700 text-zinc-200 hover:bg-zinc-700'
-            }`}
-            title={!isEnabled ? 'Unmute Microphone' : 'Mute Microphone'}
-          >
-            {!isEnabled ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-          </button>
-
-
-          {/* Hear Myself / Mic Monitor (Sidetone Test) */}
-          <button
-            onClick={toggleSelfMonitor}
-            className={`flex h-10 w-10 items-center justify-center rounded-full border transition-colors shadow-sm ${
-              isMonitoringSelf
-                ? 'bg-emerald-950/80 border-emerald-500/80 text-emerald-400 ring-2 ring-emerald-500/30'
-                : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200'
-            }`}
-            title={
-              isMonitoringSelf
-                ? 'Hear Myself: ON (Click to stop local loopback)'
-                : 'Hear Myself: OFF (Click to monitor microphone audio)'
-            }
-          >
-            <Headphones className="h-4 w-4" />
-          </button>
-
-          {/* Agent Speech Mute (Silent Listening Mode) Circular Button */}
-          <button
-            onClick={handleSpeechMuteToggle}
-            className={`flex h-10 w-10 items-center justify-center rounded-full border transition-all shadow-sm ${
-              speechMuted
-                ? 'bg-rose-950/90 border-rose-700 text-rose-400 hover:bg-rose-900 ring-2 ring-rose-500/40'
-                : 'bg-zinc-800 border-emerald-600/70 text-emerald-400 hover:bg-zinc-700 hover:text-emerald-300'
-            }`}
-            title={
-              speechMuted
-                ? 'Agent Speaking: OFF (Silent Mode Active) — Click to Unmute Agent'
-                : 'Agent Speaking: ON — Click for Silent Listening Mode'
-            }
-          >
-            {speechMuted ? <VolumeX className="h-4 w-4 text-rose-400" /> : <Volume2 className="h-4 w-4 text-emerald-400" />}
-          </button>
-
-          {/* Camera Toggle Circular Button */}
-          <button
-            onClick={toggleCamera}
-            className={`flex h-10 w-10 items-center justify-center rounded-full border transition-colors shadow-sm ${
-              isVideoOff
-                ? 'bg-rose-950/80 border-rose-700 text-rose-300 hover:bg-rose-900'
-                : 'bg-zinc-800 border-zinc-700 text-zinc-100 ring-2 ring-blue-500/50 hover:bg-zinc-700'
-            }`}
-            title={isVideoOff ? 'Turn Camera On' : 'Turn Camera Off'}
-          >
-            {isVideoOff ? <VideoOff className="h-4 w-4" /> : <Video className="h-4 w-4 text-blue-400" />}
-          </button>
-
-          {/* RTM Ledger Drawer Toggle */}
-          <button
-            onClick={() => setIsSideDrawerOpen(!isSideDrawerOpen)}
-            className={`flex h-10 w-10 items-center justify-center rounded-full border transition-colors shadow-sm ${
-              isSideDrawerOpen
-                ? 'bg-zinc-700 border-zinc-600 text-zinc-100'
-                : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:bg-zinc-700'
-            }`}
-            title="Toggle RTM Ledger Drawer"
-          >
-            <FileText className="h-4 w-4" />
-          </button>
-
-          {/* Diagnostics Tool Circular Button */}
-          <button
-            onClick={async () => {
-              try {
-                const res = await fetch(getApiUrl('/api/holmesgpt'), {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    action: 'investigate',
-                    query: 'cluster diagnostic routing verification',
-                  }),
-                });
-                const data = await res.json();
-                const findings = data?.findings;
-                commitLedgerMutation({
-                  speaker: 'HolmesGPT Investigation Engine',
-                  text: findings?.details || 'Cluster scan completed. Telemetry healthy.',
-                  tag: 'FACT',
-                  status: 'Diagnostic Verified',
-                  telemetryEvidence: findings
-                    ? {
-                        source: 'HolmesGPT Investigation Engine',
-                        component: findings.component || 'cluster-core',
-                        confidence: findings.confidence ?? 0.98,
-                        details: findings.details,
-                        metrics: findings.impact ? { impact: findings.impact } : undefined,
-                      }
-                    : undefined,
-                  timestampMs: Date.now(),
-                });
-              } catch {
-                commitLedgerMutation({
-                  speaker: 'HolmesGPT Investigation Engine',
-                  text: 'Cluster diagnostics completed. All monitored services active.',
-                  tag: 'FACT',
-                  status: 'Diagnostic Verified',
-                  timestampMs: Date.now(),
-                });
-              }
-            }}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 hover:bg-zinc-700 transition-colors shadow-sm"
-            title="Run HolmesGPT Diagnostics"
-          >
-            <Terminal className="h-4 w-4" />
-          </button>
-
-          {/* End Call Circular Button (GMeet Red Button) */}
-          <button
-            onClick={handleEndConversation}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-900/90 text-zinc-100 border border-rose-700 hover:bg-rose-800 transition-colors shadow-sm"
-            title="Leave War Room Call"
-          >
-            <PhoneOff className="h-4 w-4" />
-          </button>
-        </div>
-
-        {/* Right: Agent Speech Mute + Authorize Patch Action Pill */}
-        <div className="flex items-center gap-3">
-          {/* Agent Speech Mute — labeled pill so it's always easy to find */}
-          <button
-            onClick={handleSpeechMuteToggle}
-            className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold border transition-all active:scale-95 ${
-              speechMuted
-                ? 'bg-amber-950/80 border-amber-600/60 text-amber-300 ring-1 ring-amber-500/30 hover:bg-amber-900/80'
-                : 'bg-zinc-800 border-emerald-700/60 text-emerald-300 hover:bg-zinc-700'
-            }`}
-            title={
-              speechMuted
-                ? 'Agent Speaking: OFF — Click to unmute (queued alerts will replay)'
-                : 'Agent Speaking: ON — Click to enter Silent Listening Mode'
-            }
-          >
-            {speechMuted ? (
-              <>
-                <VolumeX className="h-4 w-4 text-amber-400" />
-                Silent Mode
-              </>
-            ) : (
-              <>
-                <Volume2 className="h-4 w-4 text-emerald-400" />
-                Speaking
-              </>
-            )}
-          </button>
-
-          <button
-            onClick={handleRemediateSuccess}
-            disabled={isResolved}
-            className={`flex items-center gap-2 rounded-full px-5 py-2 text-xs font-medium border transition-all ${
-              isResolved
-                ? 'bg-zinc-800 border-zinc-700 text-emerald-300 cursor-default'
-                : 'bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-200 active:scale-95'
-            }`}
-          >
-            {isResolved ? (
-              <>
-                <ShieldCheck className="h-4 w-4 text-emerald-400" />
-                Hotfix Active (200 OK)
-              </>
-            ) : (
-              <>
-                <Flame className="h-4 w-4 text-rose-400" />
-                Authorize 1-Click Patch
-              </>
-            )}
-          </button>
-        </div>
-
-      </footer>
     </div>
   );
 }
