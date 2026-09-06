@@ -61,8 +61,9 @@ function WarRoomMeetingOrchestrator() {
   const [showConversation, setShowConversation] = useState(false);
   const searchParams = useSearchParams();
   const channelParam = searchParams?.get('channel');
-  const incidentParam = searchParams?.get('incident');
-  const severityParam = searchParams?.get('severity');
+  const incidentParam = searchParams?.get('incident') || searchParams?.get('incidentId') || searchParams?.get('id');
+  const severityParam = searchParams?.get('severity') || searchParams?.get('sev');
+  const titleParam = searchParams?.get('title') || searchParams?.get('incidentName');
 
   // Sanitize and constrain channelName to prevent arbitrary channel parameter injection
   const safeChannel = channelParam && /^incident-[a-zA-Z0-9_-]{1,64}$/.test(channelParam)
@@ -291,6 +292,9 @@ function WarRoomMeetingOrchestrator() {
                       onEndConversation={handleEndConversation}
                       initialVideoEnabled={mediaSettings.videoEnabled}
                       initialMicEnabled={mediaSettings.micEnabled}
+                      incidentId={incidentId}
+                      incidentTitle={titleParam || undefined}
+                      incidentSeverity={severity}
                     />
                   </AgoraProvider>
                 </ErrorBoundary>

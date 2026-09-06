@@ -83,6 +83,9 @@ export interface ConversationComponentProps {
   onLedgerItemReceived?: (item: LedgerItem) => void;
   initialVideoEnabled?: boolean;
   initialMicEnabled?: boolean;
+  incidentId?: string;
+  incidentTitle?: string;
+  incidentSeverity?: string;
 }
 
 export * from './war-room';

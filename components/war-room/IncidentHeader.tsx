@@ -9,7 +9,8 @@ import {
   MoreHorizontal, 
   Users, 
   ChevronRight,
-  Flame
+  Flame,
+  Sparkles,
 } from 'lucide-react';
 
 interface IncidentHeaderProps {
@@ -21,6 +22,7 @@ interface IncidentHeaderProps {
   speechMuted?: boolean;
   participantCount?: number;
   onViewIncident?: () => void;
+  onInjectDemoTurn?: () => void;
 }
 
 export function IncidentHeader({
@@ -31,6 +33,7 @@ export function IncidentHeader({
   isConnected = true,
   speechMuted = false,
   participantCount = 2,
+  onInjectDemoTurn,
 }: IncidentHeaderProps) {
   const [displayTitle, setDisplayTitle] = useState<string>(
     title || incidentName || 'Payment service latency and failures'
@@ -167,14 +170,33 @@ export function IncidentHeader({
           </div>
         </div>
 
-        {/* Right Actions: View Incident & More */}
+        {/* Right Actions: Simulate Turn, View Incident, Post-Mortem */}
         <div className="flex items-center gap-2 shrink-0">
+          {onInjectDemoTurn && (
+            <button
+              type="button"
+              onClick={onInjectDemoTurn}
+              className="flex items-center gap-1.5 rounded-lg border border-purple-500/40 bg-purple-950/70 hover:bg-purple-900 px-2.5 py-1 text-xs font-semibold text-purple-200 transition-colors shadow-sm cursor-pointer"
+              title="Demo Safety Net: Inject a diagnostic turn into the live Agora/Convex pipeline"
+            >
+              <Sparkles className="h-3.5 w-3.5 text-purple-400" />
+              <span>Simulate Turn</span>
+            </button>
+          )}
+
+          <Link
+            href={`/incidents/${cleanIncidentId}`}
+            className="flex items-center gap-1.5 rounded-lg border border-zinc-700/80 bg-zinc-800/80 px-2.5 py-1 text-xs font-medium text-zinc-200 hover:bg-zinc-700 hover:text-white transition-colors shadow-sm"
+          >
+            <span>Incident</span>
+            <ExternalLink className="h-3 w-3 text-zinc-400" />
+          </Link>
+
           <Link
             href={`/post-mortem/${cleanIncidentId}`}
-            className="flex items-center gap-1.5 rounded-lg border border-zinc-700/80 bg-zinc-800/80 px-3 py-1 text-xs font-medium text-zinc-200 hover:bg-zinc-700 hover:text-white transition-colors shadow-sm"
+            className="flex items-center gap-1.5 rounded-lg border border-zinc-700/80 bg-zinc-800/80 px-2.5 py-1 text-xs font-medium text-zinc-200 hover:bg-zinc-700 hover:text-white transition-colors shadow-sm"
           >
-            <span>View Incident</span>
-            <ExternalLink className="h-3 w-3 text-zinc-400" />
+            <span>Post-Mortem</span>
           </Link>
 
           <button

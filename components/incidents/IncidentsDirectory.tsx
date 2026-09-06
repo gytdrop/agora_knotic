@@ -164,6 +164,8 @@ function IncidentsDirectoryView({
       type: newIncident.type || 'Default',
     };
     setOptimisticIncidents((prev) => [item, ...prev]);
+    const cleanId = newIncident.incidentId.replace(/^#/, '');
+    router.push(`/incidents/${encodeURIComponent(cleanId)}`);
   };
 
   // Combine server/fallback dataset with optimistic additions (deduplicating by incidentId)

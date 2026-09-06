@@ -80,11 +80,104 @@ export const resolveIncident = mutation({
     if (!incident) {
       throw new Error(`Incident ${args.incidentId} not found`);
     }
+
+    const events = await ctx.db
+      .query("ledger_events")
+      .withIndex("by_incident_id", (q) => q.eq("incidentId", args.incidentId))
+      .collect();
+
+    const facts = events.filter((e) => e.tag === "FACT");
+    const contradictions = events.filter((e) => e.tag === "CONTRADICTION");
+    const actions = events.filter((e) => e.tag === "ACTION");
+
+    const problemText = incident.title || "Production service degradation";
+    const impactText = `${incident.severity} impact detected across active traffic streams during live incident triage.`;
+    
+    let causesText = incident.causes || "";
+    if (!causesText || causesText.includes("No summary")) {
+      if (contradictions.length > 0) {
+        causesText = `Root cause identified via telemetry contradiction analysis: ${contradictions.map((c) => c.text).join("; ")}`;
+      } else if (facts.length > 0) {
+        causesText = `Confirmed telemetry findings: ${facts.map((f) => f.text).join("; ")}`;
+      } else {
+        causesText = incident.rootCause || "Service disruption traced to upstream configuration mismatch.";
+      }
+    }
+
+    let mitigationText = incident.mitigation || "";
+    if (!mitigationText) {
+      if (actions.length > 0) {
+        mitigationText = `Hotfix and remediation actions executed: ${actions.map((a) => a.text).join("; ")}`;
+      } else {
+        mitigationText = "Traffic normalized following SRE remediation in War Room.";
+      }
+    }
+
     await ctx.db.patch(incident._id, {
       status: "RESOLVED",
       resolvedAt: Date.now(),
       resolvedBy: args.resolvedBy,
+      problem: incident.problem || problemText,
+      impact: incident.impact || impactText,
+      causes: causesText,
+      mitigation: mitigationText,
+      rootCause: causesText,
     });
+    return incident._id;
+  },
+});
+
+export const generatePostMortem = mutation({
+  args: {
+    incidentId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const incident = await ctx.db
+      .query("incidents")
+      .withIndex("by_incident_id", (q) => q.eq("incidentId", args.incidentId))
+      .first();
+    if (!incident) {
+      throw new Error(`Incident ${args.incidentId} not found`);
+    }
+
+    const events = await ctx.db
+      .query("ledger_events")
+      .withIndex("by_incident_id", (q) => q.eq("incidentId", args.incidentId))
+      .collect();
+
+    const facts = events.filter((e) => e.tag === "FACT");
+    const contradictions = events.filter((e) => e.tag === "CONTRADICTION");
+    const actions = events.filter((e) => e.tag === "ACTION");
+
+    const problemText = incident.title || "Production service degradation";
+    const impactText = `${incident.severity} impact detected across active traffic streams during live incident triage.`;
+
+    let causesText = "";
+    if (contradictions.length > 0) {
+      causesText = `Root cause identified via telemetry contradiction analysis: ${contradictions.map((c) => c.text).join("; ")}`;
+    } else if (facts.length > 0) {
+      causesText = `Confirmed telemetry findings: ${facts.map((f) => f.text).join("; ")}`;
+    } else {
+      causesText = incident.rootCause || "Service disruption traced to upstream configuration mismatch.";
+    }
+
+    let mitigationText = "";
+    if (actions.length > 0) {
+      mitigationText = `Hotfix and remediation actions executed: ${actions.map((a) => a.text).join("; ")}`;
+    } else {
+      mitigationText = "Traffic normalized following SRE remediation in War Room.";
+    }
+
+    await ctx.db.patch(incident._id, {
+      problem: problemText,
+      impact: impactText,
+      causes: causesText,
+      mitigation: mitigationText,
+      rootCause: causesText,
+      status: "RESOLVED",
+      resolvedAt: incident.resolvedAt || Date.now(),
+    });
+
     return incident._id;
   },
 });
@@ -102,12 +195,57 @@ export const updateIncidentStatus = mutation({
     if (!incident) {
       throw new Error(`Incident ${args.incidentId} not found`);
     }
-    await ctx.db.patch(incident._id, {
+
+    const isResolving = args.status === "RESOLVED";
+    let patchData: Record<string, unknown> = {
       status: args.status,
-      ...(args.status === "RESOLVED" && !incident.resolvedAt
-        ? { resolvedAt: Date.now() }
-        : {}),
-    });
+      ...(isResolving && !incident.resolvedAt ? { resolvedAt: Date.now() } : {}),
+    };
+
+    if (isResolving && (!incident.problem || !incident.causes || incident.causes.includes("No summary"))) {
+      const events = await ctx.db
+        .query("ledger_events")
+        .withIndex("by_incident_id", (q) => q.eq("incidentId", args.incidentId))
+        .collect();
+
+      const facts = events.filter((e) => e.tag === "FACT");
+      const contradictions = events.filter((e) => e.tag === "CONTRADICTION");
+      const actions = events.filter((e) => e.tag === "ACTION");
+
+      const problemText = incident.title || "Production service degradation";
+      const impactText = `${incident.severity} impact detected across active traffic streams during live incident triage.`;
+
+      let causesText = incident.causes || "";
+      if (!causesText || causesText.includes("No summary")) {
+        if (contradictions.length > 0) {
+          causesText = `Root cause identified via telemetry contradiction analysis: ${contradictions.map((c) => c.text).join("; ")}`;
+        } else if (facts.length > 0) {
+          causesText = `Confirmed telemetry findings: ${facts.map((f) => f.text).join("; ")}`;
+        } else {
+          causesText = incident.rootCause || "Service disruption traced to upstream configuration mismatch.";
+        }
+      }
+
+      let mitigationText = incident.mitigation || "";
+      if (!mitigationText) {
+        if (actions.length > 0) {
+          mitigationText = `Hotfix and remediation actions executed: ${actions.map((a) => a.text).join("; ")}`;
+        } else {
+          mitigationText = "Traffic normalized following SRE remediation in War Room.";
+        }
+      }
+
+      patchData = {
+        ...patchData,
+        problem: incident.problem || problemText,
+        impact: incident.impact || impactText,
+        causes: causesText,
+        mitigation: mitigationText,
+        rootCause: causesText,
+      };
+    }
+
+    await ctx.db.patch(incident._id, patchData);
     return incident._id;
   },
 });
@@ -196,9 +334,6 @@ export const listAllIncidents = query({
 export const seedDefaultIncidents = mutation({
   args: {},
   handler: async (ctx) => {
-    const existing = await ctx.db.query("incidents").first();
-    if (existing) return;
-
     const defaults = [
       {
         incidentId: "#7134",
@@ -284,7 +419,13 @@ export const seedDefaultIncidents = mutation({
     ];
 
     for (const item of defaults) {
-      await ctx.db.insert("incidents", item);
+      const exists = await ctx.db
+        .query("incidents")
+        .withIndex("by_incident_id", (q) => q.eq("incidentId", item.incidentId))
+        .first();
+      if (!exists) {
+        await ctx.db.insert("incidents", item);
+      }
     }
   },
 });

@@ -24,6 +24,7 @@ interface WarRoomSidebarProps {
   ledgerItems?: LedgerItem[];
   isHotfixStaged?: boolean;
   isResolved?: boolean;
+  incidentId?: string;
   onRemediateSuccess?: () => void | Promise<void>;
   participants?: ParticipantInfo[];
   events?: IncidentTimelineEvent[];
@@ -36,6 +37,7 @@ export function WarRoomSidebar({
   ledgerItems,
   isHotfixStaged = true,
   isResolved = false,
+  incidentId,
   onRemediateSuccess,
   participants,
   events,
@@ -129,6 +131,7 @@ export function WarRoomSidebar({
             ledgerItems={ledgerItems}
             isHotfixStaged={isHotfixStaged}
             isResolved={isResolved}
+            incidentId={incidentId}
             onRemediateSuccess={onRemediateSuccess}
           />
         )}

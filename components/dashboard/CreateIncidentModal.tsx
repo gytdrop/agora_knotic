@@ -194,7 +194,10 @@ export function CreateIncidentModalForm({
 
       // Generate realistic sequential ID if offline or not returned
       const randomNum = Math.floor(7135 + Math.random() * 50);
-      const incidentId = createdIncidentId || `#${randomNum}`;
+      const is8921 =
+        trimmedTitle.toUpperCase().includes('8921') ||
+        trimmedTitle.toUpperCase().includes('ECHOSPHERE');
+      const incidentId = is8921 ? '#INC-8921' : (createdIncidentId || `#${randomNum}`);
 
       const newIncident: CreatedIncident = {
         _id: createdDocId,
@@ -311,14 +314,28 @@ export function CreateIncidentModalForm({
 
           {/* Field: Incident Name */}
           <div className="space-y-1">
-            <div className="flex items-center gap-1.5">
-              <label
-                htmlFor="incident-name"
-                className="text-sm font-medium text-zinc-900"
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <label
+                  htmlFor="incident-name"
+                  className="text-sm font-medium text-zinc-900"
+                >
+                  Incident name
+                </label>
+                <span className="text-xs text-zinc-400 font-normal">(optional)</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setTitle('AGORA ECHOSPHERE SEV-1 OUTAGE');
+                  setSeverity('Critical');
+                  setSummary('Ingress prefix route mismatch (/api/v2/auth -> port 8080 instead of 8000).');
+                  setLead('Akthar (Lead SRE)');
+                }}
+                className="text-[11px] font-mono text-purple-700 hover:text-purple-800 bg-purple-50 px-2 py-0.5 rounded border border-purple-200 cursor-pointer font-medium"
               >
-                Incident name
-              </label>
-              <span className="text-xs text-zinc-400 font-normal">(optional)</span>
+                + Auto-fill INC-8921 (Demo)
+              </button>
             </div>
             <p className="text-xs text-zinc-500">
               Give a short description of what is happening. If you&apos;d like to, you can leave it blank and change it later
@@ -564,7 +581,7 @@ export function CreateIncidentModalForm({
                 <span>Declaring...</span>
               </>
             ) : (
-              <span>Declare</span>
+              <span>Declare Incident</span>
             )}
           </button>
         </div>

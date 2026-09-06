@@ -10,8 +10,10 @@ import {
   MoreHorizontal,
   Copy,
   FileDown,
+  FileText,
   Check,
   CheckCircle2,
+  Video,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -24,6 +26,7 @@ import { cn } from '@/lib/utils';
 export interface IncidentDetailHeaderProps {
   incidentId: string;
   title: string;
+  severity?: string;
   onUpdateTitle?: (newTitle: string) => void;
   onResolve?: () => void;
   className?: string;
@@ -32,6 +35,7 @@ export interface IncidentDetailHeaderProps {
 export function IncidentDetailHeader({
   incidentId,
   title,
+  severity = 'Critical',
   onUpdateTitle,
   onResolve,
   className,
@@ -155,6 +159,22 @@ export function IncidentDetailHeader({
 
       {/* Right: Actions */}
       <div className="flex items-center gap-2 shrink-0">
+        <Link
+          href={`/war-room?incident=${encodeURIComponent(incidentId.replace(/^#/, ''))}&sev=${encodeURIComponent(severity)}&title=${encodeURIComponent(title)}`}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-purple-200 dark:border-purple-800/60 bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
+        >
+          <Video className="h-3.5 w-3.5" />
+          <span>Enter War Room</span>
+        </Link>
+
+        <Link
+          href={`/post-mortem/${encodeURIComponent(incidentId.replace(/^#/, ''))}`}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700/80 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 px-3 py-1.5 text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
+        >
+          <FileText className="h-3.5 w-3.5" />
+          <span>Post-Mortem</span>
+        </Link>
+
         <button
           type="button"
           onClick={() => setIsSubscribed((prev) => !prev)}

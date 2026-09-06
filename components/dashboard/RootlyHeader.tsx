@@ -142,15 +142,15 @@ export function RootlyHeader({
           )}
         </div>
 
-        {/* Primary Create Incident Button */}
+        {/* Primary Declare Incident Button */}
         <button
           type="button"
           onClick={onCreateIncident}
           className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-3.5 py-2 text-xs font-semibold text-white shadow-xs transition-all duration-150 hover:from-purple-700 hover:to-indigo-700 hover:shadow active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-purple-500/40 cursor-pointer shrink-0"
         >
           <Sparkles className="h-3.5 w-3.5 text-purple-200" />
-          <span className="hidden xs:inline sm:inline">Create Incident</span>
-          <span className="inline xs:hidden sm:hidden">Create</span>
+          <span className="hidden xs:inline sm:inline">Declare Incident</span>
+          <span className="inline xs:hidden sm:hidden">Declare</span>
         </button>
       </div>
     </header>

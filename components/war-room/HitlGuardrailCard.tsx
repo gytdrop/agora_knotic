@@ -2,22 +2,28 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ShieldCheck, AlertOctagon, CheckCircle2, Loader2, Terminal, Flame, ArrowRight } from 'lucide-react';
 import { getApiUrl } from '@/lib/api-config';
 
 interface HitlGuardrailCardProps {
   isStaged?: boolean;
   isResolved?: boolean;
+  incidentId?: string;
   onRemediateSuccess?: () => void | Promise<void>;
 }
 
 export function HitlGuardrailCard({
   isStaged: _isStaged = true,
   isResolved = false,
+  incidentId = 'INC-8921',
   onRemediateSuccess,
 }: HitlGuardrailCardProps) {
+  const router = useRouter();
   const [isAuthorizing, setIsAuthorizing] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const cleanIncidentId = incidentId.replace(/^#/, '');
 
   const handleAuthorize = async () => {
     setIsAuthorizing(true);
@@ -42,6 +48,11 @@ export function HitlGuardrailCard({
           throw new Error('Remediation webhook returned non-200 status');
         }
       }
+
+      // Auto-route to post-mortem after brief visual confirmation (Beat 2:30)
+      setTimeout(() => {
+        router.push(`/post-mortem/${encodeURIComponent(cleanIncidentId)}`);
+      }, 1200);
     } catch (err) {
       setErrorMsg('Failed to authorize patch. Try again.');
       console.error('HITL Authorization error:', err);

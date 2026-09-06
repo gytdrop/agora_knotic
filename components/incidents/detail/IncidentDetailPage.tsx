@@ -117,6 +117,7 @@ function IncidentDetailPageView({
       <IncidentDetailHeader
         incidentId={normId}
         title={localTitle}
+        severity={activeSeverity}
         onUpdateTitle={setLocalTitle}
         onResolve={() => handleUpdateStatus('RESOLVED')}
       />

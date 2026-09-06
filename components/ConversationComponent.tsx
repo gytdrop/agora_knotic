@@ -79,6 +79,9 @@ export default function ConversationComponent({
   onLedgerItemReceived,
   initialVideoEnabled = true,
   initialMicEnabled = true,
+  incidentId: propIncidentId,
+  incidentTitle: propIncidentTitle,
+  incidentSeverity: propIncidentSeverity,
 }: ConversationComponentProps) {
   const client = useRTCClient();
   const remoteUsers = useRemoteUsers();
@@ -101,24 +104,50 @@ export default function ConversationComponent({
   const [isSideDrawerOpen, setIsSideDrawerOpen] = useState(true);
   const [activeSidebarTab, setActiveSidebarTab] = useState<WarRoomToolTab>('actions');
 
-  // Dynamic Incident State (Derived from URL or sessionStorage)
-  const [incidentId, setIncidentId] = useState('INC-2026-0912-001');
-  const [incidentTitle, setIncidentTitle] = useState('Payment service latency and failures');
-  const [incidentSeverity, setIncidentSeverity] = useState('P1');
+  // Dynamic Incident State (Derived from props, URL, or sessionStorage)
+  const initialIncId = propIncidentId
+    ? (propIncidentId.startsWith('#') ? propIncidentId : `#${propIncidentId}`)
+    : '#INC-8921';
+  const [incidentId, setIncidentId] = useState<string>(initialIncId);
+  const [incidentTitle, setIncidentTitle] = useState<string>(
+    propIncidentTitle || 'Payment service latency and failures',
+  );
+  const [incidentSeverity, setIncidentSeverity] = useState<string>(
+    propIncidentSeverity || 'SEV-1',
+  );
 
   useEffect(() => {
+    if (propIncidentId) {
+      setIncidentId(propIncidentId.startsWith('#') ? propIncidentId : `#${propIncidentId}`);
+    }
+    if (propIncidentTitle) setIncidentTitle(propIncidentTitle);
+    if (propIncidentSeverity) setIncidentSeverity(propIncidentSeverity);
+
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
-      const qId = urlParams.get('incidentId') || urlParams.get('id') || sessionStorage.getItem('echosphere_incident_id');
-      if (qId) setIncidentId(qId);
+      const qId =
+        urlParams.get('incident') ||
+        urlParams.get('incidentId') ||
+        urlParams.get('id') ||
+        sessionStorage.getItem('echosphere_incident_id');
+      if (qId && !propIncidentId) {
+        setIncidentId(qId.startsWith('#') ? qId : `#${qId}`);
+      }
 
-      const qTitle = urlParams.get('title') || urlParams.get('incidentName') || sessionStorage.getItem('echosphere_incident_title') || sessionStorage.getItem('echosphere_incident_name');
-      if (qTitle) setIncidentTitle(qTitle);
+      const qTitle =
+        urlParams.get('title') ||
+        urlParams.get('incidentName') ||
+        sessionStorage.getItem('echosphere_incident_title') ||
+        sessionStorage.getItem('echosphere_incident_name');
+      if (qTitle && !propIncidentTitle) setIncidentTitle(qTitle);
 
-      const qSev = urlParams.get('severity') || sessionStorage.getItem('echosphere_incident_severity');
-      if (qSev) setIncidentSeverity(qSev);
+      const qSev =
+        urlParams.get('severity') ||
+        urlParams.get('sev') ||
+        sessionStorage.getItem('echosphere_incident_severity');
+      if (qSev && !propIncidentSeverity) setIncidentSeverity(qSev);
     }
-  }, []);
+  }, [propIncidentId, propIncidentTitle, propIncidentSeverity]);
 
   // Incident & Remediation State
   const [isHotfixStaged, setIsHotfixStaged] = useState(false);
@@ -221,7 +250,7 @@ export default function ConversationComponent({
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            incidentId: '#INC-8921',
+            incidentId: activeIncidentId,
             eventType:
               itemToSync.tag === 'ACTION'
                 ? 'HOTFIX_STAGED'
@@ -263,10 +292,62 @@ export default function ConversationComponent({
     [onLedgerItemReceived, appendConvexLedger, activeIncidentId],
   );
 
+  // Demo safety net: Inject a diagnostic turn into the live ledger & Convex pipeline
+  const injectDemoTurn = useCallback(
+    (customText?: string) => {
+      const demoStatements = [
+        {
+          speaker: 'Akthar (Lead SRE)',
+          speakerRole: 'peer' as SpeakerRole,
+          text: 'Database connection pools are throwing timeouts. We might have a deadlocked RDS instance.',
+        },
+        {
+          speaker: 'EchoSphere Sentinel',
+          speakerRole: 'agent' as SpeakerRole,
+          text: 'Database CPU is normal at 2.1%. Ingress prefix route points to 8080 while pod listens on 8000. Staging hotfix patch.',
+        },
+        {
+          speaker: localUserName,
+          speakerRole: 'user' as SpeakerRole,
+          text: 'EchoSphere, authorize patch.',
+        },
+      ];
+
+      const chosen = customText
+        ? { speaker: localUserName, speakerRole: 'user' as SpeakerRole, text: customText }
+        : demoStatements[Math.floor(Math.random() * demoStatements.length)];
+
+      const analyzed = analyzeStatement(chosen.speaker, chosen.text, chosen.speakerRole);
+      const turnId = Date.now();
+
+      if (analyzed.isContradiction) {
+        setHasContradiction(true);
+      }
+      if (analyzed.isHotfixStaged) {
+        setIsHotfixStaged(true);
+      }
+
+      commitLedgerMutation({
+        id: `turn-demo-${turnId}`,
+        turnId,
+        speaker: chosen.speaker,
+        speakerRole: chosen.speakerRole,
+        text: chosen.text,
+        tag: analyzed.tag,
+        status: analyzed.status,
+        reason: analyzed.reason,
+        telemetryEvidence: analyzed.telemetryEvidence,
+        hypothesisLifecycle: analyzed.hypothesisLifecycle,
+        timestampMs: Date.now(),
+      });
+    },
+    [localUserName, commitLedgerMutation],
+  );
+
   // Hydrate ledger from authoritative event store on mount / reconnect
   useEffect(() => {
     let isCancelled = false;
-    fetch(getApiUrl('/api/incident/events?incidentId=%23INC-8921'))
+    fetch(getApiUrl(`/api/incident/events?incidentId=${encodeURIComponent(activeIncidentId)}`))
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (!isCancelled && data?.ledgerItems && Array.isArray(data.ledgerItems) && data.ledgerItems.length > 0) {
@@ -278,7 +359,7 @@ export default function ConversationComponent({
     return () => {
       isCancelled = true;
     };
-  }, []);
+  }, [activeIncidentId]);
 
   const addConnectionIssue = useCallback((issue: { id: string; source: string; agentUserId: string; code: unknown; message: string; timestamp: number }) => {
     setConnectionIssues((prev) => {
@@ -1089,6 +1170,7 @@ export default function ConversationComponent({
         isConnected={connectionState === 'CONNECTED'}
         speechMuted={speechMuted}
         participantCount={humanRemoteUsers.length + 2}
+        onInjectDemoTurn={() => injectDemoTurn()}
       />
 
       {/* Main War Room Content */}
@@ -1138,6 +1220,7 @@ export default function ConversationComponent({
             ledgerItems={ledgerItems}
             isHotfixStaged={isHotfixStaged}
             isResolved={isResolved}
+            incidentId={activeIncidentId}
             onRemediateSuccess={handleRemediateSuccess}
           />
         )}

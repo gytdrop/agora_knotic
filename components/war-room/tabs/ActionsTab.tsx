@@ -15,6 +15,7 @@ interface ActionsTabProps {
   ledgerItems?: LedgerItem[];
   isHotfixStaged?: boolean;
   isResolved?: boolean;
+  incidentId?: string;
   onRemediateSuccess?: () => void | Promise<void>;
 }
 
@@ -22,6 +23,7 @@ export function ActionsTab({
   ledgerItems,
   isHotfixStaged = true,
   isResolved = false,
+  incidentId,
   onRemediateSuccess,
 }: ActionsTabProps) {
   const [activeFilter, setActiveFilter] = useState<'all' | 'facts' | 'hypotheses' | 'contradictions'>('all');
@@ -50,6 +52,7 @@ export function ActionsTab({
           <HitlGuardrailCard
             isStaged={isHotfixStaged}
             isResolved={isResolved}
+            incidentId={incidentId}
             onRemediateSuccess={onRemediateSuccess}
           />
         </div>

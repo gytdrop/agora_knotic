@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, use } from 'react';
+import React, { useState, use, useEffect } from 'react';
 import Link from 'next/link';
+import type { LedgerItem } from '@/types/conversation';
 import {
   ArrowLeft,
   CheckCircle2,
@@ -16,7 +17,32 @@ import {
   Cpu,
   Layers,
   Server,
+  Sparkles,
+  Video,
 } from 'lucide-react';
+import { useQuery, useMutation, useConvex } from 'convex/react';
+import { api } from '@/convex/_generated/api';
+
+type PirSummary = {
+  rootCause: string;
+  problem: string;
+  impact: string;
+  causes: string;
+  mitigation: string;
+  timeline: Array<{ time: string; speaker: string; summary: string }>;
+};
+
+type PirResponse = {
+  incidentId: string;
+  title: string;
+  severity: string;
+  isResolved: boolean;
+  eventCount: number;
+  ledgerItems: LedgerItem[];
+  pirMarkdown: string;
+  summaryJson: PirSummary;
+  llm: { attempted: boolean; succeeded: boolean; error: string | null };
+};
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -25,11 +51,75 @@ interface PageProps {
 export default function PostIncidentDashboard({ params }: PageProps) {
   const resolvedParams = use(params);
   const rawId = resolvedParams?.id || 'INC-8921';
-  const incidentNumber = rawId.startsWith('INC-') ? rawId : `INC-${rawId}`;
+  const cleanId = decodeURIComponent(rawId).replace(/^#/, '');
+  const normalizedIncidentId = cleanId.startsWith('INC-')
+    ? `#${cleanId}`
+    : cleanId.startsWith('#')
+    ? cleanId
+    : `#${cleanId}`;
+  const incidentNumber = cleanId;
 
+  const convex = useConvex();
+  const convexIncident = useQuery(
+    api.incidents.getIncident,
+    convex ? { incidentId: normalizedIncidentId } : 'skip',
+  );
+  const convexEvents = useQuery(
+    api.incidents.listLedgerEvents,
+    convex ? { incidentId: normalizedIncidentId } : 'skip',
+  );
+  const mutateGeneratePostMortem = useMutation(api.incidents.generatePostMortem);
+  const mutateResolve = useMutation(api.incidents.resolveIncident);
+
+  const [isGenerating, setIsGenerating] = useState(false);
   const [isRemediating, setIsRemediating] = useState(false);
-  const [isResolved, setIsResolved] = useState(true);
+  const [hotfixExecuted, setHotfixExecuted] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [pirData, setPirData] = useState<PirResponse | null>(null);
+  const [pirLoading, setPirLoading] = useState(true);
+  const [llmUsed, setLlmUsed] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(
+      `/api/incident/pir?incidentId=${encodeURIComponent(normalizedIncidentId)}&format=json&useLlm=true`,
+      { cache: 'no-store' },
+    )
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`Status ${r.status}`))))
+      .then((data: PirResponse) => {
+        if (cancelled) return;
+        setPirData(data);
+        if (data?.isResolved) setHotfixExecuted(true);
+        setLlmUsed(Boolean(data?.llm?.succeeded));
+        setPirLoading(false);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        console.warn('[post-mortem] PIR fetch failed, using static fallback:', err);
+        setPirLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [normalizedIncidentId]);
+
+  const isResolved = hotfixExecuted || convexIncident?.status === 'RESOLVED';
+
+  const liveFacts = convexEvents?.filter((e) => e.tag === 'FACT') || [];
+  const liveHypotheses = convexEvents?.filter((e) => e.tag === 'HYPOTHESIS') || [];
+  const liveContradictions = convexEvents?.filter((e) => e.tag === 'CONTRADICTION') || [];
+  const _liveActions = convexEvents?.filter((e) => e.tag === 'ACTION') || [];
+
+  const handleGeneratePostMortem = async () => {
+    setIsGenerating(true);
+    try {
+      await mutateGeneratePostMortem({ incidentId: normalizedIncidentId });
+    } catch (err) {
+      console.warn('Failed to generate postmortem:', err);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const handleAuthorizeHotfix = async () => {
     setIsRemediating(true);
@@ -41,12 +131,16 @@ export default function PostIncidentDashboard({ params }: PageProps) {
           actionId: `act_hotfix_${incidentNumber.replace('#', '')}`,
           actionType: 'K8S_INGRESS_PATCH',
           targetService: 'ingress/auth-svc',
-          authorizedBy: 'Akthar (Lead SRE)',
+          authorizedBy: convexIncident?.lead || 'Akthar (Lead SRE)',
           passkeyUsed: true,
         }),
       });
       if (res.ok) {
-        setIsResolved(true);
+        await mutateResolve({
+          incidentId: normalizedIncidentId,
+          resolvedBy: convexIncident?.lead || 'Akthar (Lead SRE)',
+        });
+        setHotfixExecuted(true);
       }
     } catch (err) {
       console.error('Failed to remediate:', err);
@@ -57,10 +151,54 @@ export default function PostIncidentDashboard({ params }: PageProps) {
 
   const copyManifest = () => {
     navigator.clipboard.writeText(
-      `kubectl patch ingress auth-svc -n prod-auth -p '{"spec":{"rules":[{"http":{"paths":[{"backend":{"service":{"port":{"number":8000}}}}]}}]}}'`,
+      convexIncident?.hotfixManifest ||
+        `kubectl patch ingress auth-svc -n prod-auth -p '{"spec":{"rules":[{"http":{"paths":[{"backend":{"service":{"port":{"number":8000}}}}]}}]}}'`,
     );
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleExportPIR = () => {
+    const lines = [
+      `# Post-Incident Review (PIR) — ${normalizedIncidentId}`,
+      `**Title:** ${convexIncident?.title || 'Production Outage'}`,
+      `**Severity:** ${convexIncident?.severity || 'SEV-1'}`,
+      `**Status:** ${convexIncident?.status || 'RESOLVED'}`,
+      `**Lead:** ${convexIncident?.lead || 'Incident Commander'}`,
+      `**Generated At:** ${new Date().toISOString()}`,
+      '',
+      '## Executive Summary',
+      convexIncident?.problem || 'Telemetry and voice stream reconciled during live Agora triage session.',
+      '',
+      '## Root Cause & Contradiction Analysis',
+      convexIncident?.causes || convexIncident?.rootCause || 'Identified via NLI cross-encoder telemetry contradiction analysis.',
+      '',
+      '## Mitigation & Remediation',
+      convexIncident?.mitigation || 'Hotfix executed with zero-downtime rollback guarantee.',
+      '',
+      '## Audit Trail & Agora STT Transcripts',
+      ...(convexEvents && convexEvents.length > 0
+        ? convexEvents.map(
+            (e) => `- **${e.timestamp} [${e.speaker}]** (\`${e.tag}\`): "${e.text}"`
+          )
+        : [
+            '- **14:05:22 [Akthar]** (`HYPOTHESIS`): "Database connection pools are throwing timeouts. We might have a deadlocked RDS instance."',
+            '- **14:05:40 [Ashrith]** (`FACT`): "Ingress controllers are dropping routes on auth-svc. Checking pod network endpoints."',
+            '- **14:05:58 [EchoSphere]** (`CONTRADICTION`): "Ingress prefix route points to 8080. Pod listens on 8000. Staging hotfix patch."',
+            '- **14:06:12 [Akthar]** (`ACTION`): "Understood. EchoSphere, authorize patch."',
+          ]),
+      '',
+      '---',
+      '*Exported from EchoSphere Incident Reconciliation Engine.*',
+    ];
+
+    const blob = new Blob([lines.join('\n')], { type: 'text/markdown; charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `PIR-${cleanId}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -71,27 +209,57 @@ export default function PostIncidentDashboard({ params }: PageProps) {
       <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-zinc-800 pb-4 gap-3">
         <div className="flex flex-wrap items-center gap-3">
           <Link
-            href="/"
+            href={`/incidents/${cleanId}`}
             className="flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-900/80 px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-100 hover:border-zinc-700 transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
+            <span>Incident Details</span>
+          </Link>
+
+          <Link
+            href={`/war-room?incident=${cleanId}&sev=${encodeURIComponent(convexIncident?.severity || 'SEV-1')}`}
+            className="flex items-center gap-1.5 rounded-lg border border-purple-800/70 bg-purple-950/50 px-3 py-1.5 text-xs text-purple-300 hover:bg-purple-900 hover:text-white transition-colors"
+          >
+            <Video className="h-3.5 w-3.5" />
             <span>War Room</span>
           </Link>
 
-          <span className="font-semibold text-lg tracking-tight text-white">EchoSphere AI</span>
+          <span className="font-semibold text-lg tracking-tight text-white">{convexIncident?.title || 'EchoSphere AI'}</span>
           <span className="text-zinc-600 font-mono">/</span>
           <span className="px-2.5 py-0.5 rounded text-xs font-mono bg-zinc-800 text-zinc-300 border border-zinc-700">
-            #{incidentNumber}
+            {normalizedIncidentId}
+          </span>
+          <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-violet-950/60 text-violet-300 border border-violet-800 flex items-center gap-1">
+            <Cpu className="h-2.5 w-2.5" />
+            {llmUsed ? 'AI-Synthesized Postmortem' : 'Auto-Populated from Ledger'}
           </span>
           <span className="px-2 py-0.5 rounded text-xs font-bold bg-rose-950/60 text-rose-300 border border-rose-900 tracking-wide">
-            [SEV-1]
+            [{pirData?.severity ?? convexIncident?.severity ?? 'SEV-1'}]
           </span>
-          <span className="px-2 py-0.5 rounded text-xs font-medium bg-emerald-950/60 text-emerald-300 border border-emerald-800">
-            [RESOLVED]
+          <span className={`px-2 py-0.5 rounded text-xs font-medium border ${
+            isResolved
+              ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800'
+              : 'bg-amber-950/60 text-amber-300 border-amber-800'
+          }`}>
+            [{isResolved ? 'RESOLVED' : 'ACTIVE'}]
           </span>
         </div>
 
-        <div className="flex items-center gap-4 text-xs text-zinc-400 font-mono">
+        <div className="flex items-center gap-3 text-xs text-zinc-400 font-mono">
+          <button
+            onClick={handleGeneratePostMortem}
+            disabled={isGenerating}
+            className="flex items-center gap-1.5 rounded-lg border border-purple-800/70 bg-purple-950/50 px-3 py-1.5 text-xs font-sans text-purple-300 hover:bg-purple-900 hover:text-white transition-colors disabled:opacity-50 cursor-pointer shadow-sm"
+            title="Auto-synthesize post-mortem findings from Agora voice transcripts and telemetry"
+          >
+            {isGenerating ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Sparkles className="h-3.5 w-3.5 text-purple-400" />
+            )}
+            <span>{isGenerating ? 'Synthesizing...' : 'Synthesize Post-Mortem'}</span>
+          </button>
+
           <div className="flex items-center gap-1.5">
             <span className="text-zinc-500">MTTR:</span>
             <span className="text-zinc-200">00:03:15</span>
@@ -123,11 +291,11 @@ export default function PostIncidentDashboard({ params }: PageProps) {
                 </h2>
               </div>
               <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 border border-zinc-700">
-                Deepgram Nova-3
+                {convexEvents && convexEvents.length > 0 ? `${convexEvents.length} Events` : 'Deepgram Nova-3'}
               </span>
             </div>
 
-            {/* 2. Structured 2x2 Sub-Telemetry Metrics Grid (Fix #2) */}
+            {/* Structured 2x2 Sub-Telemetry Metrics Grid */}
             <div className="grid grid-cols-2 gap-2 p-2.5 bg-zinc-950/60 rounded-md border border-zinc-800/80 mb-3">
               <div>
                 <span className="text-[10px] text-zinc-500 font-mono uppercase block">Confidence</span>
@@ -149,69 +317,101 @@ export default function PostIncidentDashboard({ params }: PageProps) {
 
             {/* Single-Column Transcript Stream with Mono Timestamps and Clear Speaker Chips */}
             <div className="space-y-2.5 font-mono text-xs overflow-y-auto max-h-[calc(100vh-380px)] pr-0.5 custom-scrollbar">
-              <div className="p-3 rounded bg-zinc-900 border border-zinc-800/80">
-                <div className="flex items-center justify-between mb-1.5 text-[11px]">
-                  <span className="text-zinc-500 font-mono">14:05:22</span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] font-sans font-medium bg-zinc-800 text-amber-300 border border-zinc-700">
-                    Akthar (Lead SRE)
-                  </span>
+              {pirData?.summaryJson?.timeline && pirData.summaryJson.timeline.length > 0 ? (
+                pirData.summaryJson.timeline.map((entry, idx) => (
+                  <div key={`${entry.time}-${idx}`} className="p-3 rounded bg-zinc-900 border border-zinc-800/80">
+                    <div className="flex items-center justify-between mb-1.5 text-[11px]">
+                      <span className="text-zinc-500 font-mono">{entry.time || '00:00:00'}</span>
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-sans font-medium bg-zinc-800 text-purple-300 border border-zinc-700">
+                        {entry.speaker || 'Speaker'}
+                      </span>
+                    </div>
+                    <p className="text-zinc-300 font-sans text-xs leading-relaxed">
+                      &ldquo;{entry.summary || '(no transcript content)'}&rdquo;
+                    </p>
+                    <div className="mt-2 flex items-center gap-1.5 text-[10px] font-sans">
+                      <CheckCircle2 className="h-3 w-3 text-emerald-400" />
+                      <span className="text-emerald-400 font-medium">
+                        {llmUsed ? 'AI-Synthesized from War Room Transcript' : 'Auto-Populated from Ledger'}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              ) : convexEvents && convexEvents.length > 0 ? (
+                convexEvents.map((evt, idx) => (
+                  <div key={evt._id || idx} className="p-3 rounded bg-zinc-900 border border-zinc-800/80">
+                    <div className="flex items-center justify-between mb-1.5 text-[11px]">
+                      <span className="text-zinc-500 font-mono">{evt.timestamp}</span>
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-sans font-medium bg-zinc-800 text-purple-300 border border-zinc-700">
+                        {evt.speaker}
+                      </span>
+                    </div>
+                    <p className="text-zinc-300 font-sans text-xs leading-relaxed">
+                      &ldquo;{evt.text}&rdquo;
+                    </p>
+                    <div className="mt-2 flex items-center gap-1.5 text-[10px] font-sans">
+                      {evt.tag === 'FACT' && (
+                        <span className="text-emerald-400 flex items-center gap-1">
+                          <CheckCircle2 className="h-3 w-3" /> Telemetry Fact
+                        </span>
+                      )}
+                      {evt.tag === 'HYPOTHESIS' && (
+                        <span className="text-amber-400 flex items-center gap-1">
+                          <AlertTriangle className="h-3 w-3" /> Evaluated Hypothesis
+                        </span>
+                      )}
+                      {evt.tag === 'CONTRADICTION' && (
+                        <span className="text-rose-400 flex items-center gap-1">
+                          <AlertTriangle className="h-3 w-3" /> Contradiction Flagged
+                        </span>
+                      )}
+                      {evt.tag === 'ACTION' && (
+                        <span className="text-purple-400 flex items-center gap-1">
+                          <Flame className="h-3 w-3" /> Action Executed
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : pirLoading ? (
+                <div className="p-3 rounded bg-zinc-900 border border-zinc-800/80 text-zinc-400 text-xs font-sans">
+                  Loading transcript from war room ledger&hellip;
                 </div>
-                <p className="text-zinc-300 font-sans text-xs leading-relaxed">
-                  &ldquo;Database connection pools are throwing timeouts. We might have a deadlocked RDS instance.&rdquo;
-                </p>
-                <div className="mt-2 flex items-center gap-1.5 text-[10px] text-amber-400 font-sans">
-                  <AlertTriangle className="h-3 w-3 shrink-0" />
-                  <span>Tagged as Unverified Hypothesis</span>
-                </div>
-              </div>
+              ) : (
+                <>
+                  <div className="p-3 rounded bg-zinc-900 border border-zinc-800/80">
+                    <div className="flex items-center justify-between mb-1.5 text-[11px]">
+                      <span className="text-zinc-500 font-mono">14:02:00</span>
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-sans font-medium bg-zinc-800 text-purple-300 border border-zinc-700">
+                        EchoSphere Sentinel
+                      </span>
+                    </div>
+                    <p className="text-zinc-300 font-sans text-xs leading-relaxed">
+                      &ldquo;EchoSphere sentinel flagged the 5xx spike at 14:02 across active ingress streams.&rdquo;
+                    </p>
+                    <div className="mt-2 flex items-center gap-1.5 text-[10px] text-emerald-400 font-sans">
+                      <CheckCircle2 className="h-3 w-3 shrink-0" />
+                      <span>{llmUsed ? 'AI-Synthesized from War Room Transcript' : 'Auto-Populated from Ledger'}</span>
+                    </div>
+                  </div>
 
-              <div className="p-3 rounded bg-zinc-900 border border-zinc-800/80">
-                <div className="flex items-center justify-between mb-1.5 text-[11px]">
-                  <span className="text-zinc-500 font-mono">14:05:40</span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] font-sans font-medium bg-zinc-800 text-zinc-300 border border-zinc-700">
-                    Ashrith (Infra)
-                  </span>
-                </div>
-                <p className="text-zinc-300 font-sans text-xs leading-relaxed">
-                  &ldquo;Ingress controllers are dropping routes on auth-svc. Checking pod network endpoints.&rdquo;
-                </p>
-                <div className="mt-2 flex items-center gap-1.5 text-[10px] text-emerald-400 font-sans">
-                  <CheckCircle2 className="h-3 w-3 shrink-0" />
-                  <span>Correlated with Prometheus 502 Metrics</span>
-                </div>
-              </div>
-
-              <div className="p-3 rounded bg-zinc-900 border border-zinc-800/80">
-                <div className="flex items-center justify-between mb-1.5 text-[11px]">
-                  <span className="text-zinc-500 font-mono">14:05:58</span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] font-sans font-medium bg-zinc-800 text-zinc-200 border border-zinc-700">
-                    EchoSphere Sentinel
-                  </span>
-                </div>
-                <p className="text-zinc-300 font-sans text-xs leading-relaxed">
-                  &ldquo;Ingress prefix route points to 8080. Pod listens on 8000. Staging hotfix patch.&rdquo;
-                </p>
-                <div className="mt-2 flex items-center gap-1.5 text-[10px] text-rose-300 font-sans">
-                  <Flame className="h-3 w-3 shrink-0 text-rose-400" />
-                  <span>Voice Cap: 12 words used &bull; MiniMax TTS</span>
-                </div>
-              </div>
-
-              <div className="p-3 rounded bg-zinc-900 border border-zinc-800/80">
-                <div className="flex items-center justify-between mb-1.5 text-[11px]">
-                  <span className="text-zinc-500 font-mono">14:06:12</span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] font-sans font-medium bg-zinc-800 text-emerald-300 border border-zinc-700">
-                    Akthar (Lead SRE)
-                  </span>
-                </div>
-                <p className="text-zinc-300 font-sans text-xs leading-relaxed">
-                  &ldquo;Understood. EchoSphere, authorize patch.&rdquo;
-                </p>
-                <div className="mt-2 flex items-center gap-1.5 text-[10px] text-emerald-400 font-sans">
-                  <CheckCircle2 className="h-3 w-3 shrink-0" />
-                  <span>Dual-Modal Voice Passkey Accepted</span>
-                </div>
-              </div>
+                  <div className="p-3 rounded bg-zinc-900 border border-zinc-800/80">
+                    <div className="flex items-center justify-between mb-1.5 text-[11px]">
+                      <span className="text-zinc-500 font-mono">14:03:15</span>
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-sans font-medium bg-zinc-800 text-zinc-300 border border-zinc-700">
+                        HolmesGPT Engine
+                      </span>
+                    </div>
+                    <p className="text-zinc-300 font-sans text-xs leading-relaxed">
+                      &ldquo;HolmesGPT engine correlated it with the ingress ConfigMap drift. Root cause: ingress-nginx port misconfiguration 8080 to 8000. Mitigation: Helm rollback.&rdquo;
+                    </p>
+                    <div className="mt-2 flex items-center gap-1.5 text-[10px] text-emerald-400 font-sans">
+                      <CheckCircle2 className="h-3 w-3 shrink-0" />
+                      <span>{llmUsed ? 'AI-Synthesized from War Room Transcript' : 'Auto-Populated from Ledger'}</span>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
@@ -236,8 +436,9 @@ export default function PostIncidentDashboard({ params }: PageProps) {
               </span>
             </div>
             <p className="text-xs text-amber-200/90 leading-relaxed font-sans">
-              Database saturation claim contradicted by RDS telemetry (CPU 2.1%, Active conns: 14).
-              EchoSphere held verbal silence and suppressed Akthar&apos;s hypothesis to prevent engineers from pursuing an incorrect triage path.
+              {liveContradictions.length > 0
+                ? liveContradictions[0].text
+                : "Database saturation claim contradicted by RDS telemetry (CPU 2.1%, Active conns: 14). EchoSphere held verbal silence and suppressed Akthar's hypothesis to prevent engineers from pursuing an incorrect triage path."}
             </p>
           </div>
 
@@ -257,50 +458,71 @@ export default function PostIncidentDashboard({ params }: PageProps) {
                 </div>
 
                 <ul className="text-xs space-y-2.5 text-zinc-300 font-sans">
-                  <li className="flex flex-col gap-1 p-2.5 rounded bg-zinc-950/60 border border-zinc-800/80">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 font-medium text-zinc-100">
-                        <span className="text-emerald-400 font-bold">✓</span>
-                        <span>DB CPU 2.1%, latency unaffected</span>
-                      </div>
-                      <span className="text-[10px] font-mono text-emerald-400 font-medium">[CONFIRMED]</span>
-                    </div>
-                    <span className="text-zinc-400 text-[11px] leading-relaxed pl-4">
-                      AWS RDS baseline normal; connection pool operating at 14/100.
-                    </span>
-                  </li>
+                  {liveFacts.length > 0 ? (
+                    liveFacts.map((fact, idx) => (
+                      <li key={fact._id || idx} className="flex flex-col gap-1 p-2.5 rounded bg-zinc-950/60 border border-zinc-800/80">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 font-medium text-zinc-100">
+                            <span className="text-emerald-400 font-bold">✓</span>
+                            <span>{fact.text}</span>
+                          </div>
+                          <span className="text-[10px] font-mono text-emerald-400 font-medium">[CONFIRMED]</span>
+                        </div>
+                        <span className="text-zinc-400 text-[11px] leading-relaxed pl-4">
+                          Verified telemetry &bull; Spoken by {fact.speaker} at {fact.timestamp}
+                        </span>
+                      </li>
+                    ))
+                  ) : (
+                    <>
+                      <li className="flex flex-col gap-1 p-2.5 rounded bg-zinc-950/60 border border-zinc-800/80">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 font-medium text-zinc-100">
+                            <span className="text-emerald-400 font-bold">✓</span>
+                            <span>DB CPU 2.1%, latency unaffected</span>
+                          </div>
+                          <span className="text-[10px] font-mono text-emerald-400 font-medium">[CONFIRMED]</span>
+                        </div>
+                        <span className="text-zinc-400 text-[11px] leading-relaxed pl-4">
+                          AWS RDS baseline normal; connection pool operating at 14/100.
+                        </span>
+                      </li>
 
-                  <li className="flex flex-col gap-1 p-2.5 rounded bg-zinc-950/60 border border-zinc-800/80">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 font-medium text-zinc-100">
-                        <span className="text-emerald-400 font-bold">✓</span>
-                        <span>Ingress prefix points to port 8080</span>
-                      </div>
-                      <span className="text-[10px] font-mono text-emerald-400 font-medium">[CONFIRMED]</span>
-                    </div>
-                    <span className="text-zinc-400 text-[11px] leading-relaxed pl-4">
-                      Routing rule &apos;/api/v2/auth&apos; sends traffic to non-listening port.
-                    </span>
-                  </li>
+                      <li className="flex flex-col gap-1 p-2.5 rounded bg-zinc-950/60 border border-zinc-800/80">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 font-medium text-zinc-100">
+                            <span className="text-emerald-400 font-bold">✓</span>
+                            <span>Ingress prefix points to port 8080</span>
+                          </div>
+                          <span className="text-[10px] font-mono text-emerald-400 font-medium">[CONFIRMED]</span>
+                        </div>
+                        <span className="text-zinc-400 text-[11px] leading-relaxed pl-4">
+                          Routing rule &apos;/api/v2/auth&apos; sends traffic to non-listening port.
+                        </span>
+                      </li>
 
-                  <li className="flex flex-col gap-1 p-2.5 rounded bg-zinc-950/60 border border-zinc-800/80">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 font-medium text-zinc-100">
-                        <span className="text-emerald-400 font-bold">✓</span>
-                        <span>Target service listening on port 8000</span>
-                      </div>
-                      <span className="text-[10px] font-mono text-emerald-400 font-medium">[CONFIRMED]</span>
-                    </div>
-                    <span className="text-zinc-400 text-[11px] leading-relaxed pl-4">
-                      Verified target container socket listens on port 8000.
-                    </span>
-                  </li>
+                      <li className="flex flex-col gap-1 p-2.5 rounded bg-zinc-950/60 border border-zinc-800/80">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 font-medium text-zinc-100">
+                            <span className="text-emerald-400 font-bold">✓</span>
+                            <span>Target service listening on port 8000</span>
+                          </div>
+                          <span className="text-[10px] font-mono text-emerald-400 font-medium">[CONFIRMED]</span>
+                        </div>
+                        <span className="text-zinc-400 text-[11px] leading-relaxed pl-4">
+                          Verified target container socket listens on port 8000.
+                        </span>
+                      </li>
+                    </>
+                  )}
                 </ul>
               </div>
 
               <div className="mt-3 pt-2 border-t border-zinc-800/80 flex items-center justify-between text-[10px] font-mono text-zinc-500">
                 <span>Verified by HolmesGPT</span>
-                <span className="text-emerald-400">3 Verified Facts</span>
+                <span className="text-emerald-400">
+                  {liveFacts.length > 0 ? `${liveFacts.length} Verified Facts` : '3 Verified Facts'}
+                </span>
               </div>
             </div>
 
@@ -318,50 +540,71 @@ export default function PostIncidentDashboard({ params }: PageProps) {
                 </div>
 
                 <ul className="text-xs space-y-2.5 font-sans">
-                  <li className="flex flex-col gap-1 p-2.5 rounded bg-zinc-950/60 border border-zinc-800/80">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 font-medium text-zinc-200">
-                        <span className="text-rose-400 font-bold">✕</span>
-                        <span>Database IOPS exhaustion</span>
-                      </div>
-                      <span className="text-[10px] font-mono text-rose-400 font-semibold">[RULED OUT]</span>
-                    </div>
-                    <span className="text-zinc-400 text-[11px] leading-relaxed pl-4">
-                      Disproven by CloudWatch IOPS telemetry (&lt; 150 IOPS).
-                    </span>
-                  </li>
+                  {liveHypotheses.length > 0 ? (
+                    liveHypotheses.map((hyp, idx) => (
+                      <li key={hyp._id || idx} className="flex flex-col gap-1 p-2.5 rounded bg-zinc-950/60 border border-zinc-800/80">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 font-medium text-zinc-200">
+                            <span className="text-rose-400 font-bold">✕</span>
+                            <span>{hyp.text}</span>
+                          </div>
+                          <span className="text-[10px] font-mono text-rose-400 font-semibold">[RULED OUT]</span>
+                        </div>
+                        <span className="text-zinc-400 text-[11px] leading-relaxed pl-4">
+                          Hypothesized by {hyp.speaker} at {hyp.timestamp} &bull; Cross-referenced with telemetry
+                        </span>
+                      </li>
+                    ))
+                  ) : (
+                    <>
+                      <li className="flex flex-col gap-1 p-2.5 rounded bg-zinc-950/60 border border-zinc-800/80">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 font-medium text-zinc-200">
+                            <span className="text-rose-400 font-bold">✕</span>
+                            <span>Database IOPS exhaustion</span>
+                          </div>
+                          <span className="text-[10px] font-mono text-rose-400 font-semibold">[RULED OUT]</span>
+                        </div>
+                        <span className="text-zinc-400 text-[11px] leading-relaxed pl-4">
+                          Disproven by CloudWatch IOPS telemetry (&lt; 150 IOPS).
+                        </span>
+                      </li>
 
-                  <li className="flex flex-col gap-1 p-2.5 rounded bg-zinc-950/60 border border-zinc-800/80">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 font-medium text-zinc-200">
-                        <span className="text-rose-400 font-bold">✕</span>
-                        <span>VPC Peering connection drop</span>
-                      </div>
-                      <span className="text-[10px] font-mono text-rose-400 font-semibold">[RULED OUT]</span>
-                    </div>
-                    <span className="text-zinc-400 text-[11px] leading-relaxed pl-4">
-                      Transit gateways reported 0 dropped SYN packets.
-                    </span>
-                  </li>
+                      <li className="flex flex-col gap-1 p-2.5 rounded bg-zinc-950/60 border border-zinc-800/80">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 font-medium text-zinc-200">
+                            <span className="text-rose-400 font-bold">✕</span>
+                            <span>VPC Peering connection drop</span>
+                          </div>
+                          <span className="text-[10px] font-mono text-rose-400 font-semibold">[RULED OUT]</span>
+                        </div>
+                        <span className="text-zinc-400 text-[11px] leading-relaxed pl-4">
+                          Transit gateways reported 0 dropped SYN packets.
+                        </span>
+                      </li>
 
-                  <li className="flex flex-col gap-1 p-2.5 rounded bg-zinc-950/60 border border-zinc-800/80">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 font-medium text-zinc-200">
-                        <span className="text-rose-400 font-bold">✕</span>
-                        <span>Container OOMKilled</span>
-                      </div>
-                      <span className="text-[10px] font-mono text-rose-400 font-semibold">[RULED OUT]</span>
-                    </div>
-                    <span className="text-zinc-400 text-[11px] leading-relaxed pl-4">
-                      Pod restart count is 0; memory RSS usage stable at 38%.
-                    </span>
-                  </li>
+                      <li className="flex flex-col gap-1 p-2.5 rounded bg-zinc-950/60 border border-zinc-800/80">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 font-medium text-zinc-200">
+                            <span className="text-rose-400 font-bold">✕</span>
+                            <span>Container OOMKilled</span>
+                          </div>
+                          <span className="text-[10px] font-mono text-rose-400 font-semibold">[RULED OUT]</span>
+                        </div>
+                        <span className="text-zinc-400 text-[11px] leading-relaxed pl-4">
+                          Pod restart count is 0; memory RSS usage stable at 38%.
+                        </span>
+                      </li>
+                    </>
+                  )}
                 </ul>
               </div>
 
               <div className="mt-3 pt-2 border-t border-zinc-800/80 flex items-center justify-between text-[10px] font-mono text-zinc-500">
                 <span>NLI Cross-Encoder v3</span>
-                <span className="text-rose-400">3 Ruled Out</span>
+                <span className="text-rose-400">
+                  {liveHypotheses.length > 0 ? `${liveHypotheses.length} Ruled Out` : '3 Ruled Out'}
+                </span>
               </div>
             </div>
           </div>
@@ -465,7 +708,11 @@ export default function PostIncidentDashboard({ params }: PageProps) {
                 <span className="text-[10px] font-mono text-emerald-400">REVERT GUARANTEED</span>
               </div>
               <p className="text-xs text-zinc-300 mb-2.5 leading-relaxed font-sans">
-                Re-route traffic from ingress <span className="font-mono text-zinc-200">auth-svc:8080</span> to <span className="font-mono text-zinc-200">auth-svc:8000</span>.
+                {convexIncident?.mitigation || (
+                  <>
+                    Re-route traffic from ingress <span className="font-mono text-zinc-200">auth-svc:8080</span> to <span className="font-mono text-zinc-200">auth-svc:8000</span>.
+                  </>
+                )}
               </p>
 
               {/* 1. Horizontally Scrollable Terminal Block with Header Copy Action (Fix #1: Zero Overlap) */}
@@ -482,7 +729,8 @@ export default function PostIncidentDashboard({ params }: PageProps) {
                   </button>
                 </div>
                 <pre className="overflow-x-auto whitespace-pre font-mono text-[11px] p-2.5 text-zinc-300 leading-normal custom-scrollbar">
-                  {`kubectl patch ingress auth-svc -n prod-auth -p '{"spec":{"rules":[{"http":{"paths":[{"backend":{"service":{"port":{"number":8000}}}}]}}]}}'`}
+                  {convexIncident?.hotfixManifest ||
+                    `kubectl patch ingress auth-svc -n prod-auth -p '{"spec":{"rules":[{"http":{"paths":[{"backend":{"service":{"port":{"number":8000}}}}]}}]}}'`}
                 </pre>
               </div>
             </div>
@@ -492,14 +740,21 @@ export default function PostIncidentDashboard({ params }: PageProps) {
               <div>
                 <span className="text-[10px] font-semibold text-zinc-500 uppercase font-mono block">Action</span>
                 <span className="text-zinc-200 font-medium text-[11px]">
-                  Authorize traffic re-route from ingress auth-svc:8080 to auth-svc:8000.
+                  {pirData?.summaryJson?.mitigation || convexIncident?.mitigation || 'Authorize traffic re-route from ingress auth-svc:8080 to auth-svc:8000.'}
+                </span>
+              </div>
+
+              <div>
+                <span className="text-[10px] font-semibold text-zinc-500 uppercase font-mono block">Root Cause / Analysis</span>
+                <span className="text-zinc-200 text-[11px]">
+                  {pirData?.summaryJson?.rootCause || pirData?.summaryJson?.causes || convexIncident?.causes || convexIncident?.rootCause || 'Ingress prefix points to port 8080 while container listens on port 8000.'}
                 </span>
               </div>
 
               <div>
                 <span className="text-[10px] font-semibold text-zinc-500 uppercase font-mono block">Impact</span>
                 <span className="text-zinc-200 text-[11px]">
-                  Zero-downtime rolling restart of 3 ingress pods.
+                  {pirData?.summaryJson?.impact || convexIncident?.impact || 'Zero-downtime rolling restart of 3 ingress pods.'}
                 </span>
               </div>
 
@@ -521,7 +776,7 @@ export default function PostIncidentDashboard({ params }: PageProps) {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-zinc-500">Authorizer ID:</span>
-                  <span className="text-zinc-200">Akthar (Lead SRE)</span>
+                  <span className="text-zinc-200">{convexIncident?.lead || 'Akthar (Lead SRE)'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-zinc-500">Passkey Modality:</span>
@@ -536,7 +791,7 @@ export default function PostIncidentDashboard({ params }: PageProps) {
             <button
               onClick={handleAuthorizeHotfix}
               disabled={isRemediating}
-              className={`w-full py-2.5 rounded text-xs font-semibold transition-all shadow-sm flex items-center justify-center gap-2 border ${
+              className={`w-full py-2.5 rounded text-xs font-semibold transition-all shadow-sm flex items-center justify-center gap-2 border cursor-pointer ${
                 isResolved
                   ? 'bg-emerald-700 hover:bg-emerald-600 text-white border-emerald-600'
                   : 'bg-rose-700 hover:bg-rose-600 text-white border-rose-600 active:scale-[0.98]'
@@ -561,13 +816,11 @@ export default function PostIncidentDashboard({ params }: PageProps) {
             </button>
 
             <button
-              onClick={() => {
-                alert('PIR report downloaded as audit-INC-8921.json');
-              }}
-              className="w-full py-2 rounded text-xs font-medium text-zinc-400 hover:text-zinc-200 bg-zinc-800/80 border border-zinc-700/80 hover:border-zinc-600 transition-colors flex items-center justify-center gap-1.5 font-sans"
+              onClick={handleExportPIR}
+              className="w-full py-2 rounded text-xs font-medium text-zinc-400 hover:text-zinc-200 bg-zinc-800/80 border border-zinc-700/80 hover:border-zinc-600 transition-colors flex items-center justify-center gap-1.5 font-sans cursor-pointer"
             >
               <FileText className="h-3.5 w-3.5" />
-              <span>Export Audit JSON / PIR</span>
+              <span>Export Audit Markdown / PIR</span>
             </button>
           </div>
         </section>

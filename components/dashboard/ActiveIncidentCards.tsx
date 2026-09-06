@@ -44,6 +44,14 @@ export interface ActiveIncidentCardsProps {
  */
 export const DEFAULT_ACTIVE_INCIDENTS: ActiveIncidentItem[] = [
   {
+    incidentId: '#INC-8921',
+    title: 'AGORA ECHOSPHERE SEV-1 OUTAGE',
+    severity: 'SEV1',
+    status: 'ACTIVE',
+    rootCause: 'Ingress prefix route mismatch (/api/v2/auth -> port 8080 instead of 8000).',
+    createdAt: 1709653000000,
+  },
+  {
     incidentId: '#7134',
     title: 'Alluring Muse',
     severity: 'SEV2',
@@ -403,12 +411,14 @@ function ActiveIncidentCardsView({
                   <div className="flex items-center justify-between text-xs font-mono font-medium text-zinc-400">
                     <span>{incident.incidentId}</span>
                   </div>
-                  <h3
-                    className="mt-1.5 text-sm font-bold text-zinc-900 line-clamp-2 leading-snug transition-colors group-hover:text-purple-700"
-                    title={incident.title}
-                  >
-                    {incident.title}
-                  </h3>
+                  <Link href={`/incidents/${encodeURIComponent(cleanId)}`}>
+                    <h3
+                      className="mt-1.5 text-sm font-bold text-zinc-900 line-clamp-2 leading-snug transition-colors hover:text-purple-700 cursor-pointer"
+                      title={incident.title}
+                    >
+                      {incident.title}
+                    </h3>
+                  </Link>
 
                   {/* Middle: Severity Pill & Active Status */}
                   <div className="mt-3 flex items-center justify-between gap-2">

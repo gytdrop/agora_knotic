@@ -17,15 +17,15 @@ import { getSeverityConfig } from '@/lib/incident-severity';
 import { cn } from '@/lib/utils';
 
 export type IncidentLifecycleStage =
+  | 'DETECTED'
   | 'INVESTIGATING'
-  | 'FIXING'
-  | 'MONITORING'
+  | 'MITIGATING'
   | 'RESOLVED';
 
 const LIFECYCLE_STAGES: { id: IncidentLifecycleStage; label: string }[] = [
+  { id: 'DETECTED', label: 'Detected' },
   { id: 'INVESTIGATING', label: 'Investigating' },
-  { id: 'FIXING', label: 'Fixing' },
-  { id: 'MONITORING', label: 'Monitoring' },
+  { id: 'MITIGATING', label: 'Mitigating' },
   { id: 'RESOLVED', label: 'Resolved' },
 ];
 
@@ -48,7 +48,11 @@ export function IncidentLifecycleStepper({
   onUpdateSeverity,
   className,
 }: IncidentLifecycleStepperProps) {
-  const currentStage = (status.toUpperCase().trim() as IncidentLifecycleStage) || 'INVESTIGATING';
+  const normalizedRaw = status.toUpperCase().trim();
+  const currentStage: IncidentLifecycleStage =
+    normalizedRaw === 'FIXING' || normalizedRaw === 'MONITORING'
+      ? 'MITIGATING'
+      : (normalizedRaw as IncidentLifecycleStage) || 'INVESTIGATING';
   const sevConfig = getSeverityConfig(severity);
 
   const currentStageIndex = LIFECYCLE_STAGES.findIndex((s) => s.id === currentStage);
