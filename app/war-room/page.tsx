@@ -140,7 +140,6 @@ function WarRoomMeetingOrchestrator() {
           body: JSON.stringify({
             requester_id: responseData.uid,
             channel_name: responseData.channel,
-            remoteUids: [responseData.uid],
             multiSpeaker: true,
           } as ClientStartRequest),
         })

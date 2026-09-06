@@ -11,6 +11,12 @@ export async function OPTIONS(request: NextRequest) {
   return handleCorsPreflight(request);
 }
 
+function sanitizeChannelName(channel: string): string {
+  const trimmed = channel.trim();
+  const sanitized = trimmed.replace(/[^a-zA-Z0-9_\-]/g, '-').slice(0, 64);
+  return sanitized || DEFAULT_CHANNEL_NAME;
+}
+
 function createAgoraToken(channel: string, uidStr?: string | null) {
   const APP_ID =
     process.env.AGORA_APP_ID ||
@@ -27,7 +33,7 @@ function createAgoraToken(channel: string, uidStr?: string | null) {
       ? Math.floor(Math.random() * 9_999_000) + 1000
       : parsedUid;
 
-  const channelName = channel.trim() || DEFAULT_CHANNEL_NAME;
+  const channelName = sanitizeChannelName(channel);
 
   const expirationTime =
     Math.floor(Date.now() / 1000) + EXPIRATION_TIME_IN_SECONDS;

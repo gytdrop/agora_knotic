@@ -157,8 +157,9 @@ export async function POST(request: NextRequest) {
 
     // Multi-speaker incident war room: support wildcard '*' or scope to requester
     const remoteUids = body.remoteUids ?? (body.multiSpeaker ? ['*'] : [requester_id]);
+    const cleanChannel = String(channel_name).trim().replace(/[^a-zA-Z0-9_\-]/g, '-').slice(0, 64);
     const session = agent.createSession({
-      channel: channel_name,
+      channel: cleanChannel,
       agentUid,
       remoteUids,
       idleTimeout: 30,

@@ -861,13 +861,24 @@ export default function ConversationComponent({
         await client.subscribe(user, 'audio');
         const isAgent = user.uid.toString() === agentUID;
         if (isAgent) {
-          // AI 100% Mute - Console parsing only
           try {
-            user.audioTrack?.stop();
-            user.audioTrack?.setVolume(0);
+            if (speechMuted) {
+              user.audioTrack?.stop();
+              user.audioTrack?.setVolume(0);
+            } else {
+              user.audioTrack?.setVolume(100);
+              const p: unknown = user.audioTrack?.play();
+              if (p && typeof (p as Promise<void>).catch === 'function') {
+                (p as Promise<void>).catch((playErr: unknown) => {
+                  if ((playErr as Error)?.name !== 'AbortError') {
+                    console.warn('[Agora RTC] Failed to play agent audio track:', playErr);
+                  }
+                });
+              }
+            }
           } catch {}
           console.log(
-            `%c[VoicePipeline:RTC] 🔇 AI Agent (uid=${user.uid}) audio track 100% MUTED — console parsing only.`,
+            `%c[VoicePipeline:RTC] ${speechMuted ? '🔇 AI Agent (uid=' + user.uid + ') audio track MUTED' : '🔊 AI Agent (uid=' + user.uid + ') audio track UNMUTED'}`,
             'color: #f43f5e; font-weight: bold; background: #18181b; padding: 2px 6px; border-radius: 4px;',
           );
         } else {
@@ -892,17 +903,29 @@ export default function ConversationComponent({
     }
   });
 
-  // Permanently enforce 100% mute on AI Agent audio track whenever remoteUsers updates
+  // Enforce mute/unmute on AI Agent audio track whenever remoteUsers or speechMuted updates
   useEffect(() => {
     remoteUsers.forEach((user) => {
       if (user.uid.toString() === agentUID && user.audioTrack) {
         try {
-          user.audioTrack.stop();
-          user.audioTrack.setVolume(0);
+          if (speechMuted) {
+            user.audioTrack.stop();
+            user.audioTrack.setVolume(0);
+          } else {
+            user.audioTrack.setVolume(100);
+            const p: unknown = user.audioTrack.play();
+            if (p && typeof (p as Promise<void>).catch === 'function') {
+              (p as Promise<void>).catch((playErr: unknown) => {
+                if ((playErr as Error)?.name !== 'AbortError') {
+                  console.warn('[Agora RTC] Failed to play agent audio track:', playErr);
+                }
+              });
+            }
+          }
         } catch {}
       }
     });
-  }, [remoteUsers, agentUID]);
+  }, [remoteUsers, agentUID, speechMuted]);
 
   useEffect(() => {
     const isAgentInRemoteUsers = remoteUsers.some(
@@ -971,10 +994,35 @@ export default function ConversationComponent({
   }, [isEnabled, localMicrophoneTrack]);
 
   // Agent Speech Mute Toggle
-  // Flips speechMuted. On unmute, drains the alert queue to the agent TTS (best-effort).
+  // Flips speechMuted and immediately updates agent track volume/playback.
+  // On unmute, drains the alert queue to the agent TTS (best-effort).
   const handleSpeechMuteToggle = useCallback(async () => {
     const next = !speechMuted;
     setSpeechMuted(next);
+
+    // Immediately update remote agent audio tracks
+    remoteUsers.forEach((user) => {
+      if (user.uid.toString() === agentUID && user.audioTrack) {
+        try {
+          if (next) {
+            user.audioTrack.stop();
+            user.audioTrack.setVolume(0);
+          } else {
+            user.audioTrack.setVolume(100);
+            const p: unknown = user.audioTrack.play();
+            if (p && typeof (p as Promise<void>).catch === 'function') {
+              (p as Promise<void>).catch((playErr: unknown) => {
+                if ((playErr as Error)?.name !== 'AbortError') {
+                  console.warn('[Agora RTC] Failed to play agent audio track on unmute:', playErr);
+                }
+              });
+            }
+          }
+        } catch (err) {
+          console.warn('[Agora RTC] Error updating agent audio track on toggle:', err);
+        }
+      }
+    });
 
     if (!next && mutedAlertQueueRef.current.length > 0) {
       const alerts = [...mutedAlertQueueRef.current];
@@ -990,7 +1038,7 @@ export default function ConversationComponent({
     } else if (!next) {
       console.log('[SilentMode] Unmuted — no queued alerts.');
     }
-  }, [speechMuted, agoraData.agentId]);
+  }, [speechMuted, agoraData.agentId, remoteUsers, agentUID]);
 
   // Camera Toggle
   const toggleCamera = useCallback(async () => {

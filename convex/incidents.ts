@@ -298,17 +298,35 @@ export const createIncident = mutation({
     lead: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const all = await ctx.db.query("incidents").collect();
-    let maxId = 7134;
-    for (const inc of all) {
-      if (inc.incidentId?.startsWith("#")) {
-        const parsed = parseInt(inc.incidentId.slice(1), 10);
-        if (!isNaN(parsed) && parsed > maxId) {
-          maxId = parsed;
+    // Atomic sequential incident ID generation via dedicated counters table
+    const counterDoc = await ctx.db
+      .query("counters")
+      .withIndex("by_name", (q) => q.eq("name", "incident_id"))
+      .first();
+
+    let nextNumber: number;
+    if (counterDoc) {
+      nextNumber = counterDoc.value + 1;
+      await ctx.db.patch(counterDoc._id, { value: nextNumber });
+    } else {
+      const all = await ctx.db.query("incidents").collect();
+      let maxId = 7134;
+      for (const inc of all) {
+        if (inc.incidentId?.startsWith("#")) {
+          const parsed = parseInt(inc.incidentId.slice(1), 10);
+          if (!isNaN(parsed) && parsed > maxId) {
+            maxId = parsed;
+          }
         }
       }
+      nextNumber = maxId + 1;
+      await ctx.db.insert("counters", {
+        name: "incident_id",
+        value: nextNumber,
+      });
     }
-    const incidentId = `#${maxId + 1}`;
+
+    const incidentId = `#${nextNumber}`;
     const docId = await ctx.db.insert("incidents", {
       incidentId,
       title: args.title,

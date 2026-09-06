@@ -35,4 +35,9 @@ export default defineSchema({
     text: v.string(),
     createdAt: v.number(),
   }).index("by_incident_id", ["incidentId"]),
+
+  counters: defineTable({
+    name: v.string(),
+    value: v.number(),
+  }).index("by_name", ["name"]),
 });
