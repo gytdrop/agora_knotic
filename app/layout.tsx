@@ -1,5 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 import { Montserrat } from 'next/font/google';
+import { ClerkProvider } from '@clerk/nextjs';
+import { shadcn } from '@clerk/ui/themes';
+import { ConvexClientProvider } from '@/components/ConvexClientProvider';
 import './globals.css';
 
 const montserrat = Montserrat({
@@ -46,10 +49,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`h-full ${montserrat.variable}`}>
-      <body className="h-full min-h-screen font-sans antialiased bg-[#171717] text-zinc-100">
-        {children}
-      </body>
-    </html>
+    <ClerkProvider appearance={{ theme: shadcn }}>
+      <html lang="en" className={`h-full ${montserrat.variable}`}>
+        <body className="h-full min-h-screen font-sans antialiased bg-[#171717] text-zinc-100">
+          <ConvexClientProvider>
+            {children}
+          </ConvexClientProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

@@ -158,3 +158,6 @@ patches/
 
 # Test output artifacts
 *-output.json
+
+# Scratch directory
+scratch/

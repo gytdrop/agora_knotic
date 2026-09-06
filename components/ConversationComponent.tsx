@@ -39,6 +39,8 @@ import { WarRoomSidebar } from './war-room/WarRoomSidebar';
 import { FloatingControlDock } from './war-room/FloatingControlDock';
 import type { WarRoomToolTab } from '@/types/war-room';
 import type { ConversationComponentProps, LedgerItem, SpeakerRole } from '@/types/conversation';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '@/convex/_generated/api';
 import { applyLedgerMutation, type LedgerItemInput } from '@/lib/ledger';
 import { getApiUrl, getAgoraAppId } from '@/lib/api-config';
 
@@ -158,6 +160,49 @@ export default function ConversationComponent({
     },
   ]);
 
+  // Convex-backed live incident data & ledger events
+  const activeIncidentId = incidentId || '#INC-8921';
+  const convexEvents = useQuery(api.incidents.listLedgerEvents, {
+    incidentId: activeIncidentId,
+  });
+  const convexIncident = useQuery(api.incidents.getIncident, {
+    incidentId: activeIncidentId,
+  });
+  const appendConvexLedger = useMutation(api.incidents.appendLedgerEvent);
+
+  // Sync incoming Convex events to live ledger state
+  useEffect(() => {
+    if (!convexEvents || convexEvents.length === 0) return;
+    setLedgerItems((prev) => {
+      const existingIds = new Set(prev.map((i) => i.id));
+      const newItems: LedgerItem[] = [];
+      for (const ev of convexEvents) {
+        if (!existingIds.has(ev._id)) {
+          newItems.push({
+            id: ev._id,
+            timestampMs: ev.createdAt,
+            speaker: ev.speaker,
+            speakerRole: (ev.speaker.includes('Engine') || ev.speaker.includes('Sentinel')
+              ? 'agent'
+              : 'peer') as SpeakerRole,
+            text: ev.text,
+            tag: ev.tag,
+            status: 'Synced from Convex',
+          });
+        }
+      }
+      if (newItems.length === 0) return prev;
+      return [...prev, ...newItems];
+    });
+  }, [convexEvents]);
+
+  // Sync Convex incident status
+  useEffect(() => {
+    if (convexIncident?.status === 'RESOLVED') {
+      setIsResolved(true);
+    }
+  }, [convexIncident]);
+
   // Centralized Ledger Mutation Function
   // All additions and modifications to ledgerItems MUST pass through this function.
   const commitLedgerMutation = useCallback(
@@ -187,6 +232,19 @@ export default function ConversationComponent({
           }),
         }).catch(() => {});
 
+        // Sync to Convex
+        appendConvexLedger({
+          incidentId: activeIncidentId,
+          timestamp: new Date(itemToSync.timestampMs || Date.now()).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+          }),
+          speaker: itemToSync.speaker || 'System',
+          tag: (itemToSync.tag as 'FACT' | 'HYPOTHESIS' | 'CONTRADICTION' | 'ACTION') || 'FACT',
+          text: itemToSync.text,
+        }).catch((err) => console.warn('[Convex] append error:', err));
+
         // Capture high-signal alerts while muted so they can be replayed on unmute.
         // Uses the ref (not state) to avoid stale-closure issues in this stable callback.
         if (
@@ -202,7 +260,7 @@ export default function ConversationComponent({
       }
       return itemToSync;
     },
-    [onLedgerItemReceived],
+    [onLedgerItemReceived, appendConvexLedger, activeIncidentId],
   );
 
   // Hydrate ledger from authoritative event store on mount / reconnect
@@ -1059,8 +1117,6 @@ export default function ConversationComponent({
             onEndCall={handleEndConversation}
           />
         </div>
-
-
       </main>
     </div>
   );
