@@ -217,7 +217,7 @@ export function IncidentsTable({
                 <th className="px-4 py-3.5">STATUS</th>
                 <th className="px-4 py-3.5">LEAD</th>
                 <th className="px-4 py-3.5">CREATED</th>
-                <th className="px-4 sm:px-6 py-3.5 text-right">ACTIONS</th>
+                <th className="w-[185px] px-4 sm:px-5 py-3.5 text-right">ACTIONS</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60">
@@ -244,7 +244,7 @@ export function IncidentsTable({
                   <td className="px-4 py-4">
                     <div className="h-3.5 w-14 bg-zinc-200 dark:bg-zinc-800 rounded" />
                   </td>
-                  <td className="px-4 sm:px-6 py-4 text-right">
+                  <td className="w-[185px] px-4 sm:px-5 py-4 text-right">
                     <div className="inline-block h-7 w-28 bg-zinc-200 dark:bg-zinc-800 rounded-lg" />
                   </td>
                 </tr>
@@ -286,7 +286,7 @@ export function IncidentsTable({
               <th scope="col" className="w-[100px] px-3 py-3.5 whitespace-nowrap">
                 CREATED
               </th>
-              <th scope="col" className="w-[150px] px-4 sm:px-6 py-3.5 text-right whitespace-nowrap">
+              <th scope="col" className="w-[185px] px-4 sm:px-5 py-3.5 text-right whitespace-nowrap">
                 ACTIONS
               </th>
             </tr>
@@ -441,7 +441,7 @@ export function IncidentsTable({
                   </td>
 
                   {/* Column 6: ACTIONS (Enter War Room button) */}
-                  <td className="px-4 sm:px-6 py-3.5 align-middle text-right whitespace-nowrap">
+                  <td className="w-[185px] px-4 sm:px-5 py-3.5 align-middle text-right whitespace-nowrap">
                     <Link
                       href={warRoomUrl}
                       onClick={(e) => {

@@ -302,7 +302,7 @@ function IncidentsDirectoryView({
         className
       )}
     >
-      <div className="mx-auto max-w-7xl space-y-6">
+      <div className="w-full space-y-6">
         {/* Header matching incident.io clean layout */}
         <IncidentsHeader
           totalCount={counts.all}
