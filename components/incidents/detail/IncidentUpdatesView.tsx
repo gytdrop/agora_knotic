@@ -177,7 +177,7 @@ export function IncidentUpdatesView({
                     type="checkbox"
                     checked={selectedChannels.includes(ch)}
                     onChange={() => handleToggleChannel(ch)}
-                    className="rounded border-zinc-300 text-purple-600 focus:ring-purple-500 text-xs"
+                    className="rounded border border-zinc-300 bg-transparent text-purple-600 focus:ring-purple-500 text-xs"
                   />
                   <span>{ch}</span>
                 </label>

@@ -323,7 +323,7 @@ export function WorkflowsPageLayout() {
                   </button>
 
                   <label className="flex items-center gap-1.5 cursor-pointer select-none">
-                    <input type="checkbox" className="rounded border-zinc-300 text-purple-600 focus:ring-purple-500" />
+                    <input type="checkbox" className="rounded border border-zinc-300 bg-transparent text-purple-600 focus:ring-purple-500" />
                     <span>Select all</span>
                   </label>
                 </div>
@@ -343,7 +343,7 @@ export function WorkflowsPageLayout() {
                         <div className="flex items-center gap-3 min-w-0">
                           <input
                             type="checkbox"
-                            className="rounded border-zinc-300 text-purple-600 focus:ring-purple-500 shrink-0"
+                            className="rounded border border-zinc-300 bg-transparent text-purple-600 focus:ring-purple-500 shrink-0"
                           />
 
                           {/* Toggle Switch */}
