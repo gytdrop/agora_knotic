@@ -50,7 +50,7 @@ export const DEFAULT_ACTIVE_INCIDENTS: ActiveIncidentItem[] = [
     severity: 'Critical',
     status: 'ACTIVE',
     rootCause: 'Downstream dependency fraud-detection-svc socket saturation causing timeout cascade.',
-    createdAt: 1709653000000,
+    createdAt: Date.now() - 3600 * 1000 * 1.5, // 1h 30m relative
   },
   {
     incidentId: '#7134',
@@ -58,7 +58,7 @@ export const DEFAULT_ACTIVE_INCIDENTS: ActiveIncidentItem[] = [
     severity: 'Major',
     status: 'ACTIVE',
     rootCause: 'Downstream connection pool starvation triggered by unindexed query.',
-    createdAt: 1709650000000, // 1h relative
+    createdAt: Date.now() - 3600 * 1000 * 1, // 1h relative
   },
   {
     incidentId: '#7124',
@@ -67,7 +67,7 @@ export const DEFAULT_ACTIVE_INCIDENTS: ActiveIncidentItem[] = [
     status: 'ACTIVE',
     rootCause:
       'A significant security flaw was identified within the authentication module of our core platform...',
-    createdAt: 1709570000000, // 22h relative
+    createdAt: Date.now() - 3600 * 1000 * 22, // 22h relative
   },
   {
     incidentId: '#7125',
@@ -76,7 +76,7 @@ export const DEFAULT_ACTIVE_INCIDENTS: ActiveIncidentItem[] = [
     status: 'ACTIVE',
     rootCause:
       'Users reported unusual slowdowns and service interruptions traced back to a memory leak...',
-    createdAt: 1709570000000, // 22h relative
+    createdAt: Date.now() - 3600 * 1000 * 22, // 22h relative
   },
   {
     incidentId: '#7126',
@@ -85,7 +85,7 @@ export const DEFAULT_ACTIVE_INCIDENTS: ActiveIncidentItem[] = [
     status: 'ACTIVE',
     rootCause:
       'A recent deployment of new code to the production environment inadvertently introduced an error...',
-    createdAt: 1709570000000, // 22h relative
+    createdAt: Date.now() - 3600 * 1000 * 22, // 22h relative
   },
   {
     incidentId: '#7123',
@@ -94,7 +94,7 @@ export const DEFAULT_ACTIVE_INCIDENTS: ActiveIncidentItem[] = [
     status: 'ACTIVE',
     rootCause:
       'During a routine update, a critical database unexpectedly went offline, leading to widespread...',
-    createdAt: 1709570000000, // 22h relative
+    createdAt: Date.now() - 3600 * 1000 * 22, // 22h relative
   },
 ];
 
@@ -113,6 +113,13 @@ function SlackIcon({ className }: { className?: string }) {
  * Computes deterministic or elapsed duration matching the Rootly design
  */
 function getIncidentDuration(incident: ActiveIncidentItem): string {
+  if (
+    incident.incidentId === '#INC-8921' ||
+    incident.incidentId === 'INC-8921' ||
+    incident.incidentId.includes('8921')
+  ) {
+    return '1h 30m';
+  }
   if (incident.incidentId === '#7134') return '1h';
   if (
     incident.incidentId === '#7126' ||
@@ -132,7 +139,7 @@ function getIncidentDuration(incident: ActiveIncidentItem): string {
     return `${days}d`;
   }
   if (diffHours >= 1) {
-    return `${diffHours}h`;
+    return diffMinutes > 0 ? `${diffHours}h ${diffMinutes}m` : `${diffHours}h`;
   }
   if (diffMinutes >= 1) {
     return `${diffMinutes}m`;
