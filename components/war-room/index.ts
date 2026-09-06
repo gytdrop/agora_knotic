@@ -13,3 +13,4 @@ export { PeopleTab } from './tabs/PeopleTab';
 export { UpdatesTab } from './tabs/UpdatesTab';
 export { ActionsTab } from './tabs/ActionsTab';
 export { AiBriefTab } from './tabs/AiBriefTab';
+export { FloatingControlDock } from './FloatingControlDock';
