@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
-  ShieldAlert, 
   Clock, 
   VolumeX, 
   ExternalLink, 
@@ -33,14 +32,12 @@ export function IncidentHeader({
   speechMuted = false,
   participantCount = 2,
 }: IncidentHeaderProps) {
-  // Use dynamic title/name passed in, with dynamic fallback from sessionStorage or defaults
   const [displayTitle, setDisplayTitle] = useState<string>(
     title || incidentName || 'Payment service latency and failures'
   );
   const [displayId, setDisplayId] = useState<string>(incidentId);
   const [displaySeverity, setDisplaySeverity] = useState<string>(severity);
   const [secondsElapsed, setSecondsElapsed] = useState(1694); // 00:28:14 start
-  const [userName, setUserName] = useState('SRE');
 
   useEffect(() => {
     if (title || incidentName) {
@@ -60,7 +57,6 @@ export function IncidentHeader({
     }
   }, [severity]);
 
-  // Read any stored dynamic incident details from sessionStorage if not passed directly
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const storedId = sessionStorage.getItem('echosphere_incident_id');
@@ -71,11 +67,6 @@ export function IncidentHeader({
 
       const storedSev = sessionStorage.getItem('echosphere_incident_severity');
       if (storedSev && !severity) setDisplaySeverity(storedSev);
-
-      const storedUser = sessionStorage.getItem('echosphere_user_name');
-      if (storedUser && storedUser.trim()) {
-        setUserName(storedUser.trim());
-      }
     }
   }, [incidentId, title, incidentName, severity]);
 

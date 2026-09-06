@@ -4,9 +4,7 @@ import React from 'react';
 import { 
   AlertOctagon, 
   Bot, 
-  Activity, 
   ShieldAlert, 
-  Terminal, 
   CheckCircle2,
   Clock
 } from 'lucide-react';

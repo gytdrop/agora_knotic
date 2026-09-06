@@ -13,11 +13,10 @@ import {
   Disc, 
   MoreHorizontal, 
   PhoneOff,
-  ChevronUp,
-  Smile,
-  Volume2,
-  Settings,
-  Sparkles
+  Sparkles,
+  Headphones,
+  VolumeX,
+  Volume2
 } from 'lucide-react';
 import type { WarRoomToolTab } from '@/types/war-room';
 
@@ -28,9 +27,13 @@ interface FloatingControlDockProps {
   participantCount?: number;
   activeSidebarTab?: WarRoomToolTab;
   isSidebarOpen?: boolean;
+  speechMuted?: boolean;
+  isMonitoringSelf?: boolean;
   onToggleMic: () => void;
   onToggleVideo: () => void;
   onToggleShare?: () => void;
+  onToggleSpeechMute?: () => void;
+  onToggleSelfMonitor?: () => void;
   onSelectSidebarTab: (tab: WarRoomToolTab) => void;
   onToggleSidebar?: () => void;
   onEndCall: () => void;
@@ -43,9 +46,13 @@ export function FloatingControlDock({
   participantCount = 2,
   activeSidebarTab = 'actions',
   isSidebarOpen = true,
+  speechMuted = false,
+  isMonitoringSelf = false,
   onToggleMic,
   onToggleVideo,
   onToggleShare,
+  onToggleSpeechMute,
+  onToggleSelfMonitor,
   onSelectSidebarTab,
   onToggleSidebar,
   onEndCall,
@@ -246,7 +253,7 @@ export function FloatingControlDock({
           </span>
 
           {showMoreMenu && (
-            <div className="absolute bottom-16 right-0 w-48 rounded-xl bg-zinc-900 border border-zinc-700/80 p-1.5 shadow-2xl z-50 text-xs text-zinc-200">
+            <div className="absolute bottom-16 right-0 w-52 rounded-xl bg-zinc-900 border border-zinc-700/80 p-1.5 shadow-2xl z-50 text-xs text-zinc-200">
               <button
                 type="button"
                 onClick={() => {
@@ -257,6 +264,7 @@ export function FloatingControlDock({
               >
                 <span>Incident Updates</span>
               </button>
+
               <button
                 type="button"
                 onClick={() => {
@@ -268,7 +276,46 @@ export function FloatingControlDock({
                 <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
                 <span>AI Brief</span>
               </button>
+
+              {onToggleSpeechMute && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onToggleSpeechMute();
+                    setShowMoreMenu(false);
+                  }}
+                  className="flex w-full items-center gap-2 px-3 py-2 rounded-lg hover:bg-zinc-800 text-left transition-colors"
+                >
+                  {speechMuted ? (
+                    <>
+                      <Volume2 className="h-3.5 w-3.5 text-emerald-400" />
+                      <span>Unmute Agent Audio</span>
+                    </>
+                  ) : (
+                    <>
+                      <VolumeX className="h-3.5 w-3.5 text-rose-400" />
+                      <span>Silent Mode (Mute Agent)</span>
+                    </>
+                  )}
+                </button>
+              )}
+
+              {onToggleSelfMonitor && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onToggleSelfMonitor();
+                    setShowMoreMenu(false);
+                  }}
+                  className="flex w-full items-center gap-2 px-3 py-2 rounded-lg hover:bg-zinc-800 text-left transition-colors"
+                >
+                  <Headphones className={`h-3.5 w-3.5 ${isMonitoringSelf ? 'text-emerald-400' : 'text-zinc-400'}`} />
+                  <span>{isMonitoringSelf ? 'Stop Sidetone (Loopback)' : 'Mic Sidetone Test'}</span>
+                </button>
+              )}
+
               <div className="h-[1px] bg-zinc-800 my-1" />
+
               <button
                 type="button"
                 onClick={() => {
@@ -277,7 +324,7 @@ export function FloatingControlDock({
                 }}
                 className="flex w-full items-center gap-2 px-3 py-2 rounded-lg hover:bg-zinc-800 text-left transition-colors"
               >
-                <span>{isSidebarOpen ? 'Hide Tools' : 'Show Tools'}</span>
+                <span>{isSidebarOpen ? 'Hide Tools Panel' : 'Show Tools Panel'}</span>
               </button>
             </div>
           )}

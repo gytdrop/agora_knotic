@@ -9,8 +9,7 @@ import {
   VideoOff, 
   Bot, 
   VolumeX, 
-  MoreVertical,
-  UserCheck
+  MoreVertical
 } from 'lucide-react';
 import type { ParticipantInfo } from '@/types/war-room';
 

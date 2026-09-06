@@ -7,8 +7,7 @@ import {
   Megaphone, 
   Zap, 
   Sparkles, 
-  X,
-  Radio
+  X
 } from 'lucide-react';
 import type { WarRoomToolTab, ParticipantInfo, IncidentTimelineEvent } from '@/types/war-room';
 import type { LedgerItem } from '@/types/conversation';

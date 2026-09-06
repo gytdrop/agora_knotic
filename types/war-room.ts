@@ -1,5 +1,3 @@
-import type { LedgerItem } from './conversation';
-
 export type WarRoomToolTab = 'chat' | 'people' | 'updates' | 'actions' | 'ai-brief';
 
 export interface IncidentMetadata {

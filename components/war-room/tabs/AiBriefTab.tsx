@@ -5,9 +5,6 @@ import {
   Sparkles, 
   Send, 
   Bot, 
-  Terminal, 
-  ShieldCheck, 
-  CheckCircle2, 
   Loader2 
 } from 'lucide-react';
 
