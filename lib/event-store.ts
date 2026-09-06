@@ -37,37 +37,92 @@ function getOrCreateIncident(incidentId = DEFAULT_INCIDENT_ID): IncidentState {
   let incident = incidentStore.get(incidentId);
   if (!incident) {
     const now = Date.now();
-    const initialItems: LedgerItem[] = [
-      {
-        id: 'init-1',
-        timestampMs: now - 20000,
-        speaker: 'EchoSphere Sentinel',
-        text: 'Ambient Sentinel Mode active. Listening to Agora 16kHz WebRTC stream...',
-        tag: 'FACT',
-        status: 'Standby Monitoring',
-      },
-      {
-        id: 'init-2',
-        timestampMs: now - 10000,
-        speaker: 'HolmesGPT Engine',
-        text: 'HolmesGPT cluster diagnostics active. Monitored: [ingress-nginx, auth-service, aws-rds].',
-        tag: 'FACT',
-        status: 'Diagnostic Sync OK',
-      },
-    ];
+    const isPayment = incidentId.includes('8921');
+
+    const initialItems: LedgerItem[] = isPayment
+      ? [
+          {
+            id: 'item-beat-1',
+            timestampMs: now - 50000,
+            speaker: 'Ashley Sawatsky',
+            speakerRole: 'user',
+            text: 'Team, starting triage on INC-8921. Payment processing 5xx error rate is at 47.2% and p99 latency spiked to 6.2 seconds. Approximately 1,420 checkout attempts per minute are failing.',
+            tag: 'FACT',
+            status: 'CONFIRMED',
+            reason: 'Elevated 5xx rate on /v1/checkout/charge. Ingress latency p99 spiked to 6.2s across us-east-1.',
+          },
+          {
+            id: 'item-beat-2',
+            timestampMs: now - 40000,
+            speaker: 'David Chen',
+            speakerRole: 'peer',
+            text: 'Looking at recent deploys. payment-service:v2.8.1 went live 20 minutes ago. Hypothesis: worker thread recursion memory leak on the new payment orchestrator.',
+            tag: 'HYPOTHESIS',
+            status: 'ACTIVE',
+            reason: 'Candidate root cause: commit 9b8f2c in payment-service:v2.8.1 introduced recursive retry.',
+          },
+          {
+            id: 'item-beat-3',
+            timestampMs: now - 30000,
+            speaker: 'David Chen',
+            speakerRole: 'peer',
+            text: 'Wait, disproving that. HolmesGPT telemetry query confirms DB connection pool utilization is at 22% and pod memory usage is nominal at 58%. It is NOT a memory leak or connection starvation.',
+            tag: 'CONTRADICTION',
+            status: 'DISPROVEN',
+            reason: 'Pod memory usage is flat at 58%. PostgreSQL replica leases at 22/100. Memory leak hypothesis rejected.',
+          },
+          {
+            id: 'item-beat-4',
+            timestampMs: now - 20000,
+            speaker: 'David Chen',
+            speakerRole: 'peer',
+            text: 'Isolating downstream trace: downstream dependency fraud-detection-svc timeout rate is 45%. It is holding open client sockets and exhausting the connection backlog.',
+            tag: 'FACT',
+            status: 'CONFIRMED',
+            reason: 'payment-service synchronous HTTP call to fraud-detection-svc timing out after 5,000ms. 45% socket backlog exhaustion.',
+          },
+          {
+            id: 'item-beat-5',
+            timestampMs: now - 10000,
+            speaker: 'Ashley Sawatsky',
+            speakerRole: 'user',
+            text: 'Acknowledged. Three immediate action items: first, execute canary rollback on payment-service to v2.8.0. Second, page Fraud SRE on-call for socket saturation. Third, broadcast customer update on Slack and Statuspage.',
+            tag: 'ACTION',
+            status: 'Active Remediation',
+            reason: 'Canary rollback to v2.8.0, Fraud SRE paged, customer status broadcast published.',
+          },
+        ]
+      : [
+          {
+            id: 'init-1',
+            timestampMs: now - 20000,
+            speaker: 'EchoSphere Sentinel',
+            text: 'Ambient Sentinel Mode active. Listening to Agora 16kHz WebRTC stream...',
+            tag: 'FACT',
+            status: 'Standby Monitoring',
+          },
+          {
+            id: 'init-2',
+            timestampMs: now - 10000,
+            speaker: 'HolmesGPT Engine',
+            text: 'HolmesGPT cluster diagnostics active. Monitored: [ingress-nginx, auth-service, aws-rds].',
+            tag: 'FACT',
+            status: 'Diagnostic Sync OK',
+          },
+        ];
 
     incident = {
       incidentId,
-      title: 'AGORA ECHOSPHERE SEV-1 OUTAGE',
-      severity: 'SEV-1',
-      createdAtMs: now - 25000,
-      isResolved: false,
+      title: isPayment ? 'Payment service latency and failures' : 'AGORA ECHOSPHERE SEV-1 OUTAGE',
+      severity: isPayment ? 'Critical' : 'SEV-1',
+      createdAtMs: now - 60000,
+      isResolved: isPayment,
       events: initialItems.map((item, idx) => ({
         eventId: `evt_${incidentId.replace(/[^a-zA-Z0-9]/g, '')}_${idx + 1}`,
         incidentId,
         sequenceNumber: idx + 1,
         timestampMs: item.timestampMs,
-        eventType: 'TURN_FINALIZED',
+        eventType: item.tag === 'ACTION' ? 'HOTFIX_STAGED' : item.tag === 'CONTRADICTION' ? 'CONTRADICTION_FLAGGED' : 'TURN_FINALIZED',
         item,
       })),
       ledgerItems: initialItems,

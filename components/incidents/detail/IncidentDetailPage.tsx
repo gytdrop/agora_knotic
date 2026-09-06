@@ -25,6 +25,10 @@ import { IncidentActionsView } from './IncidentActionsView';
 import { IncidentFollowUpsView } from './IncidentFollowUpsView';
 import { IncidentUpdatesView } from './IncidentUpdatesView';
 import { IncidentAlertsView } from './IncidentAlertsView';
+import { AskIncidentDrawer } from './AskIncidentDrawer';
+import { EscalateModal } from './EscalateModal';
+import { demoIncidentStore } from '@/lib/demo/payment-incident-scenario';
+import { Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface IncidentDetailPageProps {
@@ -71,6 +75,31 @@ function IncidentDetailPageView({
   });
   const [activeTab, setActiveTab] = useState<IncidentDetailTab>('timeline');
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isAskAiOpen, setIsAskAiOpen] = useState(false);
+  const [isEscalateOpen, setIsEscalateOpen] = useState(false);
+
+  const isDemo = normId.includes('8921');
+  const [demoActions, setDemoActions] = useState(() =>
+    demoIncidentStore.getState().actions.map((a) => ({
+      ...a,
+      createdAt: Date.now() - 60000,
+    })),
+  );
+
+  useEffect(() => {
+    if (!isDemo) return;
+    const unsubscribe = demoIncidentStore.subscribe((state) => {
+      setLocalStatus(state.status);
+      setLocalSeverity(state.severity);
+      setDemoActions(
+        state.actions.map((a) => ({
+          ...a,
+          createdAt: Date.now() - 60000,
+        })),
+      );
+    });
+    return unsubscribe;
+  }, [isDemo]);
 
   useEffect(() => {
     if (initialRecord.title) setLocalTitle(initialRecord.title);
@@ -120,6 +149,8 @@ function IncidentDetailPageView({
         severity={activeSeverity}
         onUpdateTitle={setLocalTitle}
         onResolve={() => handleUpdateStatus('RESOLVED')}
+        onOpenAskAi={() => setIsAskAiOpen(true)}
+        onOpenEscalate={() => setIsEscalateOpen(true)}
       />
 
       {/* Floating Lifecycle Stepper & Metadata Strip */}
@@ -165,7 +196,12 @@ function IncidentDetailPageView({
             )}
 
             {activeTab === 'actions' && (
-              <IncidentActionsView actions={initialRecord.actions} />
+              <IncidentActionsView
+                actions={isDemo ? demoActions : initialRecord.actions}
+                onToggleAction={(id) => {
+                  if (isDemo) demoIncidentStore.toggleAction(id);
+                }}
+              />
             )}
 
             {activeTab === 'follow-ups' && (
@@ -195,6 +231,30 @@ function IncidentDetailPageView({
           reviewer={initialRecord.reviewer}
         />
       </div>
+
+      {/* Floating Ask EchoSphere AI Assistant Button */}
+      <button
+        type="button"
+        onClick={() => setIsAskAiOpen(true)}
+        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-2.5 text-xs font-bold text-white shadow-xl hover:from-purple-700 hover:to-indigo-700 hover:shadow-2xl transition-all duration-150 active:scale-95 cursor-pointer"
+      >
+        <Sparkles className="h-4 w-4 text-purple-200" />
+        <span>Ask EchoSphere AI</span>
+      </button>
+
+      {/* Feature 1: Floating AI Assistant Slide-over Drawer */}
+      <AskIncidentDrawer
+        isOpen={isAskAiOpen}
+        onClose={() => setIsAskAiOpen(false)}
+        incidentId={normId}
+      />
+
+      {/* Escalate to Team On-Call Modal */}
+      <EscalateModal
+        isOpen={isEscalateOpen}
+        onClose={() => setIsEscalateOpen(false)}
+        incidentId={normId}
+      />
     </div>
   );
 }

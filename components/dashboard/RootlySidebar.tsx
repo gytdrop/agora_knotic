@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useConvex, useQuery } from 'convex/react';
@@ -9,19 +9,19 @@ import {
   Asterisk,
   BarChart3,
   Bell,
-  CheckCircle2,
   ChevronDown,
   Flame,
+  Globe,
   Home,
+  PanelLeftClose,
+  PanelLeftOpen,
+  PhoneCall,
   Plus,
   Puzzle,
   Search,
-  Settings,
-  Shield,
   Sparkles,
   Video,
   Workflow,
-  Wrench,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -40,6 +40,8 @@ export interface RootlySidebarProps {
   onCreateIncident?: () => void;
   onOpenSearch?: () => void;
   onNavigate?: () => void;
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
 interface NavItem {
@@ -89,12 +91,40 @@ function IncidentsActiveCountBadge() {
 export function RootlySidebar({
   activePath,
   className,
-  onCreateIncident,
+  onCreateIncident: _onCreateIncident,
   onOpenSearch,
   onNavigate,
+  collapsed: collapsedProp,
+  onToggleCollapse,
 }: RootlySidebarProps) {
   const pathname = usePathname();
   const currentPath = activePath ?? pathname ?? '/';
+  const [internalCollapsed, setInternalCollapsed] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('echosphere_sidebar_collapsed');
+      if (saved === 'true') {
+        setInternalCollapsed(true);
+      }
+    }
+  }, []);
+
+  const isCollapsed = collapsedProp !== undefined ? collapsedProp : internalCollapsed;
+
+  const toggleCollapse = () => {
+    if (onToggleCollapse) {
+      onToggleCollapse();
+    } else {
+      setInternalCollapsed((prev) => {
+        const next = !prev;
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('echosphere_sidebar_collapsed', String(next));
+        }
+        return next;
+      });
+    }
+  };
 
   // Global keyboard shortcut for search trigger (⌘K / Ctrl+K)
   useEffect(() => {
@@ -134,9 +164,9 @@ export function RootlySidebar({
       icon: Bell,
     },
     {
-      label: 'Action Items',
-      href: '/#action-items',
-      icon: CheckCircle2,
+      label: 'On-Call',
+      href: '/on-call',
+      icon: PhoneCall,
     },
     {
       label: 'War Room',
@@ -152,30 +182,19 @@ export function RootlySidebar({
         </span>
       ),
     },
-  ];
-
-  const secondaryNavItems: NavItem[] = [
     {
-      label: 'Alerts',
-      href: '/#alerts',
-      icon: Shield,
-    },
-    {
-      label: 'Maintenance',
-      href: '/#maintenance',
-      icon: Wrench,
+      label: 'Status Page',
+      href: '/status-page',
+      icon: Globe,
     },
     {
       label: 'Metrics',
-      href: '/#metrics',
+      href: '/metrics',
       icon: BarChart3,
     },
-  ];
-
-  const platformNavItems: NavItem[] = [
     {
       label: 'Ecosphere AI',
-      href: '/#ai',
+      href: '/ai',
       icon: Sparkles,
       badge: (
         <span className="ml-auto inline-flex items-center rounded-full border border-purple-200/80 bg-purple-100 px-2 py-0.5 text-[10px] font-semibold text-purple-700">
@@ -185,17 +204,12 @@ export function RootlySidebar({
     },
     {
       label: 'Workflows',
-      href: '/#workflows',
+      href: '/workflows',
       icon: Workflow,
     },
     {
-      label: 'Configuration',
-      href: '/#configuration',
-      icon: Settings,
-    },
-    {
       label: 'Integrations',
-      href: '/#integrations',
+      href: '/integrations',
       icon: Puzzle,
     },
   ];
@@ -203,6 +217,39 @@ export function RootlySidebar({
   const renderNavLink = (item: NavItem) => {
     const active = isItemActive(item.href);
     const Icon = item.icon;
+
+    if (isCollapsed) {
+      return (
+        <Link
+          key={item.label}
+          href={item.href}
+          onClick={() => onNavigate?.()}
+          title={item.label}
+          className={cn(
+            'group relative flex items-center justify-center h-10 w-10 mx-auto rounded-lg text-xs font-medium transition-colors my-1',
+            active
+              ? 'bg-purple-100 text-purple-700'
+              : 'text-zinc-600 hover:bg-zinc-100/80 hover:text-zinc-900'
+          )}
+        >
+          <Icon
+            className={cn(
+              'h-4 w-4 shrink-0 transition-colors',
+              active ? 'text-purple-600' : 'text-zinc-500 group-hover:text-zinc-700'
+            )}
+          />
+          {item.label === 'War Room' && (
+            <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+          )}
+          {item.label === 'Incidents' && (
+            <span className="absolute top-2 right-2 h-1.5 w-1.5 rounded-full bg-red-500" />
+          )}
+          {item.label === 'Ecosphere AI' && (
+            <span className="absolute top-2 right-2 h-1.5 w-1.5 rounded-full bg-purple-500" />
+          )}
+        </Link>
+      );
+    }
 
     return (
       <Link
@@ -231,49 +278,102 @@ export function RootlySidebar({
   return (
     <aside
       className={cn(
-        'flex h-screen w-64 flex-col border-r border-zinc-200 bg-white select-none sticky top-0 shrink-0 z-30',
+        'flex h-screen flex-col border-r border-zinc-200 bg-white select-none sticky top-0 shrink-0 z-30 transition-all duration-200 ease-in-out',
+        isCollapsed ? 'w-[70px]' : 'w-64',
         className
       )}
     >
       {/* Top Header & Logo */}
-      <div className="flex items-center justify-between px-4 py-3.5 border-b border-zinc-100">
-        <Link
-          href="/"
-          onClick={() => onNavigate?.()}
-          className="flex items-center gap-2.5 group"
-        >
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-purple-600 text-white shadow-xs transition-colors group-hover:bg-purple-700">
-            <Asterisk className="h-5 w-5 stroke-[2.5]" />
+      <div
+        className={cn(
+          'flex items-center justify-between py-3.5 border-b border-zinc-100 transition-all',
+          isCollapsed ? 'px-2.5 justify-center' : 'px-4'
+        )}
+      >
+        {!isCollapsed ? (
+          <>
+            <Link
+              href="/"
+              onClick={() => onNavigate?.()}
+              className="flex items-center gap-2.5 group"
+            >
+              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-purple-600 text-white shadow-xs transition-colors group-hover:bg-purple-700">
+                <Asterisk className="h-5 w-5 stroke-[2.5]" />
+              </div>
+              <span className="text-lg font-bold tracking-tight text-zinc-900">
+                Ecosphere
+              </span>
+            </Link>
+            <button
+              type="button"
+              onClick={toggleCollapse}
+              className="p-1.5 rounded-md text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 transition-colors cursor-pointer"
+              title="Collapse sidebar"
+              aria-label="Collapse sidebar"
+            >
+              <PanelLeftClose className="h-4 w-4" />
+            </button>
+          </>
+        ) : (
+          <div className="flex flex-col items-center gap-2">
+            <Link
+              href="/"
+              onClick={() => onNavigate?.()}
+              className="group"
+              title="Ecosphere"
+            >
+              <div className="flex h-7 w-7 items-center justify-center rounded-md bg-purple-600 text-white shadow-xs transition-colors group-hover:bg-purple-700">
+                <Asterisk className="h-5 w-5 stroke-[2.5]" />
+              </div>
+            </Link>
+            <button
+              type="button"
+              onClick={toggleCollapse}
+              className="p-1 rounded-md text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 transition-colors cursor-pointer"
+              title="Expand sidebar"
+              aria-label="Expand sidebar"
+            >
+              <PanelLeftOpen className="h-4 w-4" />
+            </button>
           </div>
-          <span className="text-lg font-bold tracking-tight text-zinc-900">
-            ecosphere
-          </span>
-        </Link>
+        )}
       </div>
 
       {/* Organization Selector */}
-      <div className="px-3 pt-3 pb-2">
+      <div className={cn('pt-3 pb-2 transition-all', isCollapsed ? 'px-2 flex justify-center' : 'px-3')}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button
-              type="button"
-              className="flex w-full items-center gap-2.5 rounded-lg border border-zinc-200/90 bg-zinc-50/50 px-2.5 py-2 text-left text-xs transition-colors hover:border-zinc-300 hover:bg-zinc-100/80 focus:outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer"
-            >
-              <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-orange-500 text-[11px] font-bold text-white shadow-xs">
-                A
-              </div>
-              <div className="flex min-w-0 flex-1 flex-col">
-                <span className="truncate text-xs font-semibold text-zinc-800">
-                  Acme, Inc.
-                </span>
-                <span className="truncate text-[10px] text-zinc-400">
-                  Production
-                </span>
-              </div>
-              <ChevronDown className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
-            </button>
+            {isCollapsed ? (
+              <button
+                type="button"
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-200/90 bg-zinc-50/80 hover:bg-zinc-100 focus:outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer"
+                title="Acme, Inc. (Production)"
+              >
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-orange-500 text-[11px] font-bold text-white shadow-xs">
+                  A
+                </div>
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="flex w-full items-center gap-2.5 rounded-lg border border-zinc-200/90 bg-zinc-50/50 px-2.5 py-2 text-left text-xs transition-colors hover:border-zinc-300 hover:bg-zinc-100/80 focus:outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer"
+              >
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-orange-500 text-[11px] font-bold text-white shadow-xs">
+                  A
+                </div>
+                <div className="flex min-w-0 flex-1 flex-col">
+                  <span className="truncate text-xs font-semibold text-zinc-800">
+                    Acme, Inc.
+                  </span>
+                  <span className="truncate text-[10px] text-zinc-400">
+                    Production
+                  </span>
+                </div>
+                <ChevronDown className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
+              </button>
+            )}
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-56">
+          <DropdownMenuContent align={isCollapsed ? 'center' : 'start'} side={isCollapsed ? 'right' : 'bottom'} className="w-56">
             <DropdownMenuLabel className="text-[11px] font-medium text-zinc-400">
               Organizations
             </DropdownMenuLabel>
@@ -304,80 +404,116 @@ export function RootlySidebar({
       </div>
 
       {/* Quick Search Trigger */}
-      <div className="px-3 pb-2">
-        <button
-          type="button"
-          onClick={onOpenSearch}
-          className="flex w-full items-center justify-between rounded-lg border border-zinc-200/80 bg-zinc-50/70 px-2.5 py-1.5 text-xs text-zinc-500 transition-colors hover:border-zinc-300 hover:bg-zinc-100/90 focus:outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer"
-        >
-          <span className="flex items-center gap-2">
-            <Search className="h-3.5 w-3.5 text-zinc-400" />
-            <span>Search</span>
-          </span>
-          <kbd className="inline-flex items-center rounded border border-zinc-200 bg-white px-1.5 py-0.5 text-[10px] font-mono font-medium text-zinc-400 shadow-xs">
-            ⌘K
-          </kbd>
-        </button>
+      <div className={cn('pb-2 transition-all', isCollapsed ? 'px-2 flex justify-center' : 'px-3')}>
+        {isCollapsed ? (
+          <button
+            type="button"
+            onClick={onOpenSearch}
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-200/80 bg-zinc-50/70 text-zinc-500 hover:bg-zinc-100/90 focus:outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer"
+            title="Search (⌘K)"
+          >
+            <Search className="h-4 w-4 text-zinc-500" />
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={onOpenSearch}
+            className="flex w-full items-center justify-between rounded-lg border border-zinc-200/80 bg-zinc-50/70 px-2.5 py-1.5 text-xs text-zinc-500 transition-colors hover:border-zinc-300 hover:bg-zinc-100/90 focus:outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer"
+          >
+            <span className="flex items-center gap-2">
+              <Search className="h-3.5 w-3.5 text-zinc-400" />
+              <span>Search</span>
+            </span>
+            <kbd className="inline-flex items-center rounded border border-zinc-200 bg-white px-1.5 py-0.5 text-[10px] font-mono font-medium text-zinc-400 shadow-xs">
+              ⌘K
+            </kbd>
+          </button>
+        )}
       </div>
 
       {/* Navigation Sections */}
-      <div className="flex-1 overflow-y-auto px-2 py-1 space-y-1">
-        {/* Core Nav Group */}
-        <nav className="space-y-0.5" aria-label="Core Navigation">
+      <div className={cn('flex-1 overflow-y-auto py-1 space-y-1', isCollapsed ? 'px-1' : 'px-2')}>
+        <nav className="space-y-0.5" aria-label="Main Navigation">
           {coreNavItems.map(renderNavLink)}
-        </nav>
-
-        {/* Secondary Nav Group */}
-        <div className="pt-2">
-          <nav className="space-y-0.5" aria-label="Secondary Navigation">
-            {secondaryNavItems.map(renderNavLink)}
-          </nav>
-        </div>
-
-        {/* Section Divider */}
-        <div className="my-2 border-t border-zinc-200/80" />
-
-        {/* Platform / AI Nav Group */}
-        <nav className="space-y-0.5" aria-label="Platform Navigation">
-          {platformNavItems.map(renderNavLink)}
         </nav>
       </div>
 
-      {/* Footer Area: Create Incident CTA & User Profile */}
-      <div className="mt-auto border-t border-zinc-200/80 p-3 space-y-2.5">
-        {/* Primary Create Incident Gradient Button */}
-        <button
-          type="button"
-          onClick={onCreateIncident}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-3 py-2.5 text-xs font-semibold text-white shadow-xs transition-all duration-150 hover:from-purple-700 hover:to-indigo-700 hover:shadow active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-purple-500/40 cursor-pointer"
-        >
-          <Sparkles className="h-4 w-4 text-purple-200" />
-          <span>Create Incident</span>
-        </button>
+      {/* Footer Area: On-Call Widget & User Profile (Create Incident Removed) */}
+      <div className={cn('mt-auto border-t border-zinc-200/80 space-y-2.5 transition-all', isCollapsed ? 'p-2' : 'p-3')}>
+        {/* Rootly On-Call Status Widget */}
+        {isCollapsed ? (
+          <Link
+            href="/on-call"
+            onClick={() => onNavigate?.()}
+            className="flex h-9 w-9 mx-auto items-center justify-center rounded-lg border border-emerald-200/80 bg-emerald-50/60 transition-colors hover:bg-emerald-100/60 cursor-pointer"
+            title="You are on-call • Payments Core • Primary"
+          >
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
+            </span>
+          </Link>
+        ) : (
+          <Link
+            href="/on-call"
+            onClick={() => onNavigate?.()}
+            className="block rounded-lg border border-emerald-200/80 bg-emerald-50/60 p-2.5 transition-colors hover:bg-emerald-100/60 cursor-pointer"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 font-semibold text-emerald-800 text-xs">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                </span>
+                <span>You are on-call</span>
+              </div>
+              <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
+                Primary
+              </span>
+            </div>
+            <div className="mt-1 flex items-center justify-between text-[11px] text-emerald-600">
+              <span>Payments Core</span>
+              <span>Active now</span>
+            </div>
+          </Link>
+        )}
 
         {/* User Profile */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button
-              type="button"
-              className="flex w-full items-center gap-2.5 rounded-lg p-1.5 text-left transition-colors hover:bg-zinc-100 focus:outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer"
-            >
-              <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 text-xs font-bold text-white shadow-xs">
-                AS
-                <span className="absolute bottom-0 right-0 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-white" />
-              </div>
-              <div className="flex min-w-0 flex-1 flex-col">
-                <span className="truncate text-xs font-semibold text-zinc-900">
-                  Ashley Sawatsky
-                </span>
-                <span className="truncate text-[11px] text-zinc-500">
-                  ashley@acme.inc
-                </span>
-              </div>
-              <ChevronDown className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
-            </button>
+            {isCollapsed ? (
+              <button
+                type="button"
+                className="flex h-9 w-9 mx-auto items-center justify-center rounded-lg transition-colors hover:bg-zinc-100 focus:outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer"
+                title="Ashley Sawatsky (ashley@acme.inc)"
+              >
+                <div className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 text-[10px] font-bold text-white shadow-xs">
+                  AS
+                  <span className="absolute bottom-0 right-0 h-1.5 w-1.5 rounded-full bg-emerald-500 ring-1 ring-white" />
+                </div>
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="flex w-full items-center gap-2.5 rounded-lg p-1.5 text-left transition-colors hover:bg-zinc-100 focus:outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer"
+              >
+                <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 text-xs font-bold text-white shadow-xs">
+                  AS
+                  <span className="absolute bottom-0 right-0 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-white" />
+                </div>
+                <div className="flex min-w-0 flex-1 flex-col">
+                  <span className="truncate text-xs font-semibold text-zinc-900">
+                    Ashley Sawatsky
+                  </span>
+                  <span className="truncate text-[11px] text-zinc-500">
+                    ashley@acme.inc
+                  </span>
+                </div>
+                <ChevronDown className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
+              </button>
+            )}
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" side="top" className="w-56 mb-1">
+          <DropdownMenuContent align={isCollapsed ? 'center' : 'end'} side={isCollapsed ? 'right' : 'top'} className="w-56 mb-1">
             <DropdownMenuLabel className="text-xs font-semibold text-zinc-900">
               Ashley Sawatsky
             </DropdownMenuLabel>

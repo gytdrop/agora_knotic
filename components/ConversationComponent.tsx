@@ -38,11 +38,12 @@ import { VideoGrid } from './war-room/VideoGrid';
 import { WarRoomSidebar } from './war-room/WarRoomSidebar';
 import { FloatingControlDock } from './war-room/FloatingControlDock';
 import type { WarRoomToolTab } from '@/types/war-room';
-import type { ConversationComponentProps, LedgerItem, SpeakerRole } from '@/types/conversation';
+import type { ConversationComponentProps, LedgerItem, LedgerTag, SpeakerRole } from '@/types/conversation';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { applyLedgerMutation, type LedgerItemInput } from '@/lib/ledger';
 import { getApiUrl, getAgoraAppId } from '@/lib/api-config';
+import { demoIncidentStore, PAYMENT_INCIDENT_BEATS } from '@/lib/demo/payment-incident-scenario';
 
 // Cap the displayed issues list to avoid overwhelming the UI during a cascade of errors.
 const MAX_CONNECTION_ISSUES = 6;
@@ -151,6 +152,7 @@ export default function ConversationComponent({
 
   // Incident & Remediation State
   const [isHotfixStaged, setIsHotfixStaged] = useState(false);
+  const [hasContradiction, setHasContradiction] = useState(false);
   const [isResolved, setIsResolved] = useState(false);
   const processedTurnsMapRef = useRef<Map<number, string>>(new Map());
 
@@ -292,31 +294,85 @@ export default function ConversationComponent({
     [onLedgerItemReceived, appendConvexLedger, activeIncidentId],
   );
 
+  // Demo Beat State & Deterministic Failsafe Synchronization
+  const [currentDemoBeat, setCurrentDemoBeat] = useState<number>(
+    () => demoIncidentStore.getState().currentBeat,
+  );
+
+  useEffect(() => {
+    const unsubscribe = demoIncidentStore.subscribe((state) => {
+      setCurrentDemoBeat(state.currentBeat);
+    });
+    return unsubscribe;
+  }, []);
+
+  const commitBeatCard = useCallback(
+    (beatNumber: number) => {
+      const beat = PAYMENT_INCIDENT_BEATS.find((b) => b.beatNumber === beatNumber);
+      if (!beat) return;
+
+      const rawTag = beat.card.tag.replace(/[\[\]]/g, '') as LedgerTag;
+      if (rawTag === 'CONTRADICTION') {
+        setHasContradiction(true);
+      }
+      if (rawTag === 'ACTION') {
+        setIsHotfixStaged(true);
+      }
+
+      commitLedgerMutation({
+        id: `turn-beat-${beat.beatNumber}`,
+        turnId: beat.beatNumber,
+        speakerUid: beat.role === 'Incident Commander' ? '0' : '999',
+        speaker: beat.speaker,
+        speakerRole: beat.role === 'Incident Commander' ? 'user' : 'peer',
+        text: beat.spokenCue,
+        tag: rawTag,
+        status:
+          rawTag === 'CONTRADICTION'
+            ? 'DISPROVEN'
+            : rawTag === 'HYPOTHESIS'
+            ? 'ACTIVE'
+            : 'CONFIRMED',
+        reason: beat.card.details,
+        telemetryEvidence: beat.card.metrics
+          ? {
+              source: 'HolmesGPT Telemetry',
+              component: beat.card.title,
+              metrics: beat.card.metrics,
+              details: beat.card.details,
+            }
+          : undefined,
+        timestampMs: Date.now(),
+      });
+    },
+    [commitLedgerMutation],
+  );
+
+  // Global Hotkey (Ctrl + Alt + N or Cmd + Option + N) to advance beat deterministically
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.altKey && (e.key === 'n' || e.key === 'N')) {
+        e.preventDefault();
+        const nextBeat = demoIncidentStore.advanceBeat();
+        console.log(`[EchoSphere:HotKey] Advancing demo beat to #${nextBeat}`);
+        commitBeatCard(nextBeat);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [commitBeatCard]);
+
   // Demo safety net: Inject a diagnostic turn into the live ledger & Convex pipeline
   const injectDemoTurn = useCallback(
     (customText?: string) => {
-      const demoStatements = [
-        {
-          speaker: 'Akthar (Lead SRE)',
-          speakerRole: 'peer' as SpeakerRole,
-          text: 'Database connection pools are throwing timeouts. We might have a deadlocked RDS instance.',
-        },
-        {
-          speaker: 'EchoSphere Sentinel',
-          speakerRole: 'agent' as SpeakerRole,
-          text: 'Database CPU is normal at 2.1%. Ingress prefix route points to 8080 while pod listens on 8000. Staging hotfix patch.',
-        },
-        {
-          speaker: localUserName,
-          speakerRole: 'user' as SpeakerRole,
-          text: 'EchoSphere, authorize patch.',
-        },
-      ];
+      if (!customText) {
+        const nextBeat = demoIncidentStore.advanceBeat();
+        commitBeatCard(nextBeat);
+        return;
+      }
 
-      const chosen = customText
-        ? { speaker: localUserName, speakerRole: 'user' as SpeakerRole, text: customText }
-        : demoStatements[Math.floor(Math.random() * demoStatements.length)];
-
+      const chosen = { speaker: localUserName, speakerRole: 'user' as SpeakerRole, text: customText };
       const analyzed = analyzeStatement(chosen.speaker, chosen.text, chosen.speakerRole);
       const turnId = Date.now();
 
@@ -341,7 +397,7 @@ export default function ConversationComponent({
         timestampMs: Date.now(),
       });
     },
-    [localUserName, commitLedgerMutation],
+    [localUserName, commitLedgerMutation, commitBeatCard],
   );
 
   // Hydrate ledger from authoritative event store on mount / reconnect
@@ -377,7 +433,6 @@ export default function ConversationComponent({
 
   const [spokenStatement, setSpokenStatement] = useState<string>('');
   const [agentStatement, setAgentStatement] = useState<string>('');
-  const [hasContradiction, setHasContradiction] = useState(false);
   const [isSpeakingLocal, setIsSpeakingLocal] = useState(false);
   const [isMonitoringSelf, setIsMonitoringSelf] = useState(false);
 
@@ -895,6 +950,21 @@ export default function ConversationComponent({
       }
 
       const lower = turn.text.toLowerCase();
+
+      // Check for pre-scripted Demo Beat keyword triggers
+      const matchedBeat = PAYMENT_INCIDENT_BEATS.find((b) =>
+        b.matchKeywords.some((keyword) => lower.includes(keyword.toLowerCase())),
+      );
+      if (matchedBeat) {
+        console.log(
+          `%c[EchoSphere:VoiceMatcher] 🎯 Matched Demo Beat #${matchedBeat.beatNumber}: "${turn.text}"`,
+          'color: #10b981; font-weight: bold; background: #064e3b; padding: 2px 6px; border-radius: 4px;',
+        );
+        demoIncidentStore.advanceBeat(matchedBeat.beatNumber);
+        commitBeatCard(matchedBeat.beatNumber);
+        continue;
+      }
+
       // Require explicit voice passkey ("EchoSphere, authorize [patch/hotfix]") to prevent accidental execution
       if (
         lower.includes('echosphere, authorize') ||
@@ -918,7 +988,7 @@ export default function ConversationComponent({
         timestampMs: turnCreatedAt,
       });
     }
-  }, [messageList, agentUID, client, remoteUsers, handleRemediateSuccess, commitLedgerMutation, localUserName]);
+  }, [messageList, agentUID, client, remoteUsers, handleRemediateSuccess, commitLedgerMutation, localUserName, commitBeatCard]);
 
   // Publish microphone and camera tracks once created
   usePublish([localMicrophoneTrack, localCameraTrack]);
@@ -1176,7 +1246,30 @@ export default function ConversationComponent({
       {/* Main War Room Content */}
       <main className="relative flex flex-1 min-h-0 w-full overflow-hidden bg-[#121316]">
         {/* Left Side: Dynamic Video Grid */}
-        <section className="flex-1 min-w-0 overflow-hidden pb-16">
+        <section className="relative flex-1 min-w-0 overflow-hidden pb-16">
+          {/* Discreet Demo Beat Failsafe Indicator & Hotkey Control */}
+          <div className="absolute top-3 left-4 z-20 flex items-center gap-2 bg-zinc-950/80 backdrop-blur-md border border-zinc-800/80 rounded-full px-3 py-1.5 text-xs text-zinc-300 shadow-xl transition-all select-none">
+            <div className="flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="font-semibold text-zinc-100">Beat {currentDemoBeat}/5</span>
+            </div>
+            <span className="text-zinc-600">•</span>
+            <button
+              type="button"
+              onClick={() => {
+                const nextBeat = demoIncidentStore.advanceBeat();
+                commitBeatCard(nextBeat);
+              }}
+              className="inline-flex items-center gap-1 text-[11px] text-zinc-300 hover:text-white transition-colors bg-zinc-800/80 hover:bg-zinc-700 px-2 py-0.5 rounded border border-zinc-700/60 cursor-pointer"
+              title="Advance to next demo beat (Hotkeys: Ctrl+Alt+N or Cmd+Option+N)"
+            >
+              <span>Next</span>
+              <kbd className="font-mono text-[9px] bg-zinc-900 px-1 py-0.2 rounded border border-zinc-700 text-zinc-400">
+                Ctrl+Alt+N
+              </kbd>
+            </button>
+          </div>
+
           <VideoGrid
             localParticipant={{
               id: 'local-user',

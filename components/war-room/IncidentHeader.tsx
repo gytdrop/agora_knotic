@@ -12,6 +12,7 @@ import {
   Flame,
   Sparkles,
 } from 'lucide-react';
+import { normalizeSeverity } from '@/lib/incident-severity';
 
 interface IncidentHeaderProps {
   incidentId?: string;
@@ -27,7 +28,7 @@ interface IncidentHeaderProps {
 
 export function IncidentHeader({
   incidentId = 'INC-2026-0912-001',
-  severity = 'P1',
+  severity = 'Critical',
   title,
   incidentName,
   isConnected = true,
@@ -39,7 +40,7 @@ export function IncidentHeader({
     title || incidentName || 'Payment service latency and failures'
   );
   const [displayId, setDisplayId] = useState<string>(incidentId);
-  const [displaySeverity, setDisplaySeverity] = useState<string>(severity);
+  const [displaySeverity, setDisplaySeverity] = useState<string>(() => normalizeSeverity(severity));
   const [secondsElapsed, setSecondsElapsed] = useState(1694); // 00:28:14 start
 
   useEffect(() => {
@@ -56,7 +57,7 @@ export function IncidentHeader({
 
   useEffect(() => {
     if (severity) {
-      setDisplaySeverity(severity);
+      setDisplaySeverity(normalizeSeverity(severity));
     }
   }, [severity]);
 
@@ -69,7 +70,7 @@ export function IncidentHeader({
       if (storedTitle && !title && !incidentName) setDisplayTitle(storedTitle);
 
       const storedSev = sessionStorage.getItem('echosphere_incident_severity');
-      if (storedSev && !severity) setDisplaySeverity(storedSev);
+      if (storedSev && !severity) setDisplaySeverity(normalizeSeverity(storedSev));
     }
   }, [incidentId, title, incidentName, severity]);
 

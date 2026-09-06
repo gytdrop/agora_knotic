@@ -19,8 +19,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { NumberTicker } from '@/components/ui/number-ticker';
 import { BorderBeam } from '@/components/ui/border-beam';
+import { normalizeSeverity, getSeverityConfig } from '@/lib/incident-severity';
 
-export type IncidentSeverity = 'SEV0' | 'SEV1' | 'SEV2' | 'SEV3';
+export type IncidentSeverity = 'Critical' | 'Major' | 'Minor' | 'SEV0' | 'SEV1' | 'SEV2' | 'SEV3';
 
 export interface ActiveIncidentItem {
   _id?: string;
@@ -45,51 +46,51 @@ export interface ActiveIncidentCardsProps {
 export const DEFAULT_ACTIVE_INCIDENTS: ActiveIncidentItem[] = [
   {
     incidentId: '#INC-8921',
-    title: 'AGORA ECHOSPHERE SEV-1 OUTAGE',
-    severity: 'SEV1',
+    title: 'Payment service latency and failures',
+    severity: 'Critical',
     status: 'ACTIVE',
-    rootCause: 'Ingress prefix route mismatch (/api/v2/auth -> port 8080 instead of 8000).',
+    rootCause: 'Downstream dependency fraud-detection-svc socket saturation causing timeout cascade.',
     createdAt: 1709653000000,
   },
   {
     incidentId: '#7134',
-    title: 'Alluring Muse',
-    severity: 'SEV2',
+    title: 'Alluring Muse - Production API Gateway Latency Spike',
+    severity: 'Major',
     status: 'ACTIVE',
-    rootCause: 'No summary for this incident',
+    rootCause: 'Downstream connection pool starvation triggered by unindexed query.',
     createdAt: 1709650000000, // 1h relative
-  },
-  {
-    incidentId: '#7126',
-    title: 'Code Deployment Error Leads to Service Degradation',
-    severity: 'SEV0',
-    status: 'ACTIVE',
-    rootCause:
-      'A recent deployment of new code to the production environment inadvertently introduced an error...',
-    createdAt: 1709570000000, // 22h relative
-  },
-  {
-    incidentId: '#7125',
-    title: 'Memory Leak in Main Application Server',
-    severity: 'SEV1',
-    status: 'ACTIVE',
-    rootCause:
-      'Users reported unusual slowdowns and service interruptions traced back to a memory leak...',
-    createdAt: 1709570000000, // 22h relative
   },
   {
     incidentId: '#7124',
     title: 'Security Vulnerability Discovered in Auth Module',
-    severity: 'SEV2',
+    severity: 'Major',
     status: 'ACTIVE',
     rootCause:
       'A significant security flaw was identified within the authentication module of our core platform...',
     createdAt: 1709570000000, // 22h relative
   },
   {
+    incidentId: '#7125',
+    title: 'Memory Leak in Main Application Server',
+    severity: 'Critical',
+    status: 'ACTIVE',
+    rootCause:
+      'Users reported unusual slowdowns and service interruptions traced back to a memory leak...',
+    createdAt: 1709570000000, // 22h relative
+  },
+  {
+    incidentId: '#7126',
+    title: 'Code Deployment Error Leads to Service Degradation',
+    severity: 'Critical',
+    status: 'ACTIVE',
+    rootCause:
+      'A recent deployment of new code to the production environment inadvertently introduced an error...',
+    createdAt: 1709570000000, // 22h relative
+  },
+  {
     incidentId: '#7123',
     title: 'Unexpected Database Downtime After Upgrade',
-    severity: 'SEV3',
+    severity: 'Minor',
     status: 'ACTIVE',
     rootCause:
       'During a routine update, a critical database unexpectedly went offline, leading to widespread...',
@@ -106,48 +107,6 @@ function SlackIcon({ className }: { className?: string }) {
       <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z" />
     </svg>
   );
-}
-
-interface SeverityConfig {
-  label: string;
-  dotColor: string;
-  badgeClasses: string;
-}
-
-function getSeverityConfig(severity: string): SeverityConfig {
-  const normalized = severity.toUpperCase().replace('-', '');
-  switch (normalized) {
-    case 'SEV0':
-      return {
-        label: 'SEV0',
-        dotColor: 'bg-red-500',
-        badgeClasses: 'border-red-200 bg-red-50 text-red-700',
-      };
-    case 'SEV1':
-      return {
-        label: 'SEV1',
-        dotColor: 'bg-rose-500',
-        badgeClasses: 'border-rose-200 bg-rose-50 text-rose-700',
-      };
-    case 'SEV2':
-      return {
-        label: 'SEV2',
-        dotColor: 'bg-amber-500',
-        badgeClasses: 'border-amber-200 bg-amber-50 text-amber-800',
-      };
-    case 'SEV3':
-      return {
-        label: 'SEV3',
-        dotColor: 'bg-indigo-500',
-        badgeClasses: 'border-indigo-200 bg-indigo-50 text-indigo-700',
-      };
-    default:
-      return {
-        label: severity,
-        dotColor: 'bg-zinc-500',
-        badgeClasses: 'border-zinc-200 bg-zinc-50 text-zinc-700',
-      };
-  }
 }
 
 /**
@@ -222,7 +181,8 @@ function ActiveIncidentCardsView({
         (inc) =>
           inc.incidentId === '#7126' ||
           inc.incidentId === '#7124' ||
-          inc.severity === 'SEV0'
+          inc.incidentId === '#INC-8921' ||
+          normalizeSeverity(inc.severity) === 'Critical'
       );
     }
 
@@ -233,7 +193,7 @@ function ActiveIncidentCardsView({
         (inc) =>
           inc.incidentId.toLowerCase().includes(q) ||
           inc.title.toLowerCase().includes(q) ||
-          inc.severity.toLowerCase().includes(q) ||
+          normalizeSeverity(inc.severity).toLowerCase().includes(q) ||
           (inc.rootCause && inc.rootCause.toLowerCase().includes(q))
       );
     }
@@ -248,13 +208,12 @@ function ActiveIncidentCardsView({
       }
       if (sortBy === 'severity') {
         const order: Record<string, number> = {
-          SEV0: 0,
-          SEV1: 1,
-          SEV2: 2,
-          SEV3: 3,
+          Critical: 0,
+          Major: 1,
+          Minor: 2,
         };
-        const rankA = order[a.severity.replace('-', '')] ?? 99;
-        const rankB = order[b.severity.replace('-', '')] ?? 99;
+        const rankA = order[normalizeSeverity(a.severity)] ?? 99;
+        const rankB = order[normalizeSeverity(b.severity)] ?? 99;
         return rankA - rankB;
       }
       return 0;
@@ -388,16 +347,17 @@ function ActiveIncidentCardsView({
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5">
           {displayedIncidents.map((incident) => {
             const cleanId = incident.incidentId.replace(/^#/, '');
-            const sevConfig = getSeverityConfig(incident.severity);
+            const normSev = normalizeSeverity(incident.severity);
+            const sevConfig = getSeverityConfig(normSev);
             const duration = getIncidentDuration(incident);
-            const warRoomUrl = `/war-room?incident=${encodeURIComponent(cleanId)}&sev=${encodeURIComponent(incident.severity)}&severity=${encodeURIComponent(incident.severity)}`;
+            const warRoomUrl = `/war-room?incident=${encodeURIComponent(cleanId)}&sev=${encodeURIComponent(normSev)}&severity=${encodeURIComponent(normSev)}`;
 
             return (
               <div
                 key={incident.incidentId}
                 className="group relative flex flex-col justify-between rounded-xl border border-zinc-200/90 bg-white p-4 shadow-xs transition-all duration-150 hover:border-purple-300 hover:shadow-md overflow-hidden"
               >
-                {incident.severity === 'SEV0' && (
+                {normSev === 'Critical' && (
                   <BorderBeam
                     size={80}
                     duration={6}
@@ -422,7 +382,7 @@ function ActiveIncidentCardsView({
 
                   {/* Middle: Severity Pill & Active Status */}
                   <div className="mt-3 flex items-center justify-between gap-2">
-                    {/* Severity pill: .. SEV2 (amber), .. SEV0 (red), .. SEV1 (rose), .. SEV3 (indigo) */}
+                    {/* Severity pill: Critical, Major, Minor */}
                     <div
                       className={cn(
                         'inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[11px] font-semibold tracking-wide',
@@ -430,18 +390,15 @@ function ActiveIncidentCardsView({
                       )}
                     >
                       <span className="flex items-center gap-0.5">
-                        <span
-                          className={cn(
-                            'h-1.5 w-1.5 rounded-full',
-                            sevConfig.dotColor
-                          )}
-                        />
-                        <span
-                          className={cn(
-                            'h-1.5 w-1.5 rounded-full',
-                            sevConfig.dotColor
-                          )}
-                        />
+                        {Array.from({ length: sevConfig.barCount }).map((_, i) => (
+                          <span
+                            key={i}
+                            className={cn(
+                              'h-1.5 w-1.5 rounded-full',
+                              sevConfig.dotColor
+                            )}
+                          />
+                        ))}
                       </span>
                       <span>{sevConfig.label}</span>
                     </div>
@@ -475,7 +432,7 @@ function ActiveIncidentCardsView({
                   <Link
                     href={warRoomUrl}
                     onClick={() =>
-                      onEnterWarRoom?.(incident.incidentId, incident.severity)
+                      onEnterWarRoom?.(incident.incidentId, normSev)
                     }
                     className="inline-flex items-center gap-1.5 rounded-md bg-purple-50 px-2.5 py-1 text-[11px] font-semibold text-purple-700 transition-all duration-150 hover:bg-purple-600 hover:text-white group-hover:bg-purple-600 group-hover:text-white shadow-2xs cursor-pointer shrink-0"
                   >

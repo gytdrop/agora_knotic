@@ -13,6 +13,8 @@ import {
   FileText,
   Check,
   CheckCircle2,
+  PhoneCall,
+  Sparkles,
   Video,
 } from 'lucide-react';
 import {
@@ -29,6 +31,8 @@ export interface IncidentDetailHeaderProps {
   severity?: string;
   onUpdateTitle?: (newTitle: string) => void;
   onResolve?: () => void;
+  onOpenAskAi?: () => void;
+  onOpenEscalate?: () => void;
   className?: string;
 }
 
@@ -38,6 +42,8 @@ export function IncidentDetailHeader({
   severity = 'Critical',
   onUpdateTitle,
   onResolve,
+  onOpenAskAi,
+  onOpenEscalate,
   className,
 }: IncidentDetailHeaderProps) {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -159,6 +165,28 @@ export function IncidentDetailHeader({
 
       {/* Right: Actions */}
       <div className="flex items-center gap-2 shrink-0">
+        {onOpenAskAi && (
+          <button
+            type="button"
+            onClick={onOpenAskAi}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-purple-200 dark:border-purple-800/60 bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/40 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 px-3 py-1.5 text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
+          >
+            <Sparkles className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
+            <span>Ask AI</span>
+          </button>
+        )}
+
+        {onOpenEscalate && (
+          <button
+            type="button"
+            onClick={onOpenEscalate}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-rose-200 dark:border-rose-800/60 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-300 px-3 py-1.5 text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
+          >
+            <PhoneCall className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400" />
+            <span>Escalate</span>
+          </button>
+        )}
+
         <Link
           href={`/war-room?incident=${encodeURIComponent(incidentId.replace(/^#/, ''))}&sev=${encodeURIComponent(severity)}&title=${encodeURIComponent(title)}`}
           className="inline-flex items-center gap-1.5 rounded-lg border border-purple-200 dark:border-purple-800/60 bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 text-xs font-semibold shadow-2xs transition-colors cursor-pointer"

@@ -39,7 +39,7 @@ export function IncidentDetailSidebar({
   affectedTeam = 'Engineering / Core Platform',
   impactField = 'Increased errors & latency',
   reviewer = 'Ashley Sawatsky',
-  onReassignLead: _onReassignLead,
+  onReassignLead,
   className,
 }: IncidentDetailSidebarProps) {
   const warRoomUrl = `/war-room?incident=${encodeURIComponent(
@@ -62,40 +62,81 @@ export function IncidentDetailSidebar({
       aria-label="Incident Attributes"
       className={cn('w-full lg:w-80 shrink-0 space-y-4 text-xs', className)}
     >
-      {/* 1. People Card */}
+      {/* 1. People & Roles Card (Feature 5: Dynamic Role Assignment) */}
       <div className="bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-xl p-4 shadow-2xs space-y-3.5">
         <div className="flex items-center justify-between">
           <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5 text-xs">
             <Users className="h-3.5 w-3.5 text-zinc-400" />
-            <span>People</span>
+            <span>Incident Roles</span>
           </h3>
+          <span className="text-[10px] text-purple-600 dark:text-purple-400 font-medium">
+            Dynamic Paging
+          </span>
         </div>
 
-        {/* Lead */}
+        {/* Incident Lead */}
         <div className="flex items-center justify-between">
           <span className="text-zinc-500 dark:text-zinc-400">Incident Lead</span>
           <div className="flex items-center gap-1.5">
             <div className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300 font-semibold text-[10px]">
               {getInitials(lead)}
             </div>
-            <span className="font-medium text-zinc-800 dark:text-zinc-200">{lead}</span>
+            <select
+              value={lead}
+              onChange={(e) => onReassignLead?.(e.target.value)}
+              className="font-medium text-zinc-800 dark:text-zinc-200 bg-transparent border-0 outline-none text-xs cursor-pointer hover:text-purple-600"
+            >
+              <option value="Ashley Sawatsky">Ashley Sawatsky</option>
+              <option value="David Chen">David Chen</option>
+              <option value="Meera Patel">Meera Patel</option>
+            </select>
           </div>
         </div>
 
-        {/* Reporter */}
+        {/* SRE Lead */}
         <div className="flex items-center justify-between">
-          <span className="text-zinc-500 dark:text-zinc-400">Reporter</span>
+          <span className="text-zinc-500 dark:text-zinc-400">SRE Lead</span>
           <div className="flex items-center gap-1.5">
-            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 font-semibold text-[10px]">
-              {getInitials(reporter)}
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 font-semibold text-[10px]">
+              DC
             </div>
-            <span className="font-medium text-zinc-800 dark:text-zinc-200">{reporter}</span>
+            <select
+              defaultValue="David Chen"
+              onChange={(e) => alert(`Reassigned SRE Lead to ${e.target.value}`)}
+              className="font-medium text-zinc-800 dark:text-zinc-200 bg-transparent border-0 outline-none text-xs cursor-pointer hover:text-purple-600"
+            >
+              <option value="David Chen">David Chen</option>
+              <option value="Meera Patel">Meera Patel (Fraud)</option>
+              <option value="Sarah Connor">Sarah Connor (DB)</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Comms Lead */}
+        <div className="flex items-center justify-between">
+          <span className="text-zinc-500 dark:text-zinc-400">Comms Lead</span>
+          <div className="flex items-center gap-1.5">
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300 font-semibold text-[10px]">
+              SC
+            </div>
+            <span className="font-medium text-zinc-800 dark:text-zinc-200">Sarah Connor</span>
+          </div>
+        </div>
+
+        {/* Scribe */}
+        <div className="flex items-center justify-between">
+          <span className="text-zinc-500 dark:text-zinc-400">Scribe</span>
+          <div className="flex items-center gap-1.5">
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-600 text-white font-semibold text-[9px]">
+              AI
+            </div>
+            <span className="font-medium text-purple-700 dark:text-purple-300">EchoSphere AI Sentinel</span>
           </div>
         </div>
 
         {/* Participants */}
-        <div className="flex items-center justify-between pt-1 border-t border-zinc-100 dark:border-zinc-800">
-          <span className="text-zinc-500 dark:text-zinc-400">Active participants</span>
+        <div className="flex items-center justify-between pt-2 border-t border-zinc-100 dark:border-zinc-800">
+          <span className="text-zinc-500 dark:text-zinc-400">Responders ({participants.length})</span>
           <div className="flex -space-x-1.5 overflow-hidden">
             {participants.map((person, idx) => (
               <div

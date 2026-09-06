@@ -169,178 +169,175 @@ export function IncidentInsightsHeatmap({
         </div>
       </div>
 
-      {/* Main Content Area: Heatmap Grid on Left, Summary Stats on Right */}
-      <div className="mt-5 flex flex-col xl:flex-row items-stretch gap-6">
-        {/* Left Side: 52-Week Activity Calendar */}
-        <div className="flex-1 min-w-0 flex flex-col justify-between">
-          <div className="overflow-x-auto pb-2">
-            <div className="min-w-[680px]">
-              {/* Month Markers Row */}
-              <div className="flex items-center mb-2 pl-7">
+      {/* 52-Week Activity Calendar & Timeline */}
+      <div className="mt-5">
+        <div className="overflow-x-auto no-scrollbar pb-1">
+          <div className="min-w-[680px]">
+            {/* Month Markers Row */}
+            <div className="flex items-center mb-2 pl-7">
+              <div
+                className="w-full grid gap-[3px]"
+                style={{ gridTemplateColumns: 'repeat(52, minmax(0, 1fr))' }}
+              >
+                {Array.from({ length: 52 }).map((_, w) => {
+                  const label = monthByWeek.get(w);
+                  return (
+                    <span
+                      key={w}
+                      className="text-[10px] font-medium text-zinc-400 whitespace-nowrap overflow-visible select-none"
+                    >
+                      {label || ''}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Day Labels + Heatmap Grid Matrix */}
+            <div className="flex items-start gap-1.5">
+              {/* Day of Week Labels (Mon, Wed, Fri) */}
+              <div className="flex flex-col justify-between h-[105px] sm:h-[116px] w-5 text-[9px] font-medium text-zinc-400 shrink-0 select-none py-0.5">
+                <span className="h-2.5 sm:h-3.5 flex items-center">Mon</span>
+                <span className="h-2.5 sm:h-3.5 flex items-center">Wed</span>
+                <span className="h-2.5 sm:h-3.5 flex items-center">Fri</span>
+              </div>
+
+              {/* 52-Week Cells Matrix: 7 rows x 52 columns */}
+              <TooltipProvider delayDuration={150}>
                 <div
-                  className="w-full grid gap-[3px]"
-                  style={{ gridTemplateColumns: 'repeat(52, minmax(0, 1fr))' }}
+                  className="grid grid-flow-col grid-rows-7 gap-[3px] flex-1"
+                  style={{ gridAutoColumns: 'minmax(0, 1fr)' }}
                 >
-                  {Array.from({ length: 52 }).map((_, w) => {
-                    const label = monthByWeek.get(w);
+                  {cells.map((cell) => {
+                    const cellColor = getCellIntensity(cell.count);
+                    const tooltipText = `${cell.dateStr}: ${cell.count} incident${cell.count === 1 ? '' : 's'}`;
+
                     return (
-                      <span
-                        key={w}
-                        className="text-[10px] font-medium text-zinc-400 truncate overflow-visible whitespace-nowrap"
-                      >
-                        {label || ''}
-                      </span>
+                      <Tooltip key={`${cell.week}-${cell.day}`}>
+                        <TooltipTrigger asChild>
+                          <div
+                            className={cn(
+                              'h-2.5 sm:h-3.5 w-full rounded-[2px] transition-all duration-100 cursor-pointer hover:ring-1 hover:ring-purple-500',
+                              cellColor
+                            )}
+                          />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="text-xs py-1 px-2 font-medium">
+                          {tooltipText}
+                        </TooltipContent>
+                      </Tooltip>
                     );
                   })}
                 </div>
-              </div>
-
-              {/* Day Labels + Heatmap Grid Matrix */}
-              <div className="flex items-start gap-1.5">
-                {/* Day of Week Labels (Mon, Wed, Fri) */}
-                <div className="flex flex-col justify-between h-[100px] w-5 text-[9px] font-medium text-zinc-400 shrink-0 select-none py-0.5">
-                  <span className="h-2.5 sm:h-3 flex items-center">Mon</span>
-                  <span className="h-2.5 sm:h-3 flex items-center">Wed</span>
-                  <span className="h-2.5 sm:h-3 flex items-center">Fri</span>
-                </div>
-
-                {/* 52-Week Cells Matrix: 7 rows x 52 columns */}
-                <TooltipProvider delayDuration={150}>
-                  <div
-                    className="grid grid-flow-col grid-rows-7 gap-[3px] flex-1"
-                    style={{ gridAutoColumns: 'minmax(0, 1fr)' }}
-                  >
-                    {cells.map((cell) => {
-                      const cellColor = getCellIntensity(cell.count);
-                      const tooltipText = `${cell.dateStr}: ${cell.count} incident${cell.count === 1 ? '' : 's'}`;
-
-                      return (
-                        <Tooltip key={`${cell.week}-${cell.day}`}>
-                          <TooltipTrigger asChild>
-                            <div
-                              className={cn(
-                                'h-2.5 sm:h-3 w-full rounded-[2px] transition-all duration-100 cursor-pointer hover:ring-1 hover:ring-purple-500',
-                                cellColor
-                              )}
-                            />
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="text-xs py-1 px-2 font-medium">
-                            {tooltipText}
-                          </TooltipContent>
-                        </Tooltip>
-                      );
-                    })}
-                  </div>
-                </TooltipProvider>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Legend */}
-          <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center justify-between text-xs text-zinc-400">
-            <span className="text-[11px] text-zinc-500 font-medium">
-              34 incidents tracked across past 12 months
-            </span>
-            <div className="flex items-center gap-1.5 text-[11px]">
-              <span>Less</span>
-              <div className="flex items-center gap-1">
-                <span
-                  className="h-2.5 w-2.5 rounded-[2px] bg-zinc-100 border border-zinc-200/60"
-                  title="0 incidents"
-                />
-                <span
-                  className="h-2.5 w-2.5 rounded-[2px] bg-purple-200"
-                  title="1-2 incidents"
-                />
-                <span
-                  className="h-2.5 w-2.5 rounded-[2px] bg-purple-400"
-                  title="3-4 incidents"
-                />
-                <span
-                  className="h-2.5 w-2.5 rounded-[2px] bg-purple-600"
-                  title="5+ incidents"
-                />
-              </div>
-              <span>More</span>
+              </TooltipProvider>
             </div>
           </div>
         </div>
 
-        {/* Right Side: Summary Stats Card */}
-        <div className="xl:w-72 shrink-0 border-t xl:border-t-0 xl:border-l border-zinc-100 pt-5 xl:pt-0 xl:pl-6 flex flex-col justify-between gap-3">
-          {/* Total Incidents */}
-          <div className="rounded-xl border border-zinc-100 bg-zinc-50/70 p-3.5 transition-all hover:border-zinc-200 hover:bg-zinc-50">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-zinc-600 flex items-center gap-1.5">
-                <Flame className="h-3.5 w-3.5 text-amber-500" />
-                <span>Total Incidents</span>
-              </span>
-              <span className="inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-[10px] font-bold text-purple-700">
-                Annual
-              </span>
+        {/* Legend Row */}
+        <div className="mt-3 flex items-center justify-between text-xs text-zinc-400">
+          <span className="text-[11px] text-zinc-500 font-medium">
+            34 incidents tracked across past 12 months
+          </span>
+          <div className="flex items-center gap-1.5 text-[11px]">
+            <span>Less</span>
+            <div className="flex items-center gap-1">
+              <span
+                className="h-2.5 w-2.5 rounded-[2px] bg-zinc-100 border border-zinc-200/60"
+                title="0 incidents"
+              />
+              <span
+                className="h-2.5 w-2.5 rounded-[2px] bg-purple-200"
+                title="1-2 incidents"
+              />
+              <span
+                className="h-2.5 w-2.5 rounded-[2px] bg-purple-400"
+                title="3-4 incidents"
+              />
+              <span
+                className="h-2.5 w-2.5 rounded-[2px] bg-purple-600"
+                title="5+ incidents"
+              />
             </div>
-            <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-2xl font-bold tracking-tight text-zinc-900">
-                <NumberTicker value={totalIncidents} className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-900" />
-              </span>
-              <span className="text-[11px] font-medium text-emerald-600 flex items-center gap-0.5">
-                <TrendingDown className="h-3 w-3" />
-                <span>-8% vs avg</span>
-              </span>
-            </div>
-            <p className="mt-1 text-[11px] text-zinc-400">
-              Past 52 weeks recorded
-            </p>
+            <span>More</span>
           </div>
+        </div>
+      </div>
 
-          {/* MTTR */}
-          <div className="rounded-xl border border-zinc-100 bg-zinc-50/70 p-3.5 transition-all hover:border-zinc-200 hover:bg-zinc-50">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-zinc-600 flex items-center gap-1.5">
-                <Clock className="h-3.5 w-3.5 text-emerald-500" />
-                <span>MTTR</span>
-              </span>
-              <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
-                Target Met
-              </span>
-            </div>
-            <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-2xl font-bold tracking-tight text-zinc-900">
-                {mttr}
-              </span>
-              <span className="text-[11px] font-medium text-emerald-600 flex items-center gap-0.5">
-                <TrendingDown className="h-3 w-3" />
-                <span>-15% faster</span>
-              </span>
-            </div>
-            <p className="mt-1 text-[11px] text-zinc-400">
-              Mean time to resolve
-            </p>
+      {/* Summary Stats Row: 3-column responsive grid below the timeline */}
+      <div className="mt-4 pt-4 border-t border-zinc-100 grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+        {/* Total Incidents */}
+        <div className="rounded-xl border border-zinc-100 bg-zinc-50/70 p-3.5 transition-all hover:border-zinc-200 hover:bg-zinc-50">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-zinc-600 flex items-center gap-1.5">
+              <Flame className="h-3.5 w-3.5 text-amber-500" />
+              <span>Total Incidents</span>
+            </span>
+            <span className="inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-[10px] font-bold text-purple-700">
+              Annual
+            </span>
           </div>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-2xl font-bold tracking-tight text-zinc-900">
+              <NumberTicker value={totalIncidents} className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-900" />
+            </span>
+            <span className="text-[11px] font-medium text-emerald-600 flex items-center gap-0.5">
+              <TrendingDown className="h-3 w-3" />
+              <span>-8% vs avg</span>
+            </span>
+          </div>
+          <p className="mt-1 text-[11px] text-zinc-400">
+            Past 52 weeks recorded
+          </p>
+        </div>
 
-          {/* Open Actions */}
-          <div className="rounded-xl border border-zinc-100 bg-zinc-50/70 p-3.5 transition-all hover:border-zinc-200 hover:bg-zinc-50">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-zinc-600 flex items-center gap-1.5">
-                <CheckCircle2 className="h-3.5 w-3.5 text-indigo-500" />
-                <span>Open Actions</span>
-              </span>
-              <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">
-                Active
-              </span>
-            </div>
-            <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-2xl font-bold tracking-tight text-zinc-900">
-                <NumberTicker value={openActions} className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-900" />
-              </span>
-              <span className="text-[11px] font-medium text-zinc-500">
-                items pending
-              </span>
-            </div>
-            <p className="mt-1 text-[11px] text-zinc-400">
-              3 high priority items
-            </p>
+        {/* MTTR */}
+        <div className="rounded-xl border border-zinc-100 bg-zinc-50/70 p-3.5 transition-all hover:border-zinc-200 hover:bg-zinc-50">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-zinc-600 flex items-center gap-1.5">
+              <Clock className="h-3.5 w-3.5 text-emerald-500" />
+              <span>MTTR</span>
+            </span>
+            <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+              Target Met
+            </span>
           </div>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-2xl font-bold tracking-tight text-zinc-900">
+              {mttr}
+            </span>
+            <span className="text-[11px] font-medium text-emerald-600 flex items-center gap-0.5">
+              <TrendingDown className="h-3 w-3" />
+              <span>-15% faster</span>
+            </span>
+          </div>
+          <p className="mt-1 text-[11px] text-zinc-400">
+            Mean time to resolve
+          </p>
+        </div>
+
+        {/* Open Actions */}
+        <div className="rounded-xl border border-zinc-100 bg-zinc-50/70 p-3.5 transition-all hover:border-zinc-200 hover:bg-zinc-50">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-zinc-600 flex items-center gap-1.5">
+              <CheckCircle2 className="h-3.5 w-3.5 text-indigo-500" />
+              <span>Open Actions</span>
+            </span>
+            <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">
+              Active
+            </span>
+          </div>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-2xl font-bold tracking-tight text-zinc-900">
+              <NumberTicker value={openActions} className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-900" />
+            </span>
+            <span className="text-[11px] font-medium text-zinc-500">
+              items pending
+            </span>
+          </div>
+          <p className="mt-1 text-[11px] text-zinc-400">
+            3 high priority items
+          </p>
         </div>
       </div>
     </div>

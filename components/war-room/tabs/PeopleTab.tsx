@@ -108,7 +108,7 @@ export function PeopleTab({ participants = DEFAULT_PEOPLE }: PeopleTabProps) {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search participants..."
-            className="w-full rounded-xl bg-[#202126] border border-zinc-700/70 pl-8 pr-3 py-1.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors"
+            className="w-full rounded-xl bg-[#202126] border border-zinc-700/70 pl-9 pr-3 py-1.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors"
           />
         </div>
 

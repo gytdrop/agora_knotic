@@ -150,6 +150,15 @@
   }
 }
 
+/* Hide scrollbar for modern browsers */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* --- Entry animations --- */
 
 @keyframes fade-up {
