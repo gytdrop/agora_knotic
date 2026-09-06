@@ -9,7 +9,6 @@ import {
   type ICameraVideoTrack,
 } from 'agora-rtc-react';
 import { AgentSphereCard } from './AgentSphereCard';
-import { DEFAULT_AGENT_UID } from '@/lib/agora';
 
 export interface Participant {
   id: string;
@@ -123,11 +122,21 @@ export function VideoGrid({
           ) : !isVideoOff && localVideoStream ? (
             <video
               ref={(videoEl) => {
-                if (videoEl && localVideoStream) {
-                  videoEl.srcObject = localVideoStream;
+                if (videoEl) {
+                  if (localVideoStream && videoEl.srcObject !== localVideoStream) {
+                    videoEl.srcObject = localVideoStream;
+                    const p = videoEl.play?.();
+                    if (p !== undefined) {
+                      p.catch(() => {});
+                    }
+                  } else if (!localVideoStream && videoEl.srcObject) {
+                    try {
+                      videoEl.pause();
+                      videoEl.srcObject = null;
+                    } catch {}
+                  }
                 }
               }}
-              autoPlay
               playsInline
               muted
               className="h-full w-full object-cover scale-x-[-1]"
@@ -225,7 +234,7 @@ export function VideoGrid({
                 <RemoteUser
                   user={user}
                   playVideo={true}
-                  playAudio={String(user.uid) !== String(DEFAULT_AGENT_UID)}
+                  playAudio={false}
                   className="h-full w-full object-cover"
                 />
               ) : (

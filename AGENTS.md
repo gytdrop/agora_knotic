@@ -123,6 +123,21 @@ useEffect(() => {
 - RTM token access must come from `RtcTokenBuilder.buildTokenWithRtm`; a standard RTC-only token does not grant RTM access.
 - Tailwind must scan uikit classes with `./node_modules/agora-agent-uikit/dist/**/*.{js,mjs}` in `tailwind.config.ts`.
 
+## Source Code Reference
+
+Source code for dependencies is cached at `~/.opensrc/`.
+
+Use `opensrc path` inside commands to explore library implementations:
+
+- Search: `rg "pattern" $(opensrc path <package>)`
+- Read: `cat $(opensrc path <package>)/path/to/file`
+
+Common package lookups for this repository:
+- `opensrc path agora-agent-client-toolkit`: client toolkit internals (`AgoraVoiceAI`, transcript & event pipeline)
+- `opensrc path agora-agents`: server SDK (`AgentClient`, session initiation, config schemas)
+- `opensrc path agora-agent-uikit`: UI kit visualizers, controls, and components
+- `opensrc path agora-rtc-react`: React RTC hooks (`useJoin`, `useLocalMicrophoneTrack`, etc.)
+
 ## Working Rules
 
 - Prefer the smallest change that keeps the quickstart copyable and production-style.

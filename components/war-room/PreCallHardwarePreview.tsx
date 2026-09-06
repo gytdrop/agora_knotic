@@ -109,16 +109,38 @@ export function PreCallHardwarePreview({
   };
 
   useEffect(() => {
-    if (videoRef.current && localStream) {
-      videoRef.current.srcObject = localStream;
+    const videoEl = videoRef.current;
+    if (videoEl && localStream && videoEnabled) {
+      if (videoEl.srcObject !== localStream) {
+        videoEl.srcObject = localStream;
+      }
+      const playPromise = videoEl.play?.();
+      if (playPromise !== undefined) {
+        playPromise.catch((err: unknown) => {
+          if ((err as Error)?.name !== 'AbortError') {
+            console.warn('Preview video play error:', err);
+          }
+        });
+      }
     }
   }, [localStream, videoEnabled]);
 
   // Clean up media on unmount
   useEffect(() => {
+    const videoEl = videoRef.current;
     return () => {
+      if (videoEl) {
+        try {
+          videoEl.pause();
+          videoEl.srcObject = null;
+        } catch {}
+      }
       if (localStream) {
-        localStream.getTracks().forEach((track) => track.stop());
+        localStream.getTracks().forEach((track) => {
+          try {
+            track.stop();
+          } catch {}
+        });
       }
       if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
         audioContextRef.current.close().catch(() => {});
@@ -186,7 +208,6 @@ export function PreCallHardwarePreview({
         ) : videoEnabled && localStream ? (
           <video
             ref={videoRef}
-            autoPlay
             playsInline
             muted
             className="h-full w-full object-cover scale-x-[-1]"

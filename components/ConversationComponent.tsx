@@ -9,7 +9,6 @@ import AgoraRTC, {
   useClientEvent,
   useJoin,
   usePublish,
-  RemoteUser,
   type IAgoraRTCRemoteUser,
   UID,
 } from 'agora-rtc-react';
@@ -345,7 +344,20 @@ export default function ConversationComponent({
       localMicrophoneTrack.stop();
       setIsMonitoringSelf(false);
     } else {
-      localMicrophoneTrack.play();
+      try {
+        const p: unknown = localMicrophoneTrack.play();
+        if (p && typeof (p as Promise<void>).catch === 'function') {
+          (p as Promise<void>).catch((err: unknown) => {
+            if ((err as Error)?.name !== 'AbortError') {
+              console.warn('[Mic Monitor] play error:', err);
+            }
+          });
+        }
+      } catch (err) {
+        if ((err as Error)?.name !== 'AbortError') {
+          console.warn('[Mic Monitor] play error:', err);
+        }
+      }
       setIsMonitoringSelf(true);
     }
   }, [localMicrophoneTrack, isMonitoringSelf]);
@@ -801,7 +813,20 @@ export default function ConversationComponent({
             'color: #f43f5e; font-weight: bold; background: #18181b; padding: 2px 6px; border-radius: 4px;',
           );
         } else {
-          user.audioTrack?.play();
+          try {
+            const p: unknown = user.audioTrack?.play();
+            if (p && typeof (p as Promise<void>).catch === 'function') {
+              (p as Promise<void>).catch((playErr: unknown) => {
+                if ((playErr as Error)?.name !== 'AbortError') {
+                  console.warn('[Agora RTC] Failed to play audio track:', playErr);
+                }
+              });
+            }
+          } catch (playErr) {
+            if ((playErr as Error)?.name !== 'AbortError') {
+              console.warn('[Agora RTC] Failed to play audio track:', playErr);
+            }
+          }
         }
       } catch (err) {
         console.warn('[Agora RTC] Failed to subscribe/play audio track:', err);
@@ -1035,17 +1060,7 @@ export default function ConversationComponent({
           />
         </div>
 
-        {/* Background Audio Playback for Remote WebRTC Users (AI Agent audio strictly 100% muted for console-only parsing) */}
-        <div className="hidden" aria-hidden="true">
-          {remoteUsers.map((user) => (
-            <RemoteUser
-              key={user.uid}
-              user={user}
-              playAudio={String(user.uid) !== agentUID && !speechMuted}
-              playVideo={false}
-            />
-          ))}
-        </div>
+
       </main>
     </div>
   );

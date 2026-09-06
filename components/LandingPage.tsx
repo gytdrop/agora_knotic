@@ -66,6 +66,23 @@ export default function LandingPage() {
   useEffect(() => {
     import('agora-rtc-react').catch(() => {});
     import('agora-rtm').catch(() => {});
+
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      const err = event.reason;
+      if (
+        err?.name === 'AbortError' ||
+        (typeof err?.message === 'string' &&
+          err.message.includes('play() request was interrupted'))
+      ) {
+        // Prevent browser/Next.js runtime overlay from interrupting UX for harmless media lifecycle pauses
+        event.preventDefault();
+      }
+    };
+
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    return () => {
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
   }, []);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
