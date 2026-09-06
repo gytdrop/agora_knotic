@@ -105,12 +105,12 @@ export function IncidentDetailHeader({
   return (
     <header
       className={cn(
-        'flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between py-2',
+        'flex flex-col gap-2.5 py-1.5',
         className
       )}
     >
-      {/* Left: Breadcrumb + Title */}
-      <div className="flex flex-col gap-1.5 min-w-0">
+      {/* Top Bar: Breadcrumb on left, Actions on right */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <nav
           aria-label="Breadcrumb"
           className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400 font-medium"
@@ -130,41 +130,8 @@ export function IncidentDetailHeader({
           </span>
         </nav>
 
-        {/* Title / Inline Editable H1 */}
-        <div className="flex items-center gap-2 group">
-          {isEditingTitle ? (
-            <input
-              ref={inputRef}
-              type="text"
-              value={editedTitle}
-              onChange={(e) => setEditedTitle(e.target.value)}
-              onBlur={handleSaveTitle}
-              onKeyDown={handleKeyDown}
-              className="text-xl sm:text-2xl font-semibold text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-800 border border-purple-500 rounded-md px-2 py-0.5 outline-none ring-2 ring-purple-500/20 w-full max-w-2xl"
-            />
-          ) : (
-            <div className="flex items-center gap-2.5">
-              <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 truncate">
-                <span className="font-mono text-zinc-500 dark:text-zinc-400 mr-2 font-medium">
-                  {formattedId}
-                </span>
-                {title}
-              </h1>
-              <button
-                type="button"
-                onClick={() => setIsEditingTitle(true)}
-                aria-label="Edit incident title"
-                className="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-opacity cursor-pointer rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800"
-              >
-                <Pencil className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Right: Actions */}
-      <div className="flex items-center gap-2 shrink-0">
+        {/* Right Actions Toolbar */}
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
         {onOpenAskAi && (
           <button
             type="button"
@@ -272,6 +239,39 @@ export function IncidentDetailHeader({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-    </header>
+    </div>
+
+    {/* Dedicated Title Row: Full width without any button overlap */}
+    <div className="flex items-center gap-2 group min-w-0 w-full pt-0.5">
+      {isEditingTitle ? (
+        <input
+          ref={inputRef}
+          type="text"
+          value={editedTitle}
+          onChange={(e) => setEditedTitle(e.target.value)}
+          onBlur={handleSaveTitle}
+          onKeyDown={handleKeyDown}
+          className="text-xl sm:text-2xl font-semibold text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-800 border border-purple-500 rounded-md px-2 py-0.5 outline-none ring-2 ring-purple-500/20 w-full max-w-3xl"
+        />
+      ) : (
+        <div className="flex items-center gap-2.5 min-w-0 flex-wrap">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 break-words">
+            <span className="font-mono text-zinc-400 dark:text-zinc-500 mr-2.5 font-semibold">
+              {formattedId}
+            </span>
+            {title}
+          </h1>
+          <button
+            type="button"
+            onClick={() => setIsEditingTitle(true)}
+            aria-label="Edit incident title"
+            className="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-opacity cursor-pointer rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 shrink-0"
+          >
+            <Pencil className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
+    </div>
+  </header>
   );
 }
