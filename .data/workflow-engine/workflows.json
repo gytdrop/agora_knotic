@@ -1,0 +1,293 @@
+[
+  {
+    "id": "wf-p1-production",
+    "name": "[Demo] P1 Production Incident Response",
+    "description": "Automated rapid response for critical production outages. Provisions dedicated channels, mobilizes commander, and starts Agora War Room.",
+    "enabled": true,
+    "type": "incident",
+    "folder": "Slack",
+    "integration": "slack",
+    "trigger": {
+      "type": "incident_created",
+      "description": "Incident Created (SEV-0, SEV-1, Critical)",
+      "config": {
+        "severityThreshold": [
+          "SEV-0",
+          "SEV-1",
+          "Critical"
+        ]
+      }
+    },
+    "actions": [
+      {
+        "id": "act-1-slack-channel",
+        "name": "Create Incident Slack Channel",
+        "type": "create_slack_channel",
+        "description": "Provisions dedicated channel #incident-{{incident.id}} and pins response runbooks.",
+        "config": {
+          "channelNameTemplate": "incident-{{incident.id}}",
+          "topic": "Live incident coordination: {{incident.title}}",
+          "inviteResponders": true
+        }
+      },
+      {
+        "id": "act-1-assign-commander",
+        "name": "Assign Incident Commander",
+        "type": "assign_incident_commander",
+        "description": "Auto-assigns on-call primary responder.",
+        "config": {
+          "role": "Incident Commander",
+          "assignee": "Sarah Chen (Staff SRE)"
+        }
+      },
+      {
+        "id": "act-1-ai-summary",
+        "name": "Generate AI Blast Radius Summary",
+        "type": "generate_ai_summary",
+        "description": "Invokes AI analyzer to synthesize incident context, impact, and initial hypothesis.",
+        "config": {
+          "detailLevel": "detailed",
+          "targetAudience": "technical"
+        }
+      },
+      {
+        "id": "act-1-war-room",
+        "name": "Provision Agora Video War Room",
+        "type": "create_war_room",
+        "description": "Initializes Agora HD Video War Room session with live transcription.",
+        "config": {
+          "roomNameTemplate": "War Room #{{incident.id}}",
+          "recordSession": true
+        }
+      },
+      {
+        "id": "act-1-email-exec",
+        "name": "Send Incident Alert Email",
+        "type": "send_email",
+        "description": "Dispatches high-priority executive alert with live links.",
+        "config": {
+          "to": "exec-alerts@ecosphere.dev",
+          "subject": "[P1 Outage Alert] {{incident.title}} ({{incident.severity}})",
+          "priority": "urgent"
+        }
+      }
+    ],
+    "createdAt": 1725700000000,
+    "updatedAt": 1725700000000
+  },
+  {
+    "id": "wf-db-outage",
+    "name": "[Demo] Database Outage Escalation Pipeline",
+    "description": "Escalation pipeline for database and storage outages with delay buffer, state verification, and lead assignment.",
+    "enabled": true,
+    "type": "incident",
+    "folder": "PagerDuty",
+    "integration": "pagerduty",
+    "trigger": {
+      "type": "incident_severity_changed",
+      "description": "Severity Changed to SEV-1 or Critical",
+      "config": {
+        "severityThreshold": [
+          "SEV-1",
+          "Critical"
+        ]
+      }
+    },
+    "actions": [
+      {
+        "id": "act-2-slack-alert",
+        "name": "Post Slack Alert to Infra Channel",
+        "type": "post_slack_message",
+        "description": "Broadcasts severity escalation alert to #infra-alerts.",
+        "config": {
+          "channel": "#infra-alerts",
+          "message": "🚨 *ESCALATION*: {{incident.id}} escalated to *{{incident.severity}}*. Initiating database triage."
+        }
+      },
+      {
+        "id": "act-2-delay",
+        "name": "Wait Triage Grace Period",
+        "type": "wait_delay",
+        "description": "Simulate brief delay buffer (1.5 seconds) to allow initial health checks.",
+        "config": {
+          "delaySeconds": 1.5
+        }
+      },
+      {
+        "id": "act-2-condition",
+        "name": "Check Incident Active Status",
+        "type": "condition_branch",
+        "description": "Evaluates whether incident is still active and requires database specialist.",
+        "config": {
+          "conditionField": "incident.status",
+          "operator": "in",
+          "values": [
+            "INVESTIGATING",
+            "FIXING",
+            "STAGED"
+          ]
+        }
+      },
+      {
+        "id": "act-2-assign-db-lead",
+        "name": "Assign Database Specialist Lead",
+        "type": "assign_incident_commander",
+        "description": "Assigns database domain expert to the incident.",
+        "config": {
+          "role": "Database Lead",
+          "assignee": "Marcus Vance (Principal DB Engineer)"
+        }
+      }
+    ],
+    "createdAt": 1725705000000,
+    "updatedAt": 1725705000000
+  },
+  {
+    "id": "wf-customer-impact",
+    "name": "[Demo] Customer Impact & Status Page Workflow",
+    "description": "Broadcasts customer status updates, customer-facing notices, and executive summaries upon confirmed customer impact.",
+    "enabled": true,
+    "type": "incident",
+    "folder": "Statuspage",
+    "integration": "statuspage",
+    "trigger": {
+      "type": "incident_updated",
+      "description": "Incident Updated with Customer Impact",
+      "config": {
+        "hasCustomerImpact": true
+      }
+    },
+    "actions": [
+      {
+        "id": "act-3-status-page",
+        "name": "Publish Advisory to Status Page",
+        "type": "update_status_page",
+        "description": "Updates status.ecosphere.dev with active incident degradation notice.",
+        "config": {
+          "statusMessage": "Partial service degradation observed. Engineering team is mitigating.",
+          "componentState": "degraded_performance"
+        }
+      },
+      {
+        "id": "act-3-customer-email",
+        "name": "Send Customer Advisory Email",
+        "type": "send_email",
+        "description": "Dispatches notice to customer success and enterprise distribution list.",
+        "config": {
+          "to": "customer-advisories@ecosphere.dev",
+          "subject": "[Service Notice] Active investigation into {{incident.title}}",
+          "priority": "normal"
+        }
+      },
+      {
+        "id": "act-3-exec-ai-summary",
+        "name": "Generate Customer Impact AI Summary",
+        "type": "generate_ai_summary",
+        "description": "AI generation of non-technical customer facing impact assessment.",
+        "config": {
+          "detailLevel": "executive",
+          "targetAudience": "customer_facing"
+        }
+      }
+    ],
+    "createdAt": 1725710000000,
+    "updatedAt": 1725710000000
+  },
+  {
+    "id": "wf-incident-resolution",
+    "name": "[Demo] Incident Resolution & Post-Mortem",
+    "description": "Decommissions incident resources, archives Slack channel, closes War Room, and synthesizes full AI post-mortem.",
+    "enabled": true,
+    "type": "post-incident",
+    "folder": "AI",
+    "integration": "ai",
+    "trigger": {
+      "type": "incident_resolved",
+      "description": "Incident Resolved",
+      "config": {}
+    },
+    "actions": [
+      {
+        "id": "act-4-archive-slack",
+        "name": "Archive Incident Slack Channel",
+        "type": "archive_slack_channel",
+        "description": "Marks Slack coordination channel read-only and archives.",
+        "config": {
+          "channelNameTemplate": "incident-{{incident.id}}",
+          "notifyBeforeArchive": true
+        }
+      },
+      {
+        "id": "act-4-ai-post-mortem",
+        "name": "Generate AI Post-Mortem & Timeline",
+        "type": "generate_ai_post_mortem",
+        "description": "Synthesizes full incident timeline, root cause, timeline events, and action items.",
+        "config": {
+          "includeHypotheses": true,
+          "includeTimeline": true
+        }
+      },
+      {
+        "id": "act-4-close-warroom",
+        "name": "Decommission Agora War Room",
+        "type": "close_war_room",
+        "description": "Ends active conference and exports recording transcript.",
+        "config": {
+          "exportTranscript": true
+        }
+      },
+      {
+        "id": "act-4-resolution-email",
+        "name": "Send Incident Resolution Report",
+        "type": "send_email",
+        "description": "Notifies stakeholders and responders that incident has reached full resolution.",
+        "config": {
+          "to": "incident-responders@ecosphere.dev",
+          "subject": "[Resolved] {{incident.title}} (Incident {{incident.id}})",
+          "priority": "normal"
+        }
+      }
+    ],
+    "createdAt": 1725715000000,
+    "updatedAt": 1725715000000
+  },
+  {
+    "id": "wf-jira-followups",
+    "name": "File Jira Follow-Up Tickets for Uncompleted Actions",
+    "description": "Creates Jira issues in project PAY and INFRA for remaining post-incident tasks.",
+    "enabled": true,
+    "type": "post-incident",
+    "folder": "Jira",
+    "integration": "jira",
+    "trigger": {
+      "type": "incident_resolved",
+      "description": "Incident Resolved / Closed",
+      "config": {}
+    },
+    "actions": [
+      {
+        "id": "act-5-ai-action-items",
+        "name": "Generate AI Remediation Action Items",
+        "type": "generate_ai_action_items",
+        "description": "Extracts preventative engineering follow-ups and tickets.",
+        "config": {
+          "projectKeys": [
+            "PAY",
+            "INFRA"
+          ]
+        }
+      },
+      {
+        "id": "act-5-log-jira",
+        "name": "Log Jira Tickets Created",
+        "type": "log_event",
+        "description": "Logs ticket creation events into the audit ledger.",
+        "config": {
+          "message": "Created follow-up Jira tickets for incident {{incident.id}}"
+        }
+      }
+    ],
+    "createdAt": 1725720000000,
+    "updatedAt": 1725720000000
+  }
+]

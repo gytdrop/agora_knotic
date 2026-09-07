@@ -449,6 +449,108 @@ async function verifyStopConversationSuccess() {
   }
 }
 
+async function verifyWorkflowApiContracts() {
+  const { GET: getWorkflows, POST: createWorkflow } = await import('../app/api/workflows/route');
+  const { GET: getWorkflow, PUT: updateWorkflow } = await import('../app/api/workflows/[id]/route');
+  const { POST: runWorkflow } = await import('../app/api/workflows/[id]/run/route');
+  const { POST: enableWorkflow } = await import('../app/api/workflows/[id]/enable/route');
+  const { POST: disableWorkflow } = await import('../app/api/workflows/[id]/disable/route');
+  const { GET: getWorkflowHistory } = await import('../app/api/workflows/[id]/history/route');
+  const { GET: getExecution } = await import('../app/api/workflows/executions/[executionId]/route');
+  const { POST: triggerEvent } = await import('../app/api/workflows/trigger/route');
+
+  // 1. GET /api/workflows
+  const listReq = new NextRequest(`${BASE_URL}/api/workflows`);
+  const listRes = await getWorkflows(listReq);
+  const listBody = await getJson(listRes);
+  assert(listRes.status === 200, 'GET /api/workflows should return 200');
+  assert(Array.isArray(listBody.workflows), 'GET /api/workflows should return an array');
+  assert(listBody.workflows.length >= 4, 'GET /api/workflows should have at least 4 demo workflows');
+
+  // 2. POST /api/workflows
+  const createReq = new NextRequest(`${BASE_URL}/api/workflows`, {
+    method: 'POST',
+    body: JSON.stringify({
+      name: 'API Contract Test Workflow',
+      folder: 'Slack',
+      type: 'incident',
+      trigger: { type: 'manual' },
+      actions: [{ id: 'a1', name: 'Log', type: 'log_event', config: { message: 'hello' } }],
+    }),
+  });
+  const createRes = await createWorkflow(createReq);
+  const createBody = (await getJson(createRes)) as { workflow: { id: string; name: string } };
+  assert(createRes.status === 201, 'POST /api/workflows should return 201');
+  assert(createBody.workflow?.name === 'API Contract Test Workflow', 'Created workflow name should match');
+  const createdId = createBody.workflow.id;
+
+  // 3. GET & PUT /api/workflows/[id]
+  const getReq = new NextRequest(`${BASE_URL}/api/workflows/${createdId}`);
+  const getRes = await getWorkflow(getReq, { params: Promise.resolve({ id: createdId }) });
+  const getBody = (await getJson(getRes)) as { workflow: { id: string } };
+  assert(getRes.status === 200, 'GET /api/workflows/:id should return 200');
+  assert(getBody.workflow?.id === createdId, 'Fetched workflow ID should match');
+
+  const putReq = new NextRequest(`${BASE_URL}/api/workflows/${createdId}`, {
+    method: 'PUT',
+    body: JSON.stringify({ description: 'Updated contract test description' }),
+  });
+  const putRes = await updateWorkflow(putReq, { params: Promise.resolve({ id: createdId }) });
+  const putBody = (await getJson(putRes)) as { workflow: { description: string } };
+  assert(putRes.status === 200, 'PUT /api/workflows/:id should return 200');
+  assert(putBody.workflow?.description === 'Updated contract test description', 'PUT should update description');
+
+  // 4. POST /api/workflows/[id]/run
+  const runReq = new NextRequest(`${BASE_URL}/api/workflows/${createdId}/run`, {
+    method: 'POST',
+    body: JSON.stringify({ triggerType: 'manual' }),
+  });
+  const runRes = await runWorkflow(runReq, { params: Promise.resolve({ id: createdId }) });
+  const runBody = (await getJson(runRes)) as { success: boolean; execution: { id: string; status: string } };
+  assert(runRes.status === 200, 'POST /api/workflows/:id/run should return 200');
+  assert(runBody.success === true, 'Execution should succeed');
+  const execId = runBody.execution.id;
+
+  // 5. POST /api/workflows/[id]/disable & enable
+  const disReq = new NextRequest(`${BASE_URL}/api/workflows/${createdId}/disable`, { method: 'POST' });
+  const disRes = await disableWorkflow(disReq, { params: Promise.resolve({ id: createdId }) });
+  const disBody = (await getJson(disRes)) as { workflow: { enabled: boolean } };
+  assert(disBody.workflow.enabled === false, 'POST /api/workflows/:id/disable should set enabled=false');
+
+  const enReq = new NextRequest(`${BASE_URL}/api/workflows/${createdId}/enable`, { method: 'POST' });
+  const enRes = await enableWorkflow(enReq, { params: Promise.resolve({ id: createdId }) });
+  const enBody = (await getJson(enRes)) as { workflow: { enabled: boolean } };
+  assert(enBody.workflow.enabled === true, 'POST /api/workflows/:id/enable should set enabled=true');
+
+  // 6. GET /api/workflows/[id]/history
+  const histReq = new NextRequest(`${BASE_URL}/api/workflows/${createdId}/history`);
+  const histRes = await getWorkflowHistory(histReq, { params: Promise.resolve({ id: createdId }) });
+  const histBody = (await getJson(histRes)) as { executions: unknown[] };
+  assert(histRes.status === 200, 'GET /api/workflows/:id/history should return 200');
+  assert(Array.isArray(histBody.executions) && histBody.executions.length >= 1, 'History should return execution');
+
+  // 7. GET /api/workflows/executions/[executionId]
+  const execReq = new NextRequest(`${BASE_URL}/api/workflows/executions/${execId}`);
+  const execRes = await getExecution(execReq, { params: Promise.resolve({ executionId: execId }) });
+  const execBody = (await getJson(execRes)) as { execution: { id: string; logs: unknown[] } };
+  assert(execRes.status === 200, 'GET /api/workflows/executions/:id should return 200');
+  assert(execBody.execution?.id === execId, 'Execution ID should match');
+  assert(Array.isArray(execBody.execution?.logs), 'Execution should have logs');
+
+  // 8. POST /api/workflows/trigger
+  const trigReq = new NextRequest(`${BASE_URL}/api/workflows/trigger`, {
+    method: 'POST',
+    body: JSON.stringify({
+      eventType: 'incident_resolved',
+      incident: { id: '#INC-TEST', status: 'RESOLVED' },
+    }),
+  });
+  const trigRes = await triggerEvent(trigReq);
+  const trigBody = (await getJson(trigRes)) as { success: boolean; triggeredWorkflowsCount: number };
+  assert(trigRes.status === 200, 'POST /api/workflows/trigger should return 200');
+  assert(trigBody.success === true, 'Trigger dispatch should succeed');
+}
+
 async function main() {
   await verifyGenerateAgoraTokenRoute();
   await verifyGenerateAgoraTokenReplacesZeroUid();
@@ -459,6 +561,7 @@ async function main() {
   await verifyInviteAgentSuccess();
   await verifyStopConversationValidation();
   await verifyStopConversationSuccess();
+  await verifyWorkflowApiContracts();
 
   console.log('API contract checks passed');
 }
@@ -467,3 +570,4 @@ main().catch((error) => {
   console.error(error);
   process.exit(1);
 });
+

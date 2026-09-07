@@ -47,17 +47,31 @@ export function EscalateModal({
     if (found) setSelectedEngineer(found.engineer);
   };
 
-  const handleEscalate = () => {
+  const handleEscalate = async () => {
     setIsPaging(true);
-    setTimeout(() => {
+    try {
+      await fetch(`/api/incidents/${encodeURIComponent(incidentId.replace(/^#/, ''))}/escalate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          severity: urgency === 'high' ? 'Critical' : 'Major',
+          team: selectedTeam,
+          engineer: selectedEngineer,
+          reason: `Escalated to ${selectedTeam} on-call via Escalate Modal`,
+        }),
+      });
       demoIncidentStore.escalate(selectedTeam, selectedEngineer);
+    } catch (e) {
+      console.warn('Failed to call escalate API:', e);
+      demoIncidentStore.escalate(selectedTeam, selectedEngineer);
+    } finally {
       setIsPaging(false);
       setPagedSuccess(true);
       setTimeout(() => {
         setPagedSuccess(false);
         onClose();
       }, 1400);
-    }, 800);
+    }
   };
 
   return (

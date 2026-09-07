@@ -25,6 +25,7 @@ export interface IncidentDetailSidebarProps {
   impactField?: string;
   reviewer?: string;
   onReassignLead?: (newLead: string) => void;
+  onAssignRole?: (role: string, name: string) => void;
   className?: string;
 }
 
@@ -40,6 +41,7 @@ export function IncidentDetailSidebar({
   impactField = 'Increased errors & latency',
   reviewer = 'Ashley Sawatsky',
   onReassignLead,
+  onAssignRole,
   className,
 }: IncidentDetailSidebarProps) {
   const warRoomUrl = `/war-room?incident=${encodeURIComponent(
@@ -83,12 +85,16 @@ export function IncidentDetailSidebar({
             </div>
             <select
               value={lead}
-              onChange={(e) => onReassignLead?.(e.target.value)}
+              onChange={(e) => {
+                onReassignLead?.(e.target.value);
+                onAssignRole?.('Incident Commander', e.target.value);
+              }}
               className="font-medium text-zinc-800 dark:text-zinc-200 bg-transparent border-0 outline-none text-xs cursor-pointer hover:text-purple-600"
             >
               <option value="Ashley Sawatsky">Ashley Sawatsky</option>
               <option value="David Chen">David Chen</option>
               <option value="Meera Patel">Meera Patel</option>
+              <option value="Alex Mercer">Alex Mercer</option>
             </select>
           </div>
         </div>
@@ -102,12 +108,13 @@ export function IncidentDetailSidebar({
             </div>
             <select
               defaultValue="David Chen"
-              onChange={(e) => alert(`Reassigned SRE Lead to ${e.target.value}`)}
+              onChange={(e) => onAssignRole?.('Operations Lead', e.target.value)}
               className="font-medium text-zinc-800 dark:text-zinc-200 bg-transparent border-0 outline-none text-xs cursor-pointer hover:text-purple-600"
             >
               <option value="David Chen">David Chen</option>
               <option value="Meera Patel">Meera Patel (Fraud)</option>
               <option value="Sarah Connor">Sarah Connor (DB)</option>
+              <option value="Alex Mercer">Alex Mercer</option>
             </select>
           </div>
         </div>
@@ -119,7 +126,15 @@ export function IncidentDetailSidebar({
             <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300 font-semibold text-[10px]">
               SC
             </div>
-            <span className="font-medium text-zinc-800 dark:text-zinc-200">Sarah Connor</span>
+            <select
+              defaultValue="Sarah Connor"
+              onChange={(e) => onAssignRole?.('Communications Lead', e.target.value)}
+              className="font-medium text-zinc-800 dark:text-zinc-200 bg-transparent border-0 outline-none text-xs cursor-pointer hover:text-purple-600"
+            >
+              <option value="Sarah Connor">Sarah Connor</option>
+              <option value="Ashley Sawatsky">Ashley Sawatsky</option>
+              <option value="Alex Mercer">Alex Mercer</option>
+            </select>
           </div>
         </div>
 
@@ -130,7 +145,15 @@ export function IncidentDetailSidebar({
             <div className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-600 text-white font-semibold text-[9px]">
               AI
             </div>
-            <span className="font-medium text-purple-700 dark:text-purple-300">EchoSphere AI Sentinel</span>
+            <select
+              defaultValue="EchoSphere AI Sentinel"
+              onChange={(e) => onAssignRole?.('Scribe', e.target.value)}
+              className="font-medium text-purple-700 dark:text-purple-300 bg-transparent border-0 outline-none text-xs cursor-pointer"
+            >
+              <option value="EchoSphere AI Sentinel">EchoSphere AI Sentinel</option>
+              <option value="Meera Patel">Meera Patel</option>
+              <option value="David Chen">David Chen</option>
+            </select>
           </div>
         </div>
 

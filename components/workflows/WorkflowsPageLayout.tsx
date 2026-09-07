@@ -1,100 +1,68 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ArrowUpDown,
-  Check,
   ChevronDown,
   ChevronRight,
   Folder,
+  History,
   Info,
+  Loader2,
   Menu,
-  MoreHorizontal,
+  Play,
   Plus,
   Search,
   Sparkles,
-  Workflow,
+  Video,
+  Workflow as WorkflowIcon,
   X,
   Zap,
 } from 'lucide-react';
 import { RootlySidebar } from '@/components/dashboard/RootlySidebar';
 import { CreateIncidentModal } from '@/components/dashboard/CreateIncidentModal';
 import { SlackIcon } from '@/components/incidents/IncidentsTable';
+import { Execution, Workflow } from '@/lib/workflow-engine/types';
+import { WorkflowExecutionModal } from './WorkflowExecutionModal';
+import { WorkflowHistoryModal } from './WorkflowHistoryModal';
+import { WorkflowBuilderModal } from './WorkflowBuilderModal';
 import { cn } from '@/lib/utils';
 
-export interface WorkflowItem {
-  id: string;
-  name: string;
-  enabled: boolean;
-  type: 'incident' | 'post-incident' | 'alert';
-  folder: string;
-  integration: 'slack' | 'pagerduty' | 'statuspage' | 'jira' | 'ai';
-  description: string;
-  trigger: string;
-}
-
-export const INITIAL_WORKFLOWS: WorkflowItem[] = [
-  {
-    id: 'wf-1',
-    name: '[Demo] Page on-call for high-severity incidents',
-    enabled: true,
-    type: 'incident',
-    folder: 'Slack',
-    integration: 'slack',
-    trigger: 'Incident Created (SEV-0, SEV-1)',
-    description: 'Pages Primary and Secondary On-Call engineers and triggers Slack channel creation.',
-  },
-  {
-    id: 'wf-2',
-    name: 'Auto-create Slack incident channel & invite responders',
-    enabled: true,
-    type: 'incident',
-    folder: 'Slack',
-    integration: 'slack',
-    trigger: 'Incident Created',
-    description: 'Creates #incident-[id], pins runbooks, and invites on-call responders.',
-  },
-  {
-    id: 'wf-3',
-    name: 'Post status update to Statuspage on SEV-1 declaration',
-    enabled: true,
-    type: 'incident',
-    folder: 'Statuspage',
-    integration: 'statuspage',
-    trigger: 'Severity Changed to SEV-1',
-    description: 'Drafts and publishes partial outage notice on status.acme.com.',
-  },
-  {
-    id: 'wf-4',
-    name: 'Generate AI Post-Mortem draft on incident resolution',
-    enabled: true,
-    type: 'post-incident',
-    folder: 'AI',
-    integration: 'ai',
-    trigger: 'Incident Resolved',
-    description: 'Invokes AI post-mortem synthesizer to generate timeline and root cause summary.',
-  },
-  {
-    id: 'wf-5',
-    name: 'File Jira follow-up tickets for uncompleted actions',
-    enabled: true,
-    type: 'post-incident',
-    folder: 'Jira',
-    integration: 'jira',
-    trigger: 'Incident Closed',
-    description: 'Creates Jira issues in project PAY and INFRA for remaining post-incident tasks.',
-  },
-];
-
 export function WorkflowsPageLayout() {
-  const [workflows, setWorkflows] = useState<WorkflowItem[]>(INITIAL_WORKFLOWS);
+  const [workflows, setWorkflows] = useState<Workflow[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFolder, setSelectedFolder] = useState<string>('all');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCreateIncidentOpen, setIsCreateIncidentOpen] = useState(false);
   const [expandedWorkflows, setExpandedWorkflows] = useState<Record<string, boolean>>({});
-
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+  // Modals state
+  const [activeExecution, setActiveExecution] = useState<Execution | null>(null);
+  const [isExecutionModalOpen, setIsExecutionModalOpen] = useState(false);
+  const [historyWorkflow, setHistoryWorkflow] = useState<Workflow | null>(null);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [isBuilderModalOpen, setIsBuilderModalOpen] = useState(false);
+  const [runningWorkflowId, setRunningWorkflowId] = useState<string | null>(null);
+
+  const fetchWorkflows = async () => {
+    try {
+      const res = await fetch('/api/workflows');
+      if (res.ok) {
+        const data = await res.json();
+        setWorkflows(data.workflows || []);
+      }
+    } catch {
+      // Fetch error handled gracefully
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchWorkflows();
+  }, []);
 
   const toggleSelect = (id: string) => {
     setSelectedIds((prev) =>
@@ -110,26 +78,90 @@ export function WorkflowsPageLayout() {
     }
   };
 
-  const toggleWorkflow = (id: string) => {
+  const toggleWorkflow = async (id: string) => {
+    const target = workflows.find((w) => w.id === id);
+    if (!target) return;
+    const nextState = !target.enabled;
+
+    // Optimistic UI update
     setWorkflows((prev) =>
-      prev.map((w) => (w.id === id ? { ...w, enabled: !w.enabled } : w))
+      prev.map((w) => (w.id === id ? { ...w, enabled: nextState } : w))
     );
+
+    try {
+      await fetch(`/api/workflows/${id}/${nextState ? 'enable' : 'disable'}`, {
+        method: 'POST',
+      });
+    } catch {
+      // Revert if failed
+      setWorkflows((prev) =>
+        prev.map((w) => (w.id === id ? { ...w, enabled: !nextState } : w))
+      );
+    }
   };
 
   const toggleExpand = (id: string) => {
     setExpandedWorkflows((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
+  const handleRunWorkflow = async (workflow: Workflow) => {
+    setRunningWorkflowId(workflow.id);
+    try {
+      const res = await fetch(`/api/workflows/${workflow.id}/run`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ triggerType: 'manual' }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.execution) {
+          setActiveExecution(data.execution);
+          setIsExecutionModalOpen(true);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to run workflow', err);
+    } finally {
+      setRunningWorkflowId(null);
+    }
+  };
+
+  const handleOpenHistory = (workflow: Workflow) => {
+    setHistoryWorkflow(workflow);
+    setIsHistoryModalOpen(true);
+  };
+
+  // Dynamic folders calculation
+  const folderCounts = React.useMemo(() => {
+    const counts: Record<string, number> = {};
+    workflows.forEach((w) => {
+      const f = w.folder || 'General';
+      counts[f] = (counts[f] || 0) + 1;
+    });
+    return counts;
+  }, [workflows]);
+
   const filteredWorkflows = workflows.filter((w) => {
-    if (selectedFolder !== 'all' && w.folder.toLowerCase() !== selectedFolder.toLowerCase()) {
+    if (selectedFolder !== 'all' && (w.folder || '').toLowerCase() !== selectedFolder.toLowerCase()) {
       return false;
     }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      return w.name.toLowerCase().includes(q) || w.description.toLowerCase().includes(q);
+      return (
+        w.name.toLowerCase().includes(q) ||
+        (w.description || '').toLowerCase().includes(q) ||
+        (w.folder || '').toLowerCase().includes(q)
+      );
     }
     return true;
   });
+
+  const getActionIcon = (type: string) => {
+    if (type.includes('slack')) return <SlackIcon className="h-3 w-3 text-purple-600" />;
+    if (type.includes('war_room')) return <Video className="h-3 w-3 text-blue-600" />;
+    if (type.includes('ai') || type.includes('post_mortem')) return <Sparkles className="h-3 w-3 text-amber-500" />;
+    return <Zap className="h-3 w-3 text-emerald-600" />;
+  };
 
   return (
     <div className="flex min-h-screen flex-col md:flex-row bg-white text-zinc-900 font-sans antialiased">
@@ -183,7 +215,7 @@ export function WorkflowsPageLayout() {
             <Menu className="h-5 w-5" />
           </button>
           <div className="flex items-center gap-2">
-            <Workflow className="h-4 w-4 text-purple-600" />
+            <WorkflowIcon className="h-4 w-4 text-purple-600" />
             <span className="text-sm font-bold tracking-tight">Workflows</span>
           </div>
         </div>
@@ -207,24 +239,32 @@ export function WorkflowsPageLayout() {
             <div className="flex items-center gap-2.5">
               <button
                 type="button"
-                className="p-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-50 text-zinc-600 cursor-pointer"
-                title="More options"
+                onClick={() => {
+                  if (workflows.length > 0) {
+                    handleOpenHistory(workflows[0]);
+                  }
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-50 text-xs font-semibold text-zinc-700 shadow-2xs transition-colors cursor-pointer"
+                title="View execution history"
               >
-                <MoreHorizontal className="h-4 w-4" />
+                <History className="h-3.5 w-3.5 text-zinc-500" />
+                <span>Execution History</span>
               </button>
+
               <button
                 type="button"
-                onClick={() => alert('Browse workflow templates.')}
+                onClick={() => setIsBuilderModalOpen(true)}
                 className="px-3.5 py-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-50 text-xs font-semibold text-zinc-700 shadow-2xs transition-colors cursor-pointer"
               >
                 Create via Template
               </button>
               <button
                 type="button"
-                onClick={() => alert('New Workflow builder opened.')}
-                className="px-3.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-xs font-semibold text-white shadow-2xs transition-colors cursor-pointer"
+                onClick={() => setIsBuilderModalOpen(true)}
+                className="px-3.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-xs font-semibold text-white shadow-2xs transition-colors cursor-pointer inline-flex items-center gap-1.5"
               >
-                Create Workflow
+                <Plus className="h-3.5 w-3.5" />
+                <span>Create Workflow</span>
               </button>
             </div>
           </div>
@@ -245,6 +285,7 @@ export function WorkflowsPageLayout() {
               >
                 <Zap className="h-3.5 w-3.5 text-purple-600" />
                 <span>All Workflows</span>
+                <span className="ml-auto text-[10px] text-zinc-400">{workflows.length}</span>
               </button>
 
               <div className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider px-3 pt-2">
@@ -252,28 +293,23 @@ export function WorkflowsPageLayout() {
               </div>
 
               <div className="space-y-0.5">
-                {[
-                  { name: 'Slack', count: 2 },
-                  { name: 'Statuspage', count: 1 },
-                  { name: 'AI', count: 1 },
-                  { name: 'Jira', count: 1 },
-                ].map((fld) => (
+                {Object.entries(folderCounts).map(([folderName, count]) => (
                   <button
-                    key={fld.name}
+                    key={folderName}
                     type="button"
-                    onClick={() => setSelectedFolder(fld.name)}
+                    onClick={() => setSelectedFolder(folderName)}
                     className={cn(
                       'w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs transition-colors cursor-pointer',
-                      selectedFolder.toLowerCase() === fld.name.toLowerCase()
+                      selectedFolder.toLowerCase() === folderName.toLowerCase()
                         ? 'bg-zinc-100 text-zinc-900 font-semibold'
                         : 'text-zinc-600 hover:bg-zinc-50'
                     )}
                   >
-                    <div className="flex items-center gap-2">
-                      <Folder className="h-3.5 w-3.5 text-amber-500" />
-                      <span>{fld.name}</span>
+                    <div className="flex items-center gap-2 truncate">
+                      <Folder className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+                      <span className="truncate">{folderName}</span>
                     </div>
-                    <span className="text-[10px] text-zinc-400">{fld.count}</span>
+                    <span className="text-[10px] text-zinc-400 shrink-0">{count}</span>
                   </button>
                 ))}
               </div>
@@ -292,6 +328,7 @@ export function WorkflowsPageLayout() {
                 </button>
                 <button
                   type="button"
+                  onClick={() => setIsBuilderModalOpen(true)}
                   className="inline-flex items-center gap-1 px-3 py-1.5 border border-dashed border-zinc-300 rounded-lg text-xs font-medium text-zinc-600 hover:bg-zinc-50 cursor-pointer"
                 >
                   <Plus className="h-3 w-3 text-zinc-400" />
@@ -353,114 +390,172 @@ export function WorkflowsPageLayout() {
               </div>
 
               {/* Workflows List Rows */}
-              <div className="space-y-2 pt-1">
-                {filteredWorkflows.map((wf) => {
-                  const isExpanded = !!expandedWorkflows[wf.id];
+              {loading ? (
+                <div className="py-12 flex flex-col items-center justify-center gap-3 text-zinc-400">
+                  <Loader2 className="h-6 w-6 animate-spin text-purple-600" />
+                  <span className="text-xs">Loading automated workflows...</span>
+                </div>
+              ) : filteredWorkflows.length === 0 ? (
+                <div className="py-12 text-center text-zinc-400 border border-zinc-200 rounded-lg p-6">
+                  <WorkflowIcon className="h-8 w-8 mx-auto text-zinc-300 mb-2" />
+                  <p className="text-xs font-semibold text-zinc-700">No workflows found</p>
+                  <p className="text-[11px] text-zinc-400 mt-1">Try adjusting your search query or folder filter.</p>
+                </div>
+              ) : (
+                <div className="space-y-2 pt-1">
+                  {filteredWorkflows.map((wf) => {
+                    const isExpanded = !!expandedWorkflows[wf.id];
+                    const isRunning = runningWorkflowId === wf.id;
 
-                  return (
-                    <div
-                      key={wf.id}
-                      className="rounded-lg border border-zinc-200 bg-white hover:border-zinc-300 transition-all shadow-2xs overflow-hidden"
-                    >
-                      <div className="flex items-center justify-between p-3 gap-3">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <input
-                            type="checkbox"
-                            checked={selectedIds.includes(wf.id)}
-                            onChange={() => toggleSelect(wf.id)}
-                            className="h-3.5 w-3.5 rounded border border-zinc-300 bg-transparent text-purple-600 focus:ring-purple-500 shrink-0 cursor-pointer"
-                            style={{ backgroundColor: 'transparent' }}
-                          />
+                    return (
+                      <div
+                        key={wf.id}
+                        className="rounded-lg border border-zinc-200 bg-white hover:border-zinc-300 transition-all shadow-2xs overflow-hidden"
+                      >
+                        <div className="flex items-center justify-between p-3 gap-3">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <input
+                              type="checkbox"
+                              checked={selectedIds.includes(wf.id)}
+                              onChange={() => toggleSelect(wf.id)}
+                              className="h-3.5 w-3.5 rounded border border-zinc-300 bg-transparent text-purple-600 focus:ring-purple-500 shrink-0 cursor-pointer"
+                              style={{ backgroundColor: 'transparent' }}
+                            />
 
-                          {/* Toggle Switch */}
-                          <button
-                            type="button"
-                            onClick={() => toggleWorkflow(wf.id)}
-                            className={cn(
-                              'relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none ring-2 ring-transparent',
-                              wf.enabled ? 'bg-purple-600' : 'bg-zinc-200'
-                            )}
-                          >
+                            {/* Toggle Switch */}
+                            <button
+                              type="button"
+                              onClick={() => toggleWorkflow(wf.id)}
+                              title={wf.enabled ? 'Click to disable' : 'Click to enable'}
+                              className={cn(
+                                'relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none ring-2 ring-transparent',
+                                wf.enabled ? 'bg-purple-600' : 'bg-zinc-200'
+                              )}
+                            >
+                              <span
+                                className={cn(
+                                  'pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out mt-0.5',
+                                  wf.enabled ? 'translate-x-4 ml-0.5' : 'translate-x-0.5'
+                                )}
+                              />
+                            </button>
+
+                            {/* Title */}
+                            <span className="text-xs font-semibold text-zinc-900 truncate">
+                              {wf.name}
+                            </span>
+
+                            {/* Type Badge */}
                             <span
                               className={cn(
-                                'pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out mt-0.5',
-                                wf.enabled ? 'translate-x-4 ml-0.5' : 'translate-x-0.5'
+                                'text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize shrink-0',
+                                wf.type === 'incident'
+                                  ? 'bg-cyan-50 text-cyan-700 border border-cyan-200'
+                                  : 'bg-purple-50 text-purple-700 border border-purple-200'
                               )}
-                            />
-                          </button>
+                            >
+                              {wf.type}
+                            </span>
 
-                          {/* Title */}
-                          <span className="text-xs font-semibold text-zinc-900 truncate">
-                            {wf.name}
-                          </span>
-
-                          {/* Badge */}
-                          <span
-                            className={cn(
-                              'text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize shrink-0',
-                              wf.type === 'incident'
-                                ? 'bg-cyan-50 text-cyan-700 border border-cyan-200'
-                                : 'bg-purple-50 text-purple-700 border border-purple-200'
-                            )}
-                          >
-                            {wf.type}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center gap-2 shrink-0">
-                          {/* Integration Icon */}
-                          {wf.integration === 'slack' && (
-                            <div className="flex h-5 w-5 items-center justify-center rounded-md bg-purple-50 text-purple-700">
-                              <SlackIcon className="h-3 w-3" />
-                            </div>
-                          )}
-                          {wf.integration === 'ai' && (
-                            <div className="flex h-5 w-5 items-center justify-center rounded-md bg-purple-100 text-purple-700">
-                              <Sparkles className="h-3 w-3" />
-                            </div>
-                          )}
-
-                          <button
-                            type="button"
-                            className="p-1 text-zinc-400 hover:text-zinc-600 cursor-pointer"
-                          >
-                            <MoreHorizontal className="h-3.5 w-3.5" />
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => toggleExpand(wf.id)}
-                            className="p-1 text-zinc-400 hover:text-zinc-600 cursor-pointer"
-                          >
-                            <ChevronDown
-                              className={cn(
-                                'h-3.5 w-3.5 transition-transform',
-                                isExpanded ? 'rotate-180' : ''
-                              )}
-                            />
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Expandable Details Drawer */}
-                      {isExpanded && (
-                        <div className="bg-zinc-50 border-t border-zinc-100 p-3.5 text-xs text-zinc-600 space-y-2">
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold text-zinc-800">Trigger Condition:</span>
-                            <span className="font-mono text-[11px] bg-white border border-zinc-200 px-2 py-0.5 rounded">
-                              {wf.trigger}
+                            {/* Action Count Chip */}
+                            <span className="text-[10px] text-zinc-400 font-medium hidden sm:inline-block">
+                              {wf.actions.length} {wf.actions.length === 1 ? 'action' : 'actions'}
                             </span>
                           </div>
-                          <div>
-                            <span className="font-semibold text-zinc-800">Execution Actions: </span>
-                            <span>{wf.description}</span>
+
+                          <div className="flex items-center gap-2 shrink-0">
+                            {/* Run Now Button */}
+                            <button
+                              type="button"
+                              onClick={() => handleRunWorkflow(wf)}
+                              disabled={isRunning}
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-900 hover:bg-zinc-800 text-white text-[11px] font-semibold shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
+                              title="Run workflow immediately"
+                            >
+                              {isRunning ? (
+                                <Loader2 className="h-3 w-3 animate-spin text-purple-300" />
+                              ) : (
+                                <Play className="h-3 w-3 fill-current text-purple-400" />
+                              )}
+                              <span>{isRunning ? 'Running...' : 'Run Now'}</span>
+                            </button>
+
+                            {/* History Button */}
+                            <button
+                              type="button"
+                              onClick={() => handleOpenHistory(wf)}
+                              className="p-1.5 rounded-md border border-zinc-200 hover:bg-zinc-50 text-zinc-600 transition-colors cursor-pointer"
+                              title="View execution history"
+                            >
+                              <History className="h-3.5 w-3.5" />
+                            </button>
+
+                            {/* Expand Chevron */}
+                            <button
+                              type="button"
+                              onClick={() => toggleExpand(wf.id)}
+                              className="p-1 text-zinc-400 hover:text-zinc-600 cursor-pointer"
+                              title={isExpanded ? 'Collapse pipeline' : 'Expand pipeline'}
+                            >
+                              <ChevronDown
+                                className={cn(
+                                  'h-3.5 w-3.5 transition-transform',
+                                  isExpanded ? 'rotate-180' : ''
+                                )}
+                              />
+                            </button>
                           </div>
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+
+                        {/* Expandable Details Drawer with Pipeline Graph */}
+                        {isExpanded && (
+                          <div className="bg-zinc-50 border-t border-zinc-100 p-4 text-xs text-zinc-600 space-y-3">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="font-semibold text-zinc-800">Trigger Condition:</span>
+                              <span className="font-mono text-[11px] bg-white border border-zinc-200 px-2 py-0.5 rounded text-purple-700 font-semibold inline-flex items-center gap-1">
+                                <Zap className="h-3 w-3 text-purple-600" />
+                                {wf.trigger.description || wf.trigger.type}
+                              </span>
+                            </div>
+
+                            <div>
+                              <span className="font-semibold text-zinc-800 block mb-1">Description:</span>
+                              <p className="text-zinc-600 text-[11px] leading-relaxed">{wf.description}</p>
+                            </div>
+
+                            {/* Step Pipeline Visualization */}
+                            <div>
+                              <span className="font-semibold text-zinc-800 block mb-2">Execution Pipeline:</span>
+                              <div className="flex flex-wrap items-center gap-1.5">
+                                {/* Trigger Node */}
+                                <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-purple-100 text-purple-800 text-[11px] font-semibold border border-purple-200">
+                                  <Zap className="h-3 w-3" />
+                                  <span>{wf.trigger.type}</span>
+                                </div>
+
+                                <ChevronRight className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
+
+                                {/* Action Nodes */}
+                                {wf.actions.map((act, aIdx) => (
+                                  <React.Fragment key={act.id || aIdx}>
+                                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white border border-zinc-200 text-zinc-800 text-[11px] shadow-2xs hover:border-purple-300 transition-colors">
+                                      {getActionIcon(act.type)}
+                                      <span className="font-medium">{act.name}</span>
+                                    </div>
+                                    {aIdx < wf.actions.length - 1 && (
+                                      <ChevronRight className="h-3 w-3 text-zinc-300 shrink-0" />
+                                    )}
+                                  </React.Fragment>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
 
               {/* Footer Pagination Matching Rootly */}
               <div className="flex items-center justify-between text-xs text-zinc-500 pt-3 border-t border-zinc-100">
@@ -475,6 +570,31 @@ export function WorkflowsPageLayout() {
           </div>
         </main>
       </div>
+
+      {/* Execution Live Runner Modal */}
+      <WorkflowExecutionModal
+        isOpen={isExecutionModalOpen}
+        onClose={() => setIsExecutionModalOpen(false)}
+        execution={activeExecution}
+      />
+
+      {/* Execution History Modal */}
+      <WorkflowHistoryModal
+        isOpen={isHistoryModalOpen}
+        onClose={() => setIsHistoryModalOpen(false)}
+        workflow={historyWorkflow}
+        onRunWorkflow={(wf) => {
+          setIsHistoryModalOpen(false);
+          handleRunWorkflow(wf);
+        }}
+      />
+
+      {/* Workflow Builder Modal */}
+      <WorkflowBuilderModal
+        isOpen={isBuilderModalOpen}
+        onClose={() => setIsBuilderModalOpen(false)}
+        onCreated={fetchWorkflows}
+      />
 
       {/* Create Incident Modal */}
       <CreateIncidentModal

@@ -7,6 +7,8 @@ import {
   getFallbackIncident,
   normalizeIncidentId,
   type IncidentDetailRecord,
+  type TimelineEvent,
+  type ActionItem,
 } from '@/lib/incident-detail-data';
 import { normalizeSeverity } from '@/lib/incident-severity';
 import { IncidentDetailHeader } from './IncidentDetailHeader';
@@ -40,6 +42,10 @@ interface IncidentDetailPageViewProps {
   normId: string;
   initialRecord: IncidentDetailRecord;
   ledgerEvents: LedgerEventItem[];
+  timelineEvents: TimelineEvent[];
+  actions: ActionItem[];
+  updates: Array<{ id: string; time: string; author: string; channels: string[]; text: string }>;
+  participants: string[];
   onUpdateStatus: (newStatus: IncidentLifecycleStage) => Promise<void> | void;
   onUpdateSeverity: (newSeverity: 'Critical' | 'Major' | 'Minor') => Promise<void> | void;
   onUpdateSummary: (summary: {
@@ -48,6 +54,11 @@ interface IncidentDetailPageViewProps {
     causes: string;
     mitigation: string;
   }) => Promise<void> | void;
+  onToggleAction?: (actionId: string, completed: boolean) => void;
+  onAddAction?: (title: string) => void;
+  onPublishUpdate?: (message: string, channels: string[]) => void;
+  onAssignRole?: (role: string, name: string) => void;
+  onReassignLead?: (newLead: string) => void;
   className?: string;
 }
 
@@ -59,9 +70,18 @@ function IncidentDetailPageView({
   normId,
   initialRecord,
   ledgerEvents,
+  timelineEvents,
+  actions,
+  updates,
+  participants,
   onUpdateStatus,
   onUpdateSeverity,
   onUpdateSummary,
+  onToggleAction,
+  onAddAction,
+  onPublishUpdate,
+  onAssignRole,
+  onReassignLead,
   className,
 }: IncidentDetailPageViewProps) {
   const [localTitle, setLocalTitle] = useState(initialRecord.title);
@@ -138,11 +158,11 @@ function IncidentDetailPageView({
   return (
     <div
       className={cn(
-        'w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6',
+        'min-h-screen bg-zinc-50 dark:bg-zinc-950 font-sans text-zinc-900 dark:text-zinc-100 antialiased',
         className
       )}
     >
-      {/* Top Header: Breadcrumb, Title with Inline Edit, Subscribe, Action Menu */}
+      {/* Top Header Navigation Strip */}
       <IncidentDetailHeader
         incidentId={normId}
         title={localTitle}
@@ -163,7 +183,7 @@ function IncidentDetailPageView({
       />
 
       {/* Two Column Layout */}
-      <div className="flex flex-col lg:flex-row gap-6 items-start">
+      <div className="flex flex-col lg:flex-row gap-6 items-start px-4 sm:px-6 lg:px-8 py-6">
         {/* Main Column */}
         <div className="flex-1 min-w-0 w-full space-y-6">
           {/* Summary Card */}
@@ -179,17 +199,17 @@ function IncidentDetailPageView({
           <IncidentDetailTabs
             activeTab={activeTab}
             onTabChange={setActiveTab}
-            actionCount={initialRecord.actions.length}
+            actionCount={actions.length}
             isExpanded={isExpanded}
             onToggleExpand={() => setIsExpanded((prev) => !prev)}
-            dateIndicator={initialRecord.timelineEvents[0]?.timeFormatted ? 'Today' : 'Active'}
+            dateIndicator={timelineEvents[0]?.timeFormatted ? 'Today' : 'Active'}
           />
 
           {/* Active Tab View */}
           <div className="min-h-[300px]">
             {activeTab === 'timeline' && (
               <IncidentTimelineView
-                timelineEvents={initialRecord.timelineEvents}
+                timelineEvents={timelineEvents}
                 ledgerEvents={ledgerEvents}
                 isExpanded={isExpanded}
               />
@@ -197,10 +217,9 @@ function IncidentDetailPageView({
 
             {activeTab === 'actions' && (
               <IncidentActionsView
-                actions={isDemo ? demoActions : initialRecord.actions}
-                onToggleAction={(id) => {
-                  if (isDemo) demoIncidentStore.toggleAction(id);
-                }}
+                actions={isDemo ? demoActions : actions}
+                onToggleAction={onToggleAction}
+                onAddAction={onAddAction}
               />
             )}
 
@@ -209,7 +228,11 @@ function IncidentDetailPageView({
             )}
 
             {activeTab === 'updates' && (
-              <IncidentUpdatesView incidentId={normId} />
+              <IncidentUpdatesView
+                incidentId={normId}
+                updates={updates}
+                onPublishUpdate={onPublishUpdate}
+              />
             )}
 
             {activeTab === 'alerts' && (
@@ -224,11 +247,13 @@ function IncidentDetailPageView({
           severity={activeSeverity}
           lead={initialRecord.lead}
           reporter={initialRecord.reporter}
-          participants={initialRecord.participants}
+          participants={participants.length > 0 ? participants : initialRecord.participants}
           slackChannel={initialRecord.slackChannel}
           jiraKey={initialRecord.jiraKey}
           affectedTeam={initialRecord.affectedTeam}
           reviewer={initialRecord.reviewer}
+          onAssignRole={onAssignRole}
+          onReassignLead={onReassignLead}
         />
       </div>
 
@@ -272,10 +297,19 @@ function ConvexIncidentDetailPage({
 
   const rawConvexIncident = useQuery(api.incidents.getIncident, { incidentId: normId });
   const rawLedgerEvents = useQuery(api.incidents.listLedgerEvents, { incidentId: normId });
+  const rawTimelineEvents = useQuery(api.incidents.listTimelineEvents, { incidentId: normId });
+  const rawTasks = useQuery(api.incidents.listTasks, { incidentId: normId });
+  const rawUpdates = useQuery(api.incidents.listUpdates, { incidentId: normId });
+  const rawParticipants = useQuery(api.incidents.listParticipants, { incidentId: normId });
 
   const mutateStatus = useMutation(api.incidents.updateIncidentStatus);
   const mutateSeverity = useMutation(api.incidents.updateIncidentSeverity);
   const mutateSummary = useMutation(api.incidents.updateIncidentSummary);
+  const mutateLead = useMutation(api.incidents.updateIncidentLead);
+  const mutateAssignRole = useMutation(api.incidents.assignParticipantRole);
+  const mutateCreateTask = useMutation(api.incidents.createTask);
+  const mutateUpdateTask = useMutation(api.incidents.updateTask);
+  const mutateCreateUpdate = useMutation(api.incidents.createUpdate);
 
   const mergedRecord: IncidentDetailRecord = useMemo(() => {
     if (!rawConvexIncident) return fallbackRecord;
@@ -308,6 +342,61 @@ function ConvexIncidentDetailPage({
     }
     return [];
   }, [rawLedgerEvents]);
+
+  const formattedTimelineEvents: TimelineEvent[] = useMemo(() => {
+    if (rawTimelineEvents && rawTimelineEvents.length > 0) {
+      return rawTimelineEvents.map((evt) => ({
+        id: evt._id,
+        timestamp: evt.timestamp,
+        timeFormatted: new Date(evt.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' UTC',
+        type: (evt.type as TimelineEvent['type']) || 'status_changed',
+        title: evt.message,
+        author: evt.actor,
+      }));
+    }
+    return fallbackRecord.timelineEvents;
+  }, [rawTimelineEvents, fallbackRecord.timelineEvents]);
+
+  const formattedActions: ActionItem[] = useMemo(() => {
+    if (rawTasks && rawTasks.length > 0) {
+      return rawTasks.map((t) => ({
+        id: t._id,
+        title: t.title,
+        completed: t.completed,
+        assignee: t.assignee,
+        createdAt: t.createdAt,
+      }));
+    }
+    return fallbackRecord.actions;
+  }, [rawTasks, fallbackRecord.actions]);
+
+  const formattedUpdates = useMemo(() => {
+    if (rawUpdates && rawUpdates.length > 0) {
+      return rawUpdates.map((u) => ({
+        id: u._id,
+        time: new Date(u.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' UTC',
+        author: u.author,
+        channels: u.channels,
+        text: u.message,
+      }));
+    }
+    return [
+      {
+        id: 'upd-default',
+        time: '15:42 UTC',
+        author: 'Sarah Connor (Comms Lead)',
+        channels: ['Slack #incident-payments', 'Statuspage (status.acme.com)'],
+        text: 'Investigating: Customers may experience intermittent 504 timeouts during checkout. Our engineering responders are actively deploying mitigation.',
+      },
+    ];
+  }, [rawUpdates]);
+
+  const participantNames = useMemo(() => {
+    if (rawParticipants && rawParticipants.length > 0) {
+      return rawParticipants.map((p) => p.name);
+    }
+    return fallbackRecord.participants;
+  }, [rawParticipants, fallbackRecord.participants]);
 
   const handleUpdateStatus = async (newStatus: IncidentLifecycleStage) => {
     try {
@@ -344,14 +433,82 @@ function ConvexIncidentDetailPage({
     }
   };
 
+  const handleToggleAction = async (actionId: string, completed: boolean) => {
+    try {
+      await mutateUpdateTask({
+        taskId: actionId as any,
+        completed,
+      });
+    } catch (err) {
+      console.warn('Failed to toggle task in Convex:', err);
+    }
+  };
+
+  const handleAddAction = async (title: string) => {
+    try {
+      await mutateCreateTask({
+        incidentId: normId,
+        title,
+        assignee: mergedRecord.lead || 'Incident Lead',
+      });
+    } catch (err) {
+      console.warn('Failed to create task in Convex:', err);
+    }
+  };
+
+  const handlePublishUpdate = async (message: string, channels: string[]) => {
+    try {
+      await mutateCreateUpdate({
+        incidentId: normId,
+        message,
+        author: 'Communications Lead',
+        channels,
+      });
+    } catch (err) {
+      console.warn('Failed to publish update in Convex:', err);
+    }
+  };
+
+  const handleAssignRole = async (role: string, name: string) => {
+    try {
+      await mutateAssignRole({
+        incidentId: normId,
+        role,
+        name,
+      });
+    } catch (err) {
+      console.warn('Failed to assign role in Convex:', err);
+    }
+  };
+
+  const handleReassignLead = async (newLead: string) => {
+    try {
+      await mutateLead({
+        incidentId: normId,
+        lead: newLead,
+      });
+    } catch (err) {
+      console.warn('Failed to reassign lead in Convex:', err);
+    }
+  };
+
   return (
     <IncidentDetailPageView
       normId={normId}
       initialRecord={mergedRecord}
       ledgerEvents={formattedLedgerEvents}
+      timelineEvents={formattedTimelineEvents}
+      actions={formattedActions}
+      updates={formattedUpdates}
+      participants={participantNames}
       onUpdateStatus={handleUpdateStatus}
       onUpdateSeverity={handleUpdateSeverity}
       onUpdateSummary={handleUpdateSummary}
+      onToggleAction={handleToggleAction}
+      onAddAction={handleAddAction}
+      onPublishUpdate={handlePublishUpdate}
+      onAssignRole={handleAssignRole}
+      onReassignLead={handleReassignLead}
       className={className}
     />
   );
@@ -372,6 +529,10 @@ function OfflineIncidentDetailPage({
       normId={normId}
       initialRecord={fallbackRecord}
       ledgerEvents={[]}
+      timelineEvents={fallbackRecord.timelineEvents}
+      actions={fallbackRecord.actions}
+      updates={[]}
+      participants={fallbackRecord.participants}
       onUpdateStatus={() => {}}
       onUpdateSeverity={() => {}}
       onUpdateSummary={() => {}}
