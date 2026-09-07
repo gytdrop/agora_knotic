@@ -1099,20 +1099,11 @@ export default function ConversationComponent({
             'color: #f43f5e; font-weight: bold; background: #18181b; padding: 2px 6px; border-radius: 4px;',
           );
         } else {
-          try {
-            const p: unknown = user.audioTrack?.play();
-            if (p && typeof (p as Promise<void>).catch === 'function') {
-              (p as Promise<void>).catch((playErr: unknown) => {
-                if ((playErr as Error)?.name !== 'AbortError') {
-                  console.warn('[Agora RTC] Failed to play audio track:', playErr);
-                }
-              });
-            }
-          } catch (playErr) {
-            if ((playErr as Error)?.name !== 'AbortError') {
-              console.warn('[Agora RTC] Failed to play audio track:', playErr);
-            }
-          }
+          // Human audio is played by the RemoteUser component in VideoGrid,
+          // which owns the element for the lifetime of the tile. Playing it
+          // here as well started a second, slightly offset copy of the same
+          // stream — audible as echo and as several seconds of apparent delay.
+          // Subscribing is still required and happens above.
         }
       } catch (err) {
         console.warn('[Agora RTC] Failed to subscribe/play audio track:', err);
