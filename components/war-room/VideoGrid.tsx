@@ -230,14 +230,22 @@ export function VideoGrid({
 
             {/* Video Feed Area */}
             <div className="relative flex flex-1 items-center justify-center bg-[#18191d] overflow-hidden">
-              {user.hasVideo ? (
-                <RemoteUser
-                  user={user}
-                  playVideo={true}
-                  playAudio={false}
-                  className="h-full w-full object-cover"
-                />
-              ) : (
+              {/*
+                RemoteUser is rendered unconditionally and owns audio playback.
+                It was previously mounted only when the peer had video, so a
+                participant with their camera off was inaudible; and playAudio
+                was false, which stopped the track the client's user-published
+                handler had just started. This grid only ever receives human
+                participants — the agent is filtered out upstream — so playing
+                audio here is always correct.
+              */}
+              <RemoteUser
+                user={user}
+                playVideo={user.hasVideo}
+                playAudio={true}
+                className={user.hasVideo ? 'h-full w-full object-cover' : 'hidden'}
+              />
+              {!user.hasVideo && (
                 <div className="flex flex-col items-center">
                   <div className="flex h-20 w-20 items-center justify-center rounded-full border border-slate-700 bg-slate-800 font-sans shadow-md text-slate-300">
                     <span className="font-semibold text-xl">
