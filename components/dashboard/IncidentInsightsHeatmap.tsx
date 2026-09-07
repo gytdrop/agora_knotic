@@ -74,15 +74,15 @@ interface CalendarCell {
 
 function getCellIntensity(count: number): string {
   if (count === 0) {
-    return 'bg-zinc-100 hover:bg-zinc-200 border border-zinc-200/50';
+    return 'bg-slate-100 hover:bg-slate-200 border border-slate-200/50';
   }
   if (count <= 2) {
-    return 'bg-purple-200 hover:bg-purple-300';
+    return 'bg-slate-200 hover:bg-slate-300';
   }
   if (count <= 4) {
-    return 'bg-purple-400 hover:bg-purple-500';
+    return 'bg-slate-400 hover:bg-slate-700';
   }
-  return 'bg-purple-600 hover:bg-purple-700';
+  return 'bg-slate-900 hover:bg-slate-800';
 }
 
 const MONTH_NAMES = [
@@ -144,30 +144,30 @@ function IncidentInsightsHeatmapView({
   return (
     <div
       className={cn(
-        'rounded-xl border border-zinc-200/90 bg-white p-5 shadow-xs transition-all select-none',
+        'rounded-xl border border-slate-200/90 bg-white p-5 shadow-xs transition-all select-none',
         className
       )}
     >
       {/* Top Header */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-100 pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-4">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-50 text-purple-600 border border-purple-100 shadow-2xs">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-900 border border-slate-100 shadow-2xs">
             <Activity className="h-4 w-4" />
           </div>
           <div>
-            <h2 className="text-base font-bold tracking-tight text-zinc-900">
+            <h2 className="text-base font-bold tracking-tight text-slate-900">
               Incident Insights
             </h2>
-            <div className="flex items-center gap-2 text-xs text-zinc-500 font-medium">
-              <span className="font-semibold text-purple-700">Activities</span>
-              <span className="text-zinc-300">·</span>
+            <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+              <span className="font-semibold text-slate-800">Activities</span>
+              <span className="text-slate-300">·</span>
               <span>52-week incident frequency</span>
             </div>
           </div>
         </div>
 
-        <div className="hidden sm:flex items-center gap-1.5 rounded-full border border-zinc-200 bg-zinc-50 px-2.5 py-1 text-xs font-semibold text-zinc-600">
-          <Calendar className="h-3.5 w-3.5 text-zinc-400" />
+        <div className="hidden sm:flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-600">
+          <Calendar className="h-3.5 w-3.5 text-slate-400" />
           <span>Mar 2025 – Mar 2026</span>
         </div>
       </div>
@@ -187,7 +187,7 @@ function IncidentInsightsHeatmapView({
                   return (
                     <span
                       key={w}
-                      className="text-[10px] font-medium text-zinc-400 whitespace-nowrap overflow-visible select-none"
+                      className="text-[10px] font-medium text-slate-400 whitespace-nowrap overflow-visible select-none"
                     >
                       {label || ''}
                     </span>
@@ -199,7 +199,7 @@ function IncidentInsightsHeatmapView({
             {/* Day Labels + Heatmap Grid Matrix */}
             <div className="flex items-start gap-1.5">
               {/* Day of Week Labels (Mon, Wed, Fri) */}
-              <div className="flex flex-col justify-between h-[105px] sm:h-[116px] w-5 text-[9px] font-medium text-zinc-400 shrink-0 select-none py-0.5">
+              <div className="flex flex-col justify-between h-[105px] sm:h-[116px] w-5 text-[9px] font-medium text-slate-400 shrink-0 select-none py-0.5">
                 <span className="h-2.5 sm:h-3.5 flex items-center">Mon</span>
                 <span className="h-2.5 sm:h-3.5 flex items-center">Wed</span>
                 <span className="h-2.5 sm:h-3.5 flex items-center">Fri</span>
@@ -220,7 +220,7 @@ function IncidentInsightsHeatmapView({
                         <TooltipTrigger asChild>
                           <div
                             className={cn(
-                              'h-2.5 sm:h-3.5 w-full rounded-[2px] transition-all duration-100 cursor-pointer hover:ring-1 hover:ring-purple-500',
+                              'h-2.5 sm:h-3.5 w-full rounded-[2px] transition-all duration-100 cursor-pointer hover:ring-1 hover:ring-slate-700',
                               cellColor
                             )}
                           />
@@ -238,27 +238,27 @@ function IncidentInsightsHeatmapView({
         </div>
 
         {/* Legend Row */}
-        <div className="mt-3 flex items-center justify-between text-xs text-zinc-400">
-          <span className="text-[11px] text-zinc-500 font-medium">
+        <div className="mt-3 flex items-center justify-between text-xs text-slate-400">
+          <span className="text-[11px] text-slate-500 font-medium">
             34 incidents tracked across past 12 months
           </span>
           <div className="flex items-center gap-1.5 text-[11px]">
             <span>Less</span>
             <div className="flex items-center gap-1">
               <span
-                className="h-2.5 w-2.5 rounded-[2px] bg-zinc-100 border border-zinc-200/60"
+                className="h-2.5 w-2.5 rounded-[2px] bg-slate-100 border border-slate-200/60"
                 title="0 incidents"
               />
               <span
-                className="h-2.5 w-2.5 rounded-[2px] bg-purple-200"
+                className="h-2.5 w-2.5 rounded-[2px] bg-slate-200"
                 title="1-2 incidents"
               />
               <span
-                className="h-2.5 w-2.5 rounded-[2px] bg-purple-400"
+                className="h-2.5 w-2.5 rounded-[2px] bg-slate-400"
                 title="3-4 incidents"
               />
               <span
-                className="h-2.5 w-2.5 rounded-[2px] bg-purple-600"
+                className="h-2.5 w-2.5 rounded-[2px] bg-slate-900"
                 title="5+ incidents"
               />
             </div>
@@ -268,36 +268,36 @@ function IncidentInsightsHeatmapView({
       </div>
 
       {/* Summary Stats Row: 3-column responsive grid below the timeline */}
-      <div className="mt-4 pt-4 border-t border-zinc-100 grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+      <div className="mt-4 pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-3.5">
         {/* Total Incidents */}
-        <div className="rounded-xl border border-zinc-100 bg-zinc-50/70 p-3.5 transition-all hover:border-zinc-200 hover:bg-zinc-50">
+        <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-3.5 transition-all hover:border-slate-200 hover:bg-slate-50">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-zinc-600 flex items-center gap-1.5">
+            <span className="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
               <Flame className="h-3.5 w-3.5 text-amber-500" />
               <span>Total Incidents</span>
             </span>
-            <span className="inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-[10px] font-bold text-purple-700">
+            <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-800">
               Annual
             </span>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold tracking-tight text-zinc-900">
-              <NumberTicker value={totalIncidents} className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-900" />
+            <span className="text-2xl font-bold tracking-tight text-slate-900">
+              <NumberTicker value={totalIncidents} className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-900" />
             </span>
             <span className="text-[11px] font-medium text-emerald-600 flex items-center gap-0.5">
               <TrendingDown className="h-3 w-3" />
               <span>-8% vs avg</span>
             </span>
           </div>
-          <p className="mt-1 text-[11px] text-zinc-400">
+          <p className="mt-1 text-[11px] text-slate-400">
             Past 52 weeks recorded
           </p>
         </div>
 
         {/* MTTR */}
-        <div className="rounded-xl border border-zinc-100 bg-zinc-50/70 p-3.5 transition-all hover:border-zinc-200 hover:bg-zinc-50">
+        <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-3.5 transition-all hover:border-slate-200 hover:bg-slate-50">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-zinc-600 flex items-center gap-1.5">
+            <span className="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
               <Clock className="h-3.5 w-3.5 text-emerald-500" />
               <span>MTTR</span>
             </span>
@@ -306,7 +306,7 @@ function IncidentInsightsHeatmapView({
             </span>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold tracking-tight text-zinc-900">
+            <span className="text-2xl font-bold tracking-tight text-slate-900">
               {mttr}
             </span>
             <span className="text-[11px] font-medium text-emerald-600 flex items-center gap-0.5">
@@ -314,16 +314,16 @@ function IncidentInsightsHeatmapView({
               <span>-15% faster</span>
             </span>
           </div>
-          <p className="mt-1 text-[11px] text-zinc-400">
+          <p className="mt-1 text-[11px] text-slate-400">
             Mean time to resolve
           </p>
         </div>
 
         {/* Open Actions */}
-        <div className="rounded-xl border border-zinc-100 bg-zinc-50/70 p-3.5 transition-all hover:border-zinc-200 hover:bg-zinc-50">
+        <div className="rounded-xl border border-slate-100 bg-slate-50/70 p-3.5 transition-all hover:border-slate-200 hover:bg-slate-50">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-zinc-600 flex items-center gap-1.5">
-              <CheckCircle2 className="h-3.5 w-3.5 text-indigo-500" />
+            <span className="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
+              <CheckCircle2 className="h-3.5 w-3.5 text-slate-700" />
               <span>Open Actions</span>
             </span>
             <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">
@@ -331,14 +331,14 @@ function IncidentInsightsHeatmapView({
             </span>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold tracking-tight text-zinc-900">
-              <NumberTicker value={openActions} className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-900" />
+            <span className="text-2xl font-bold tracking-tight text-slate-900">
+              <NumberTicker value={openActions} className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-900" />
             </span>
-            <span className="text-[11px] font-medium text-zinc-500">
+            <span className="text-[11px] font-medium text-slate-500">
               items pending
             </span>
           </div>
-          <p className="mt-1 text-[11px] text-zinc-400">
+          <p className="mt-1 text-[11px] text-slate-400">
             3 high priority items
           </p>
         </div>

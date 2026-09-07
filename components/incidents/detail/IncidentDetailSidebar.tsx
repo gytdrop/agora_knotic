@@ -65,22 +65,22 @@ export function IncidentDetailSidebar({
       className={cn('w-full lg:w-80 shrink-0 space-y-4 text-xs', className)}
     >
       {/* 1. People & Roles Card (Feature 5: Dynamic Role Assignment) */}
-      <div className="bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-xl p-4 shadow-2xs space-y-3.5">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl p-4 shadow-2xs space-y-3.5">
         <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5 text-xs">
-            <Users className="h-3.5 w-3.5 text-zinc-400" />
+          <h3 className="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-1.5 text-xs">
+            <Users className="h-3.5 w-3.5 text-slate-400" />
             <span>Incident Roles</span>
           </h3>
-          <span className="text-[10px] text-purple-600 dark:text-purple-400 font-medium">
+          <span className="text-[10px] text-slate-900 dark:text-slate-400 font-medium">
             Dynamic Paging
           </span>
         </div>
 
         {/* Incident Lead */}
         <div className="flex items-center justify-between">
-          <span className="text-zinc-500 dark:text-zinc-400">Incident Lead</span>
+          <span className="text-slate-500 dark:text-slate-400">Incident Lead</span>
           <div className="flex items-center gap-1.5">
-            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300 font-semibold text-[10px]">
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-100 text-slate-800 dark:bg-slate-950 dark:text-slate-300 font-semibold text-[10px]">
               {getInitials(lead)}
             </div>
             <select
@@ -89,7 +89,7 @@ export function IncidentDetailSidebar({
                 onReassignLead?.(e.target.value);
                 onAssignRole?.('Incident Commander', e.target.value);
               }}
-              className="font-medium text-zinc-800 dark:text-zinc-200 bg-transparent border-0 outline-none text-xs cursor-pointer hover:text-purple-600"
+              className="font-medium text-slate-800 dark:text-slate-200 bg-transparent border-0 outline-none text-xs cursor-pointer hover:text-slate-900"
             >
               <option value="Ashley Sawatsky">Ashley Sawatsky</option>
               <option value="David Chen">David Chen</option>
@@ -101,15 +101,15 @@ export function IncidentDetailSidebar({
 
         {/* SRE Lead */}
         <div className="flex items-center justify-between">
-          <span className="text-zinc-500 dark:text-zinc-400">SRE Lead</span>
+          <span className="text-slate-500 dark:text-slate-400">SRE Lead</span>
           <div className="flex items-center gap-1.5">
-            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 font-semibold text-[10px]">
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-100 text-slate-800 dark:bg-slate-950 dark:text-slate-300 font-semibold text-[10px]">
               DC
             </div>
             <select
               defaultValue="David Chen"
               onChange={(e) => onAssignRole?.('Operations Lead', e.target.value)}
-              className="font-medium text-zinc-800 dark:text-zinc-200 bg-transparent border-0 outline-none text-xs cursor-pointer hover:text-purple-600"
+              className="font-medium text-slate-800 dark:text-slate-200 bg-transparent border-0 outline-none text-xs cursor-pointer hover:text-slate-900"
             >
               <option value="David Chen">David Chen</option>
               <option value="Meera Patel">Meera Patel (Fraud)</option>
@@ -121,15 +121,15 @@ export function IncidentDetailSidebar({
 
         {/* Comms Lead */}
         <div className="flex items-center justify-between">
-          <span className="text-zinc-500 dark:text-zinc-400">Comms Lead</span>
+          <span className="text-slate-500 dark:text-slate-400">Comms Lead</span>
           <div className="flex items-center gap-1.5">
-            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300 font-semibold text-[10px]">
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-100 text-slate-800 dark:bg-slate-950 dark:text-slate-300 font-semibold text-[10px]">
               SC
             </div>
             <select
               defaultValue="Sarah Connor"
               onChange={(e) => onAssignRole?.('Communications Lead', e.target.value)}
-              className="font-medium text-zinc-800 dark:text-zinc-200 bg-transparent border-0 outline-none text-xs cursor-pointer hover:text-purple-600"
+              className="font-medium text-slate-800 dark:text-slate-200 bg-transparent border-0 outline-none text-xs cursor-pointer hover:text-slate-900"
             >
               <option value="Sarah Connor">Sarah Connor</option>
               <option value="Ashley Sawatsky">Ashley Sawatsky</option>
@@ -140,15 +140,15 @@ export function IncidentDetailSidebar({
 
         {/* Scribe */}
         <div className="flex items-center justify-between">
-          <span className="text-zinc-500 dark:text-zinc-400">Scribe</span>
+          <span className="text-slate-500 dark:text-slate-400">Scribe</span>
           <div className="flex items-center gap-1.5">
-            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-600 text-white font-semibold text-[9px]">
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-900 text-white font-semibold text-[9px]">
               AI
             </div>
             <select
               defaultValue="EchoSphere AI Sentinel"
               onChange={(e) => onAssignRole?.('Scribe', e.target.value)}
-              className="font-medium text-purple-700 dark:text-purple-300 bg-transparent border-0 outline-none text-xs cursor-pointer"
+              className="font-medium text-slate-800 dark:text-slate-300 bg-transparent border-0 outline-none text-xs cursor-pointer"
             >
               <option value="EchoSphere AI Sentinel">EchoSphere AI Sentinel</option>
               <option value="Meera Patel">Meera Patel</option>
@@ -158,14 +158,14 @@ export function IncidentDetailSidebar({
         </div>
 
         {/* Participants */}
-        <div className="flex items-center justify-between pt-2 border-t border-zinc-100 dark:border-zinc-800">
-          <span className="text-zinc-500 dark:text-zinc-400">Responders ({participants.length})</span>
+        <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
+          <span className="text-slate-500 dark:text-slate-400">Responders ({participants.length})</span>
           <div className="flex -space-x-1.5 overflow-hidden">
             {participants.map((person, idx) => (
               <div
                 key={person + idx}
                 title={person}
-                className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 text-white font-semibold text-[9px] ring-1 ring-white dark:ring-zinc-900"
+                className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-tr from-slate-700 to-slate-700 text-white font-semibold text-[9px] ring-1 ring-white dark:ring-slate-900"
               >
                 {getInitials(person)}
               </div>
@@ -175,8 +175,8 @@ export function IncidentDetailSidebar({
       </div>
 
       {/* 2. Communications Card (Slack & Jira) */}
-      <div className="bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-xl p-4 shadow-2xs space-y-2.5">
-        <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 text-xs">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl p-4 shadow-2xs space-y-2.5">
+        <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-xs">
           Communications
         </h3>
 
@@ -185,15 +185,15 @@ export function IncidentDetailSidebar({
           href={`https://slack.com/app_redirect?channel=${slackChannel.replace('#', '')}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-between p-2 rounded-lg border border-zinc-200/80 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-colors group cursor-pointer"
+          className="flex items-center justify-between p-2 rounded-lg border border-slate-200/80 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors group cursor-pointer"
         >
           <div className="flex items-center gap-2">
-            <SlackIcon className="h-4 w-4 text-zinc-600 dark:text-zinc-300" />
-            <span className="font-medium text-zinc-800 dark:text-zinc-200 group-hover:text-purple-600 dark:group-hover:text-purple-400">
+            <SlackIcon className="h-4 w-4 text-slate-600 dark:text-slate-300" />
+            <span className="font-medium text-slate-800 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-slate-400">
               View Slack channel
             </span>
           </div>
-          <ExternalLink className="h-3 w-3 text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-200" />
+          <ExternalLink className="h-3 w-3 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200" />
         </a>
 
         {/* Jira Incident */}
@@ -201,32 +201,32 @@ export function IncidentDetailSidebar({
           href={`https://jira.atlassian.net/browse/${jiraKey}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-between p-2 rounded-lg border border-zinc-200/80 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-colors group cursor-pointer"
+          className="flex items-center justify-between p-2 rounded-lg border border-slate-200/80 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors group cursor-pointer"
         >
           <div className="flex items-center gap-2">
-            <span className="flex h-4 w-4 items-center justify-center rounded-xs bg-blue-600 text-white text-[9px] font-bold">
+            <span className="flex h-4 w-4 items-center justify-center rounded-xs bg-slate-900 text-white text-[9px] font-bold">
               ◇
             </span>
-            <span className="font-medium text-zinc-800 dark:text-zinc-200 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+            <span className="font-medium text-slate-800 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-slate-400">
               View Jira incident
             </span>
           </div>
-          <span className="text-[10px] font-mono font-medium text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded">
+          <span className="text-[10px] font-mono font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
             {jiraKey}
           </span>
         </a>
       </div>
 
       {/* 3. Calls Section & War Room Bridge [DELIBERATE PLATFORM DEVIATION] */}
-      <div className="bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-xl p-4 shadow-2xs space-y-3">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl p-4 shadow-2xs space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 text-xs">
+            <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-xs">
               Calls
             </h3>
             <span
               title="Native Agora WebRTC War Room bridge integrated into incident.io call slot"
-              className="text-zinc-400 hover:text-zinc-600 cursor-help"
+              className="text-slate-400 hover:text-slate-600 cursor-help"
             >
               <Info className="h-3 w-3" />
             </span>
@@ -234,7 +234,7 @@ export function IncidentDetailSidebar({
           <button
             type="button"
             aria-label="Add call"
-            className="p-1 rounded-md text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+            className="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <Plus className="h-3.5 w-3.5" />
           </button>
@@ -243,10 +243,10 @@ export function IncidentDetailSidebar({
         {/* War Room Bridge CTA */}
         <Link
           href={warRoomUrl}
-          className="flex items-center justify-between w-full p-2.5 rounded-lg border border-purple-200 dark:border-purple-800/60 bg-purple-50/70 dark:bg-purple-950/30 hover:bg-purple-100/70 dark:hover:bg-purple-900/40 text-purple-700 dark:text-purple-300 font-semibold transition-all shadow-2xs group"
+          className="flex items-center justify-between w-full p-2.5 rounded-lg border border-slate-200 dark:border-slate-800/60 bg-slate-100/70 dark:bg-slate-950/30 hover:bg-slate-100/70 dark:hover:bg-slate-900/40 text-slate-800 dark:text-slate-300 font-semibold transition-all shadow-2xs group"
         >
           <div className="flex items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-purple-600 text-white shadow-2xs">
+            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-slate-900 text-white shadow-2xs">
               <Video className="h-3.5 w-3.5" />
             </div>
             <span>Enter War Room</span>
@@ -260,16 +260,16 @@ export function IncidentDetailSidebar({
       </div>
 
       {/* 4. Post-Mortem Card */}
-      <div className="bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-xl p-4 shadow-2xs space-y-3">
-        <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 text-xs">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl p-4 shadow-2xs space-y-3">
+        <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-xs">
           Post-Mortem
         </h3>
         <div className="flex items-center justify-between">
           <Link
             href={`/post-mortem/${encodeURIComponent(incidentId.replace('#', ''))}`}
-            className="flex items-center gap-1.5 text-zinc-800 dark:text-zinc-200 font-medium hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+            className="flex items-center gap-1.5 text-slate-800 dark:text-slate-200 font-medium hover:text-slate-900 dark:hover:text-slate-400 transition-colors"
           >
-            <FileText className="h-3.5 w-3.5 text-zinc-400" />
+            <FileText className="h-3.5 w-3.5 text-slate-400" />
             <span>View Post-Mortem</span>
           </Link>
           {/* Status pill: • In progress [confirmed – screenshot 2] */}
@@ -281,28 +281,28 @@ export function IncidentDetailSidebar({
       </div>
 
       {/* 5. Custom Fields Card */}
-      <div className="bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-xl p-4 shadow-2xs space-y-2.5">
-        <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 text-xs">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl p-4 shadow-2xs space-y-2.5">
+        <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-xs">
           Custom Fields
         </h3>
 
         <div className="flex items-center justify-between">
-          <span className="text-zinc-500 dark:text-zinc-400">Affected team</span>
-          <span className="font-medium text-zinc-800 dark:text-zinc-200">
+          <span className="text-slate-500 dark:text-slate-400">Affected team</span>
+          <span className="font-medium text-slate-800 dark:text-slate-200">
             {affectedTeam}
           </span>
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="text-zinc-500 dark:text-zinc-400">Impact</span>
-          <span className="font-medium text-zinc-800 dark:text-zinc-200">
+          <span className="text-slate-500 dark:text-slate-400">Impact</span>
+          <span className="font-medium text-slate-800 dark:text-slate-200">
             {impactField}
           </span>
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="text-zinc-500 dark:text-zinc-400">Reviewer</span>
-          <span className="font-medium text-zinc-800 dark:text-zinc-200">
+          <span className="text-slate-500 dark:text-slate-400">Reviewer</span>
+          <span className="font-medium text-slate-800 dark:text-slate-200">
             {reviewer}
           </span>
         </div>

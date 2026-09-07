@@ -123,14 +123,14 @@ export function IncidentAlertsView({
     <div className={cn('py-4 space-y-4 text-xs', className)}>
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
             Correlated Monitoring Telemetry ({alerts.length})
           </h3>
-          <p className="text-[11px] text-zinc-400 mt-0.5">
+          <p className="text-[11px] text-slate-400 mt-0.5">
             Real-time APM monitors, CloudWatch alarms, and Prometheus queries correlated with #{incidentId.replace('#', '')}.
           </p>
         </div>
-        <span className="text-[10px] font-mono text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded">
+        <span className="text-[10px] font-mono text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">
           Syncing via Webhook
         </span>
       </div>
@@ -144,12 +144,12 @@ export function IncidentAlertsView({
           return (
             <div
               key={alt.id}
-              className="rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xs overflow-hidden transition-all"
+              className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs overflow-hidden transition-all"
             >
               {/* Alert Header Row */}
               <div
                 onClick={() => toggleExpand(alt.id)}
-                className="flex items-center justify-between p-3.5 cursor-pointer hover:bg-zinc-50/70 dark:hover:bg-zinc-800/50"
+                className="flex items-center justify-between p-3.5 cursor-pointer hover:bg-slate-50/70 dark:hover:bg-slate-800/50"
               >
                 <div className="flex items-start gap-3">
                   <div
@@ -165,21 +165,21 @@ export function IncidentAlertsView({
 
                   <div className="space-y-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-bold text-zinc-900 dark:text-zinc-100">
+                      <span className="font-bold text-slate-900 dark:text-slate-100">
                         {alt.title}
                       </span>
-                      <span className="text-[10px] font-medium text-zinc-500 bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.2 rounded">
+                      <span className="text-[10px] font-medium text-slate-500 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.2 rounded">
                         {alt.source}
                       </span>
-                      <span className="text-[10px] font-mono text-zinc-400">
+                      <span className="text-[10px] font-mono text-slate-400">
                         service: {alt.service}
                       </span>
                     </div>
 
-                    <div className="text-[11px] text-zinc-400 flex items-center gap-2">
+                    <div className="text-[11px] text-slate-400 flex items-center gap-2">
                       <span>Triggered at {alt.time}</span>
                       <span>•</span>
-                      <span>Value: <strong className="text-zinc-700 dark:text-zinc-300 font-mono">{alt.metricValue}</strong> (Threshold: {alt.threshold})</span>
+                      <span>Value: <strong className="text-slate-700 dark:text-slate-300 font-mono">{alt.metricValue}</strong> (Threshold: {alt.threshold})</span>
                     </div>
                   </div>
                 </div>
@@ -189,7 +189,7 @@ export function IncidentAlertsView({
                     className={cn(
                       'text-[10px] font-semibold px-2 py-0.5 rounded-full border',
                       isCritical
-                        ? 'border-red-200 bg-red-50 text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300'
+                        ? 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-300'
                         : 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300'
                     )}
                   >
@@ -198,7 +198,7 @@ export function IncidentAlertsView({
 
                   <ChevronDown
                     className={cn(
-                      'h-4 w-4 text-zinc-400 transition-transform',
+                      'h-4 w-4 text-slate-400 transition-transform',
                       isExpanded ? 'rotate-180' : ''
                     )}
                   />
@@ -207,21 +207,21 @@ export function IncidentAlertsView({
 
               {/* Expandable JSON / Telemetry Inspector */}
               {isExpanded && (
-                <div className="p-3.5 bg-zinc-50 dark:bg-zinc-800/40 border-t border-zinc-100 dark:border-zinc-800 space-y-2">
-                  <div className="flex items-center justify-between text-[11px] text-zinc-400">
+                <div className="p-3.5 bg-slate-50 dark:bg-slate-800/40 border-t border-slate-100 dark:border-slate-800 space-y-2">
+                  <div className="flex items-center justify-between text-[11px] text-slate-400">
                     <span className="font-semibold uppercase tracking-wider">Alert Payload & Trace Metadata</span>
                     <a
                       href={`https://app.datadoghq.com/monitors/${alt.id}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-purple-600 hover:underline flex items-center gap-1"
+                      className="text-slate-900 hover:underline flex items-center gap-1"
                     >
                       <span>Open in {alt.source}</span>
                       <ExternalLink className="h-3 w-3" />
                     </a>
                   </div>
 
-                  <pre className="p-2.5 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-700 font-mono text-[11px] text-zinc-700 dark:text-zinc-300 overflow-x-auto">
+                  <pre className="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 font-mono text-[11px] text-slate-700 dark:text-slate-300 overflow-x-auto">
                     {JSON.stringify(alt.rawPayload, null, 2)}
                   </pre>
                 </div>

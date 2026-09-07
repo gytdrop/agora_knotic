@@ -43,9 +43,9 @@ export function QuickstartPreCallCard({
   };
 
   return (
-    <div className="w-full max-w-md p-6 rounded-xl bg-zinc-900/90 border border-zinc-800 text-zinc-100 shadow-2xl backdrop-blur-md">
+    <div className="w-full max-w-md p-6 rounded-xl bg-slate-900/90 border border-slate-800 text-slate-100 shadow-2xl backdrop-blur-md">
       <div className="flex items-center justify-between mb-4">
-        <span className="text-xs font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">
+        <span className="text-xs font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
           #{channel.toUpperCase()}
         </span>
         <span className="text-xs font-bold px-2 py-0.5 rounded bg-rose-950/60 text-rose-300 border border-rose-900">
@@ -56,13 +56,13 @@ export function QuickstartPreCallCard({
       <h1 className="text-xl font-semibold tracking-tight text-white mb-1">
         Incident War Room
       </h1>
-      <p className="text-xs text-zinc-400 mb-5">
+      <p className="text-xs text-slate-400 mb-5">
         Enter your responder identity to initialize WebRTC streams.
       </p>
 
       <div className="space-y-4">
         <div>
-          <label className="block text-xs font-medium text-zinc-300 mb-1.5 uppercase tracking-wider">
+          <label className="block text-xs font-medium text-slate-300 mb-1.5 uppercase tracking-wider">
             Responder Name
           </label>
           <input
@@ -76,26 +76,26 @@ export function QuickstartPreCallCard({
             onKeyDown={(e) => {
               if (e.key === "Enter") handleJoin();
             }}
-            className="w-full px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-800 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-600 font-sans"
+            className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-slate-600 font-sans"
           />
           {error && <p className="text-xs text-rose-400 mt-1 font-sans">{error}</p>}
         </div>
 
         {/* Contained Device Readiness Pills */}
         <div className="grid grid-cols-2 gap-2 text-xs font-sans">
-          <div className="flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-950/60 px-2.5 py-1.5 text-zinc-400">
-            <Mic className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
+          <div className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-950/60 px-2.5 py-1.5 text-slate-400">
+            <Mic className="h-3.5 w-3.5 text-slate-400 shrink-0" />
             <span className="truncate text-[11px]">System Mic</span>
           </div>
-          <div className="flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-950/60 px-2.5 py-1.5 text-zinc-400">
-            <Volume2 className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
+          <div className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-950/60 px-2.5 py-1.5 text-slate-400">
+            <Volume2 className="h-3.5 w-3.5 text-slate-400 shrink-0" />
             <span className="truncate text-[11px]">Audio Output</span>
           </div>
-          <div className="flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-950/60 px-2.5 py-1.5 text-zinc-400">
-            <Video className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
+          <div className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-950/60 px-2.5 py-1.5 text-slate-400">
+            <Video className="h-3.5 w-3.5 text-slate-400 shrink-0" />
             <span className="truncate text-[11px]">Camera Ready</span>
           </div>
-          <div className="flex items-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-950/60 px-2.5 py-1.5 text-emerald-400">
+          <div className="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-950/60 px-2.5 py-1.5 text-emerald-400">
             <Wifi className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
             <span className="truncate text-[11px]">Agora RTC OK</span>
           </div>
@@ -104,17 +104,17 @@ export function QuickstartPreCallCard({
         <button
           onClick={handleJoin}
           disabled={isLoading}
-          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-semibold tracking-wide transition-colors disabled:opacity-50 cursor-pointer"
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-slate-100 hover:bg-white text-slate-950 text-xs font-semibold tracking-wide transition-colors disabled:opacity-50 cursor-pointer"
         >
           {isLoading ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin text-zinc-900" />
+              <Loader2 className="h-4 w-4 animate-spin text-slate-900" />
               <span>Connecting to War Room...</span>
             </>
           ) : (
             <>
               <span>Join War Room</span>
-              <ArrowRight className="h-3.5 w-3.5 text-zinc-900" />
+              <ArrowRight className="h-3.5 w-3.5 text-slate-900" />
             </>
           )}
         </button>

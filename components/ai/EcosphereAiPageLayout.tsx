@@ -116,7 +116,7 @@ export function EcosphereAiPageLayout() {
   ];
 
   return (
-    <div className="flex min-h-screen flex-col md:flex-row bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 font-sans antialiased">
+    <div className="flex min-h-screen flex-col md:flex-row bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50 font-sans antialiased">
       {/* Desktop Persistent Sidebar */}
       <RootlySidebar
         className="hidden md:flex"
@@ -127,17 +127,17 @@ export function EcosphereAiPageLayout() {
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-50 flex md:hidden" role="dialog" aria-modal="true">
           <div
-            className="fixed inset-0 bg-zinc-900/60 backdrop-blur-xs"
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs"
             onClick={() => setIsMobileMenuOpen(false)}
             aria-hidden="true"
           />
-          <div className="relative flex w-64 max-w-[80vw] flex-1 flex-col bg-white dark:bg-zinc-900 shadow-2xl z-10">
+          <div className="relative flex w-64 max-w-[80vw] flex-1 flex-col bg-white dark:bg-slate-900 shadow-2xl z-10">
             <div className="absolute right-2 top-3 z-40">
               <button
                 type="button"
                 onClick={() => setIsMobileMenuOpen(false)}
                 aria-label="Close menu"
-                className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 cursor-pointer"
+                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -157,17 +157,17 @@ export function EcosphereAiPageLayout() {
       {/* Main Responsive Canvas */}
       <div className="flex flex-1 flex-col min-w-0 min-h-screen">
         {/* Mobile Header Bar */}
-        <div className="flex md:hidden items-center justify-between px-4 py-3 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+        <div className="flex md:hidden items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen(true)}
             aria-label="Toggle navigation menu"
-            className="p-1.5 -ml-1 rounded-lg text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 cursor-pointer"
+            className="p-1.5 -ml-1 rounded-lg text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 cursor-pointer"
           >
             <Menu className="h-5 w-5" />
           </button>
           <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-purple-600" />
+            <Sparkles className="h-4 w-4 text-slate-900" />
             <span className="text-sm font-bold tracking-tight">Ecosphere AI</span>
           </div>
         </div>
@@ -175,20 +175,20 @@ export function EcosphereAiPageLayout() {
         {/* Page Content */}
         <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-6 sm:px-6 sm:py-8 space-y-6">
           {/* Header Banner */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-zinc-200 dark:border-zinc-800 pb-5">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
             <div>
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-950/60 text-slate-900 dark:text-slate-400">
                   <Sparkles className="h-4 w-4" />
                 </div>
-                <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+                <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
                   Ecosphere AI & Autonomous Agents
                 </h1>
-                <span className="text-[10px] font-bold text-purple-700 bg-purple-100 dark:bg-purple-950/80 dark:text-purple-300 px-2 py-0.5 rounded-full border border-purple-200 dark:border-purple-800">
+                <span className="text-[10px] font-bold text-slate-800 bg-slate-100 dark:bg-slate-950/80 dark:text-slate-300 px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-800">
                   New
                 </span>
               </div>
-              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                 AI agents grounded in live WebRTC voice transcripts, HolmesGPT telemetry, and automated incident retrospectives.
               </p>
             </div>
@@ -208,18 +208,18 @@ export function EcosphereAiPageLayout() {
               return (
                 <div
                   key={idx}
-                  className="rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 shadow-2xs space-y-3"
+                  className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-2xs space-y-3"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-50 text-purple-600 dark:bg-purple-950/60 dark:text-purple-400">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-900 dark:bg-slate-950/60 dark:text-slate-400">
                         <Icon className="h-4 w-4" />
                       </div>
                       <div>
-                        <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                        <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
                           {ag.title}
                         </h3>
-                        <span className="text-[10px] text-zinc-400 font-medium">
+                        <span className="text-[10px] text-slate-400 font-medium">
                           {ag.category}
                         </span>
                       </div>
@@ -229,7 +229,7 @@ export function EcosphereAiPageLayout() {
                     </span>
                   </div>
 
-                  <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                     {ag.description}
                   </p>
                 </div>
@@ -238,28 +238,28 @@ export function EcosphereAiPageLayout() {
           </div>
 
           {/* Interactive AI Playground Simulator */}
-          <div className="rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-2xs overflow-hidden">
-            <div className="p-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
+          <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs overflow-hidden">
+            <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Bot className="h-4 w-4 text-purple-600" />
-                <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                <Bot className="h-4 w-4 text-slate-900" />
+                <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
                   Ask Ecosphere AI Simulator
                 </h3>
               </div>
-              <span className="text-xs text-zinc-400">
+              <span className="text-xs text-slate-400">
                 Connected to Active State Ledger (#INC-8921)
               </span>
             </div>
 
             {/* Quick Prompt Chips */}
-            <div className="p-3 bg-zinc-50/70 dark:bg-zinc-800/40 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-2 overflow-x-auto no-scrollbar">
-              <span className="text-[11px] font-semibold text-zinc-400 shrink-0">Quick Queries:</span>
+            <div className="p-3 bg-slate-50/70 dark:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2 overflow-x-auto no-scrollbar">
+              <span className="text-[11px] font-semibold text-slate-400 shrink-0">Quick Queries:</span>
               {promptChips.map((chip, idx) => (
                 <button
                   key={idx}
                   type="button"
                   onClick={() => handleSendPrompt(chip)}
-                  className="shrink-0 text-[11px] font-medium bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 px-2.5 py-1 rounded-full text-zinc-700 dark:text-zinc-300 hover:border-purple-300 hover:text-purple-600 dark:hover:border-purple-700 transition-colors cursor-pointer"
+                  className="shrink-0 text-[11px] font-medium bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1 rounded-full text-slate-700 dark:text-slate-300 hover:border-slate-300 hover:text-slate-900 dark:hover:border-slate-800 transition-colors cursor-pointer"
                 >
                   {chip}
                 </button>
@@ -280,8 +280,8 @@ export function EcosphereAiPageLayout() {
                     className={cn(
                       'flex h-6 w-6 items-center justify-center rounded-full shrink-0 text-[10px] font-bold',
                       msg.role === 'user'
-                        ? 'bg-purple-600 text-white'
-                        : 'bg-zinc-200 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200'
+                        ? 'bg-slate-900 text-white'
+                        : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-200'
                     )}
                   >
                     {msg.role === 'user' ? 'You' : 'AI'}
@@ -290,15 +290,15 @@ export function EcosphereAiPageLayout() {
                     className={cn(
                       'p-3 rounded-xl leading-relaxed',
                       msg.role === 'user'
-                        ? 'bg-purple-600 text-white'
-                        : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-100'
+                        ? 'bg-slate-900 text-white'
+                        : 'bg-slate-100 dark:bg-slate-800/80 text-slate-900 dark:text-slate-100'
                     )}
                   >
                     <div>{msg.text}</div>
                     <div
                       className={cn(
                         'text-[10px] mt-1',
-                        msg.role === 'user' ? 'text-purple-200 text-right' : 'text-zinc-400'
+                        msg.role === 'user' ? 'text-slate-200 text-right' : 'text-slate-400'
                       )}
                     >
                       {msg.time}
@@ -308,8 +308,8 @@ export function EcosphereAiPageLayout() {
               ))}
 
               {isTyping && (
-                <div className="flex items-center gap-2 text-zinc-400 text-xs italic">
-                  <span className="h-2 w-2 rounded-full bg-purple-500 animate-ping" />
+                <div className="flex items-center gap-2 text-slate-400 text-xs italic">
+                  <span className="h-2 w-2 rounded-full bg-slate-700 animate-ping" />
                   <span>Synthesizing incident context...</span>
                 </div>
               )}
@@ -321,18 +321,18 @@ export function EcosphereAiPageLayout() {
                 e.preventDefault();
                 handleSendPrompt(playgroundQuery);
               }}
-              className="p-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center gap-2"
+              className="p-3 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2"
             >
               <input
                 type="text"
                 value={playgroundQuery}
                 onChange={(e) => setPlaygroundQuery(e.target.value)}
                 placeholder="Ask about active alerts, root cause, or deployment rollback instructions..."
-                className="flex-1 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-purple-500/30"
+                className="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-slate-700/30"
               />
               <button
                 type="submit"
-                className="inline-flex items-center gap-1.5 rounded-lg bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
               >
                 <Send className="h-3.5 w-3.5" />
                 <span>Ask</span>

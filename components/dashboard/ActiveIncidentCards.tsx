@@ -242,27 +242,27 @@ function ActiveIncidentCardsView({
       className={cn('w-full space-y-3.5', className)}
     >
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-100 pb-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
         {/* Left: 🔴 Active Incidents count badge & 5s refresh ticker */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
             <span className="relative flex h-2.5 w-2.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-500" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-rose-500" />
             </span>
-            <h2 className="text-sm sm:text-base font-bold tracking-tight text-zinc-900">
+            <h2 className="text-sm sm:text-base font-bold tracking-tight text-slate-900">
               Active Incidents
             </h2>
-            <span className="inline-flex items-center justify-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-bold text-red-700">
-              <NumberTicker value={totalCount} className="text-red-700 dark:text-red-700 text-xs font-bold tracking-normal" />
+            <span className="inline-flex items-center justify-center rounded-full bg-rose-100 px-2 py-0.5 text-xs font-bold text-rose-700">
+              <NumberTicker value={totalCount} className="text-rose-700 dark:text-rose-700 text-xs font-bold tracking-normal" />
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5 text-xs text-zinc-400 font-medium select-none">
+          <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium select-none">
             <RotateCw
               className={cn(
                 'h-3.5 w-3.5 transition-transform duration-700 ease-in-out',
-                isTickSpin ? 'rotate-180 text-purple-600' : 'text-zinc-400'
+                isTickSpin ? 'rotate-180 text-slate-900' : 'text-slate-400'
               )}
             />
             <span>Refreshes every 5s</span>
@@ -276,10 +276,10 @@ function ActiveIncidentCardsView({
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-zinc-700 shadow-2xs transition-colors hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs transition-colors hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-700/20 cursor-pointer"
               >
                 <span>{sortByLabel}</span>
-                <ChevronDown className="h-3 w-3 text-zinc-400" />
+                <ChevronDown className="h-3 w-3 text-slate-400" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-44">
@@ -289,7 +289,7 @@ function ActiveIncidentCardsView({
               >
                 <span>Latest First</span>
                 {sortBy === 'latest' && (
-                  <Check className="h-3.5 w-3.5 text-purple-600" />
+                  <Check className="h-3.5 w-3.5 text-slate-900" />
                 )}
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -298,7 +298,7 @@ function ActiveIncidentCardsView({
               >
                 <span>Oldest First</span>
                 {sortBy === 'oldest' && (
-                  <Check className="h-3.5 w-3.5 text-purple-600" />
+                  <Check className="h-3.5 w-3.5 text-slate-900" />
                 )}
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -307,22 +307,22 @@ function ActiveIncidentCardsView({
               >
                 <span>Highest Severity</span>
                 {sortBy === 'severity' && (
-                  <Check className="h-3.5 w-3.5 text-purple-600" />
+                  <Check className="h-3.5 w-3.5 text-slate-900" />
                 )}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
           {/* Segmented Filter Pills */}
-          <div className="inline-flex rounded-lg border border-zinc-200 bg-zinc-50/80 p-0.5 shadow-2xs">
+          <div className="inline-flex rounded-lg border border-slate-200 bg-slate-50/80 p-0.5 shadow-2xs">
             <button
               type="button"
               onClick={() => setActiveTab('all')}
               className={cn(
                 'rounded-md px-2.5 py-1 text-xs font-semibold transition-all cursor-pointer',
                 activeTab === 'all'
-                  ? 'bg-white text-zinc-900 shadow-xs'
-                  : 'text-zinc-500 hover:text-zinc-700'
+                  ? 'bg-white text-slate-900 shadow-xs'
+                  : 'text-slate-500 hover:text-slate-700'
               )}
             >
               All Incidents
@@ -333,8 +333,8 @@ function ActiveIncidentCardsView({
               className={cn(
                 'rounded-md px-2.5 py-1 text-xs font-semibold transition-all cursor-pointer',
                 activeTab === 'my'
-                  ? 'bg-white text-zinc-900 shadow-xs'
-                  : 'text-zinc-500 hover:text-zinc-700'
+                  ? 'bg-white text-slate-900 shadow-xs'
+                  : 'text-slate-500 hover:text-slate-700'
               )}
             >
               My Incidents
@@ -345,8 +345,8 @@ function ActiveIncidentCardsView({
 
       {/* Responsive Cards Grid */}
       {displayedIncidents.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-zinc-200 bg-zinc-50/50 p-8 text-center">
-          <p className="text-xs font-medium text-zinc-500">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/50 p-8 text-center">
+          <p className="text-xs font-medium text-slate-500">
             No active incidents matching your filter criteria.
           </p>
         </div>
@@ -362,7 +362,7 @@ function ActiveIncidentCardsView({
             return (
               <div
                 key={incident.incidentId}
-                className="group relative flex flex-col justify-between rounded-xl border border-zinc-200/90 bg-white p-4 shadow-xs transition-all duration-150 hover:border-purple-300 hover:shadow-md overflow-hidden"
+                className="group relative flex flex-col justify-between rounded-xl border border-slate-200/90 bg-white p-4 shadow-xs transition-all duration-150 hover:border-slate-300 hover:shadow-md overflow-hidden"
               >
                 {normSev === 'Critical' && (
                   <BorderBeam
@@ -375,12 +375,12 @@ function ActiveIncidentCardsView({
                 )}
                 {/* Top: Incident ID & Title */}
                 <div>
-                  <div className="flex items-center justify-between text-xs font-mono font-medium text-zinc-400">
+                  <div className="flex items-center justify-between text-xs font-mono font-medium text-slate-400">
                     <span>{incident.incidentId}</span>
                   </div>
                   <Link href={`/incidents/${encodeURIComponent(cleanId)}`}>
                     <h3
-                      className="mt-1.5 text-sm font-bold text-zinc-900 line-clamp-2 leading-snug transition-colors hover:text-purple-700 cursor-pointer"
+                      className="mt-1.5 text-sm font-bold text-slate-900 line-clamp-2 leading-snug transition-colors hover:text-slate-800 cursor-pointer"
                       title={incident.title}
                     >
                       {incident.title}
@@ -411,28 +411,28 @@ function ActiveIncidentCardsView({
                     </div>
 
                     {/* Status: 🔴 Active 1h, 🔴 Active 22h */}
-                    <div className="flex items-center gap-1.5 text-xs font-medium text-zinc-600 shrink-0">
+                    <div className="flex items-center gap-1.5 text-xs font-medium text-slate-600 shrink-0">
                       <span className="relative flex h-2 w-2">
-                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
-                        <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75" />
+                        <span className="relative inline-flex h-2 w-2 rounded-full bg-rose-500" />
                       </span>
                       <span>Active {duration}</span>
                     </div>
                   </div>
 
                   {/* Description Snippet */}
-                  <p className="mt-2.5 text-xs text-zinc-500 line-clamp-2 leading-relaxed">
+                  <p className="mt-2.5 text-xs text-slate-500 line-clamp-2 leading-relaxed">
                     {incident.rootCause || 'No summary for this incident'}
                   </p>
                 </div>
 
                 {/* Bottom Row: Slack icon indicator & Enter War Room Action */}
-                <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center justify-between gap-2">
+                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
                   <div
-                    className="flex items-center gap-1.5 text-[11px] font-medium text-zinc-500 truncate"
+                    className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500 truncate"
                     title={`#incident-${cleanId}`}
                   >
-                    <SlackIcon className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
+                    <SlackIcon className="h-3.5 w-3.5 text-slate-400 shrink-0" />
                     <span className="truncate">#incident-{cleanId}</span>
                   </div>
 
@@ -441,7 +441,7 @@ function ActiveIncidentCardsView({
                     onClick={() =>
                       onEnterWarRoom?.(incident.incidentId, normSev)
                     }
-                    className="inline-flex items-center gap-1.5 rounded-md bg-purple-50 px-2.5 py-1 text-[11px] font-semibold text-purple-700 transition-all duration-150 hover:bg-purple-600 hover:text-white group-hover:bg-purple-600 group-hover:text-white shadow-2xs cursor-pointer shrink-0"
+                    className="inline-flex items-center gap-1.5 rounded-md bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-800 transition-all duration-150 hover:bg-slate-900 hover:text-white group-hover:bg-slate-900 group-hover:text-white shadow-2xs cursor-pointer shrink-0"
                   >
                     <Video className="h-3 w-3" />
                     <span>Enter War Room</span>
@@ -454,12 +454,12 @@ function ActiveIncidentCardsView({
       )}
 
       {/* Bottom Counter */}
-      <div className="flex items-center justify-between pt-1 text-xs text-zinc-400 font-medium select-none">
+      <div className="flex items-center justify-between pt-1 text-xs text-slate-400 font-medium select-none">
         <span>
           Showing 1 to {displayedIncidents.length} of {totalCount}
         </span>
         {searchQuery && (
-          <span className="text-zinc-500">
+          <span className="text-slate-500">
             Filtered by &ldquo;{searchQuery}&rdquo;
           </span>
         )}

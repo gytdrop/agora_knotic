@@ -53,6 +53,20 @@ const config: Config = {
   			border: 'hsl(var(--border) / <alpha-value>)',
   			input: 'hsl(var(--input) / <alpha-value>)',
   			ring: 'hsl(var(--ring) / <alpha-value>)',
+        // Semantic incident accents. Category is carried by these three colours
+        // only — everything else in the UI resolves to the neutral slate spine.
+        fact: {
+          DEFAULT: 'hsl(var(--semantic-fact) / <alpha-value>)',
+          surface: 'hsl(var(--semantic-fact-surface) / <alpha-value>)',
+        },
+        hypothesis: {
+          DEFAULT: 'hsl(var(--semantic-hypothesis) / <alpha-value>)',
+          surface: 'hsl(var(--semantic-hypothesis-surface) / <alpha-value>)',
+        },
+        critical: {
+          DEFAULT: 'hsl(var(--semantic-critical) / <alpha-value>)',
+          surface: 'hsl(var(--semantic-critical-surface) / <alpha-value>)',
+        },
   			chart: {
   				'1': 'hsl(var(--chart-1) / <alpha-value>)',
   				'2': 'hsl(var(--chart-2) / <alpha-value>)',

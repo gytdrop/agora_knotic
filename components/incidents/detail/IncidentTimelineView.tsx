@@ -39,43 +39,43 @@ export function IncidentTimelineView({
     switch (type) {
       case 'declared':
         return (
-          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 text-amber-600 dark:bg-amber-950 dark:text-amber-400 ring-4 ring-white dark:ring-zinc-950">
+          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 text-amber-600 dark:bg-amber-950 dark:text-amber-400 ring-4 ring-white dark:ring-slate-950">
             <Flame className="h-3.5 w-3.5 stroke-[2.5]" />
           </div>
         );
       case 'lead_assigned':
         return (
-          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-100 text-purple-600 dark:bg-purple-950 dark:text-purple-400 ring-4 ring-white dark:ring-zinc-950">
+          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-slate-900 dark:bg-slate-950 dark:text-slate-400 ring-4 ring-white dark:ring-slate-950">
             <UserCheck className="h-3.5 w-3.5 stroke-[2.5]" />
           </div>
         );
       case 'slack_pin':
         return (
-          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-sky-100 text-sky-600 dark:bg-sky-950 dark:text-sky-400 ring-4 ring-white dark:ring-zinc-950">
+          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-slate-900 dark:bg-slate-950 dark:text-slate-400 ring-4 ring-white dark:ring-slate-950">
             <Pin className="h-3.5 w-3.5 stroke-[2.5]" />
           </div>
         );
       case 'severity_changed':
         return (
-          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400 ring-4 ring-white dark:ring-zinc-950">
+          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-slate-900 dark:bg-slate-950 dark:text-slate-400 ring-4 ring-white dark:ring-slate-950">
             <AlertTriangle className="h-3.5 w-3.5 stroke-[2.5]" />
           </div>
         );
       case 'pr_deployed':
         return (
-          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-rose-100 text-rose-600 dark:bg-rose-950 dark:text-rose-400 ring-4 ring-white dark:ring-zinc-950">
+          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-rose-100 text-rose-600 dark:bg-rose-950 dark:text-rose-400 ring-4 ring-white dark:ring-slate-950">
             <GitPullRequest className="h-3.5 w-3.5 stroke-[2.5]" />
           </div>
         );
       case 'resolved':
         return (
-          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400 ring-4 ring-white dark:ring-zinc-950">
+          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400 ring-4 ring-white dark:ring-slate-950">
             <CheckCircle className="h-3.5 w-3.5 stroke-[2.5]" />
           </div>
         );
       default:
         return (
-          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 ring-4 ring-white dark:ring-zinc-950">
+          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 ring-4 ring-white dark:ring-slate-950">
             <MessageSquare className="h-3.5 w-3.5" />
           </div>
         );
@@ -91,7 +91,7 @@ export function IncidentTimelineView({
       case 'CONTRADICTION':
         return 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800';
       case 'ACTION':
-        return 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800';
+        return 'bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-950/40 dark:text-slate-300 dark:border-slate-800';
     }
   };
 
@@ -99,10 +99,10 @@ export function IncidentTimelineView({
     <div className={cn('py-4 space-y-6', className)}>
       {/* Speech Ledger Feed Callout if War Room events exist */}
       {ledgerEvents.length > 0 && (
-        <div className="rounded-xl border border-purple-200 dark:border-purple-900/60 bg-purple-50/50 dark:bg-purple-950/20 p-4 space-y-3">
+        <div className="rounded-xl border border-slate-200 dark:border-slate-900/60 bg-slate-100/50 dark:bg-slate-950/20 p-4 space-y-3">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-purple-900 dark:text-purple-200">
+            <Sparkles className="h-4 w-4 text-slate-900 dark:text-slate-400" />
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-200">
               Live War Room Intelligence Ledger ({ledgerEvents.length})
             </h4>
           </div>
@@ -111,7 +111,7 @@ export function IncidentTimelineView({
             {ledgerEvents.map((evt, idx) => (
               <div
                 key={evt._id || idx}
-                className="flex items-start gap-2.5 rounded-lg border border-white/80 dark:border-zinc-800/80 bg-white/90 dark:bg-zinc-900/80 p-2.5 text-xs shadow-2xs"
+                className="flex items-start gap-2.5 rounded-lg border border-white/80 dark:border-slate-800/80 bg-white/90 dark:bg-slate-900/80 p-2.5 text-xs shadow-2xs"
               >
                 <span
                   className={cn(
@@ -122,14 +122,14 @@ export function IncidentTimelineView({
                   {evt.tag}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 text-[11px] text-zinc-500 mb-0.5">
-                    <span className="font-semibold text-zinc-700 dark:text-zinc-300">
+                  <div className="flex items-center gap-2 text-[11px] text-slate-500 mb-0.5">
+                    <span className="font-semibold text-slate-700 dark:text-slate-300">
                       {evt.speaker}
                     </span>
                     <span>•</span>
                     <span className="font-mono">{evt.timestamp}</span>
                   </div>
-                  <p className="text-zinc-800 dark:text-zinc-200 leading-snug">
+                  <p className="text-slate-800 dark:text-slate-200 leading-snug">
                     {evt.text}
                   </p>
                 </div>
@@ -140,7 +140,7 @@ export function IncidentTimelineView({
       )}
 
       {/* Main Vertical Timeline Feed */}
-      <div className="relative pl-6 border-l-2 border-zinc-200 dark:border-zinc-800 space-y-6 ml-3">
+      <div className="relative pl-6 border-l-2 border-slate-200 dark:border-slate-800 space-y-6 ml-3">
         {timelineEvents.map((event, idx) => (
           <div key={event.id || idx} className="relative group">
             {/* Milestone icon positioned over vertical line */}
@@ -151,7 +151,7 @@ export function IncidentTimelineView({
             {/* Event Body */}
             <div className="space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+                <span className="text-xs font-semibold text-slate-900 dark:text-slate-100">
                   {event.title}
                 </span>
                 {event.badgeLabel && (
@@ -159,19 +159,19 @@ export function IncidentTimelineView({
                     {event.badgeLabel}
                   </span>
                 )}
-                <span className="text-[11px] text-zinc-400 font-mono">
+                <span className="text-[11px] text-slate-400 font-mono">
                   {event.timeFormatted}
                 </span>
               </div>
 
               {event.description && (
-                <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-2xl">
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl">
                   {event.description}
                 </p>
               )}
 
               {event.author && (
-                <span className="text-[10px] text-zinc-400 font-medium block">
+                <span className="text-[10px] text-slate-400 font-medium block">
                   by {event.author}
                 </span>
               )}

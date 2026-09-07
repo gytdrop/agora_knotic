@@ -173,7 +173,7 @@ export function PreCallHardwarePreview({
   };
 
   return (
-    <div className="flex w-full max-w-2xl flex-col rounded-2xl border border-zinc-800 bg-[#28292c] p-4 shadow-xl font-sans">
+    <div className="flex w-full max-w-2xl flex-col rounded-2xl border border-slate-800 bg-[#28292c] p-4 shadow-xl font-sans">
       {/* Insecure Origin Alert */}
       {isInsecureOrigin && (
         <div className="mb-3 w-full rounded-xl border border-amber-800/80 bg-amber-950/70 p-3 text-xs text-amber-200">
@@ -183,23 +183,23 @@ export function PreCallHardwarePreview({
       )}
 
       {/* 1. Video Box Container */}
-      <div className="relative flex aspect-video w-full flex-col items-center justify-center overflow-hidden rounded-xl border border-zinc-700/80 bg-[#1e1f22]">
+      <div className="relative flex aspect-video w-full flex-col items-center justify-center overflow-hidden rounded-xl border border-slate-700/80 bg-[#1e1f22]">
         {!hasPermission ? (
           <div className="flex flex-col items-center justify-center gap-4 px-6 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300">
-              <Lock className="h-5 w-5 text-zinc-400" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-800 border border-slate-700 text-slate-300">
+              <Lock className="h-5 w-5 text-slate-400" />
             </div>
             <div>
-              <p className="text-base font-medium text-zinc-200">
+              <p className="text-base font-medium text-slate-200">
                 Initialize hardware for WebRTC ingestion
               </p>
-              <p className="text-xs text-zinc-400 mt-1">
+              <p className="text-xs text-slate-400 mt-1">
                 Grant camera and microphone permissions to verify audio levels.
               </p>
             </div>
             <button
               onClick={handleRequestPermission}
-              className="flex items-center gap-2 rounded-lg bg-zinc-100 px-5 py-2.5 text-xs font-semibold text-zinc-900 shadow-sm transition-all hover:bg-white active:scale-95"
+              className="flex items-center gap-2 rounded-lg bg-slate-100 px-5 py-2.5 text-xs font-semibold text-slate-900 shadow-sm transition-all hover:bg-white active:scale-95"
             >
               <Lock className="h-3.5 w-3.5" />
               ALLOW MICROPHONE AND CAMERA
@@ -214,10 +214,10 @@ export function PreCallHardwarePreview({
           />
         ) : (
           <div className="flex flex-col items-center justify-center gap-2">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 text-xl font-semibold">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-slate-800 border border-slate-700 text-slate-300 text-xl font-semibold">
               AK
             </div>
-            <div className="flex items-center gap-1 text-xs text-zinc-400">
+            <div className="flex items-center gap-1 text-xs text-slate-400">
               <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
               <span>Hardware Initialized (Camera Muted)</span>
             </div>
@@ -226,14 +226,14 @@ export function PreCallHardwarePreview({
 
         {/* Audio Waveform Meter (When Permission Granted) */}
         {hasPermission && (
-          <div className="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-zinc-950/80 px-2.5 py-1 border border-zinc-800 backdrop-blur-md">
+          <div className="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-slate-950/80 px-2.5 py-1 border border-slate-800 backdrop-blur-md">
             <Mic className="h-3 w-3 text-emerald-400" />
             <div className="flex items-center gap-0.5">
               {[...Array(5)].map((_, i) => (
                 <span
                   key={i}
                   className={`h-2.5 w-1 rounded-full transition-all duration-75 ${
-                    audioLevel > i * 18 ? 'bg-emerald-400' : 'bg-zinc-700'
+                    audioLevel > i * 18 ? 'bg-emerald-400' : 'bg-slate-700'
                   }`}
                 />
               ))}
@@ -242,12 +242,12 @@ export function PreCallHardwarePreview({
         )}
 
         {/* Control Bar inside Preview Card */}
-        <div className="absolute bottom-3 flex items-center gap-2 rounded-xl bg-zinc-950/85 px-3 py-1.5 border border-zinc-800/80 backdrop-blur-md">
+        <div className="absolute bottom-3 flex items-center gap-2 rounded-xl bg-slate-950/85 px-3 py-1.5 border border-slate-800/80 backdrop-blur-md">
           <button
             onClick={toggleMic}
             className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
               micEnabled
-                ? 'bg-zinc-800 text-zinc-200 hover:bg-zinc-700 border border-zinc-700'
+                ? 'bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700'
                 : 'bg-rose-900/80 text-rose-200 border border-rose-700'
             }`}
             title={micEnabled ? 'Mute Mic' : 'Unmute Mic'}
@@ -259,7 +259,7 @@ export function PreCallHardwarePreview({
             onClick={() => setAudioEnabled(!audioEnabled)}
             className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
               audioEnabled
-                ? 'bg-zinc-800 text-zinc-200 hover:bg-zinc-700 border border-zinc-700'
+                ? 'bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700'
                 : 'bg-rose-900/80 text-rose-200 border border-rose-700'
             }`}
             title={audioEnabled ? 'Mute Speaker' : 'Unmute Speaker'}
@@ -271,8 +271,8 @@ export function PreCallHardwarePreview({
             onClick={toggleVideo}
             className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
               videoEnabled
-                ? 'bg-zinc-800 text-zinc-200 hover:bg-zinc-700 border border-zinc-700'
-                : 'bg-zinc-800 text-zinc-500 hover:bg-zinc-700 border border-zinc-700'
+                ? 'bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700'
+                : 'bg-slate-800 text-slate-500 hover:bg-slate-700 border border-slate-700'
             }`}
             title={videoEnabled ? 'Turn Camera Off' : 'Turn Camera On'}
           >
@@ -280,7 +280,7 @@ export function PreCallHardwarePreview({
           </button>
 
           <div
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-800 text-zinc-300 border border-zinc-700"
+            className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800 text-slate-300 border border-slate-700"
             title="WebRTC Network Latency < 300ms"
           >
             <Wifi className="h-3.5 w-3.5" />
@@ -290,42 +290,42 @@ export function PreCallHardwarePreview({
 
       {/* 2. Device Selection Dropdowns - Cleanly Integrated INSIDE the card as an inline row */}
       <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-sans">
-        <div className="flex items-center justify-between rounded-lg border border-zinc-700/60 bg-zinc-900/90 px-2.5 py-1.5 text-zinc-300 min-w-0 hover:border-zinc-600 transition-colors">
+        <div className="flex items-center justify-between rounded-lg border border-slate-700/60 bg-slate-900/90 px-2.5 py-1.5 text-slate-300 min-w-0 hover:border-slate-600 transition-colors">
           <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
-            <Mic className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
+            <Mic className="h-3.5 w-3.5 text-slate-400 shrink-0" />
             <span className="truncate text-[11px]">
               {hasPermission ? 'Default Mic' : 'Microphone'}
             </span>
           </div>
-          <ChevronDown className="h-3 w-3 text-zinc-500 shrink-0 ml-1" />
+          <ChevronDown className="h-3 w-3 text-slate-500 shrink-0 ml-1" />
         </div>
 
-        <div className="flex items-center justify-between rounded-lg border border-zinc-700/60 bg-zinc-900/90 px-2.5 py-1.5 text-zinc-300 min-w-0 hover:border-zinc-600 transition-colors">
+        <div className="flex items-center justify-between rounded-lg border border-slate-700/60 bg-slate-900/90 px-2.5 py-1.5 text-slate-300 min-w-0 hover:border-slate-600 transition-colors">
           <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
-            <Volume2 className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
+            <Volume2 className="h-3.5 w-3.5 text-slate-400 shrink-0" />
             <span className="truncate text-[11px]">
               {hasPermission ? 'Default Speaker' : 'Speaker'}
             </span>
           </div>
-          <ChevronDown className="h-3 w-3 text-zinc-500 shrink-0 ml-1" />
+          <ChevronDown className="h-3 w-3 text-slate-500 shrink-0 ml-1" />
         </div>
 
-        <div className="flex items-center justify-between rounded-lg border border-zinc-700/60 bg-zinc-900/90 px-2.5 py-1.5 text-zinc-300 min-w-0 hover:border-zinc-600 transition-colors">
+        <div className="flex items-center justify-between rounded-lg border border-slate-700/60 bg-slate-900/90 px-2.5 py-1.5 text-slate-300 min-w-0 hover:border-slate-600 transition-colors">
           <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
-            <Video className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
+            <Video className="h-3.5 w-3.5 text-slate-400 shrink-0" />
             <span className="truncate text-[11px]">
               {hasPermission ? 'Webcam 720p' : 'Camera'}
             </span>
           </div>
-          <ChevronDown className="h-3 w-3 text-zinc-500 shrink-0 ml-1" />
+          <ChevronDown className="h-3 w-3 text-slate-500 shrink-0 ml-1" />
         </div>
 
-        <div className="flex items-center justify-between rounded-lg border border-zinc-700/60 bg-zinc-900/90 px-2.5 py-1.5 text-zinc-300 min-w-0 hover:border-zinc-600 transition-colors">
+        <div className="flex items-center justify-between rounded-lg border border-slate-700/60 bg-slate-900/90 px-2.5 py-1.5 text-slate-300 min-w-0 hover:border-slate-600 transition-colors">
           <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
             <Wifi className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
             <span className="truncate text-[11px] text-emerald-400">Agora RTC OK</span>
           </div>
-          <ChevronDown className="h-3 w-3 text-zinc-500 shrink-0 ml-1" />
+          <ChevronDown className="h-3 w-3 text-slate-500 shrink-0 ml-1" />
         </div>
       </div>
     </div>

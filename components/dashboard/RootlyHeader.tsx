@@ -65,7 +65,7 @@ export function RootlyHeader({
   return (
     <header
       className={cn(
-        'sticky top-0 z-20 flex h-16 w-full items-center justify-between border-b border-zinc-200 bg-white/95 px-4 sm:px-6 backdrop-blur-xs select-none transition-all',
+        'sticky top-0 z-20 flex h-16 w-full items-center justify-between border-b border-slate-200 bg-white/95 px-4 sm:px-6 backdrop-blur-xs select-none transition-all',
         className
       )}
     >
@@ -76,13 +76,13 @@ export function RootlyHeader({
             type="button"
             onClick={onToggleMobileMenu}
             aria-label="Open sidebar menu"
-            className="inline-flex md:hidden items-center justify-center p-1.5 -ml-1 rounded-lg text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 focus:outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer shrink-0"
+            className="inline-flex md:hidden items-center justify-center p-1.5 -ml-1 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-700/20 cursor-pointer shrink-0"
           >
             <Menu className="h-5 w-5" />
           </button>
         )}
 
-        <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-purple-600 to-indigo-600 text-xs font-bold text-white shadow-xs overflow-visible">
+        <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-slate-900 to-slate-900 text-xs font-bold text-white shadow-xs overflow-visible">
           {avatarUrl ? (
             <Image
               src={avatarUrl}
@@ -103,10 +103,10 @@ export function RootlyHeader({
         </div>
 
         <div className="flex min-w-0 flex-col">
-          <h1 className="truncate text-sm sm:text-base font-bold tracking-tight text-zinc-900">
+          <h1 className="truncate text-sm sm:text-base font-bold tracking-tight text-slate-900">
             {greeting} {userName} 👋
           </h1>
-          <div className="hidden sm:flex items-center gap-1.5 text-[11px] text-zinc-400 font-medium">
+          <div className="hidden sm:flex items-center gap-1.5 text-[11px] text-slate-400 font-medium">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
             <span>Operational · Production Environment</span>
           </div>
@@ -117,14 +117,14 @@ export function RootlyHeader({
       <div className="flex items-center gap-2.5 sm:gap-3">
         {/* Search Incidents Input */}
         <div className="relative flex items-center">
-          <Search className="absolute left-3 h-3.5 w-3.5 text-zinc-400 pointer-events-none" />
+          <Search className="absolute left-3 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
           <input
             ref={searchInputRef}
             type="text"
             value={currentSearchValue}
             onChange={handleSearchInputChange}
             placeholder="Search Incidents..."
-            className="h-9 w-40 sm:w-56 md:w-72 rounded-lg border border-zinc-200 bg-transparent pl-9 pr-8 text-xs text-zinc-900 placeholder:text-zinc-400 shadow-2xs transition-all hover:border-zinc-300 focus:border-purple-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+            className="h-9 w-40 sm:w-56 md:w-72 rounded-lg border border-slate-200 bg-transparent pl-9 pr-8 text-xs text-slate-900 placeholder:text-slate-400 shadow-2xs transition-all hover:border-slate-300 focus:border-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-700/20"
             style={{ backgroundColor: 'transparent' }}
           />
           {currentSearchValue ? (
@@ -132,12 +132,12 @@ export function RootlyHeader({
               type="button"
               onClick={handleClearSearch}
               aria-label="Clear search"
-              className="absolute right-2.5 rounded p-0.5 text-zinc-400 hover:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-purple-500/30 cursor-pointer"
+              className="absolute right-2.5 rounded p-0.5 text-slate-400 hover:text-slate-600 focus:outline-none focus:ring-1 focus:ring-slate-700/30 cursor-pointer"
             >
               <X className="h-3.5 w-3.5" />
             </button>
           ) : (
-            <kbd className="pointer-events-none absolute right-2.5 hidden sm:inline-flex items-center rounded border border-zinc-200 bg-white px-1.5 py-0.5 text-[10px] font-mono font-medium text-zinc-400 shadow-2xs">
+            <kbd className="pointer-events-none absolute right-2.5 hidden sm:inline-flex items-center rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-mono font-medium text-slate-400 shadow-2xs">
               ⌘K
             </kbd>
           )}
@@ -147,9 +147,9 @@ export function RootlyHeader({
         <button
           type="button"
           onClick={onCreateIncident}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 px-3.5 py-2 text-xs font-semibold text-white shadow-xs transition-all duration-150 hover:from-purple-700 hover:to-indigo-700 hover:shadow active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-purple-500/40 cursor-pointer shrink-0"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-slate-900 to-slate-900 px-3.5 py-2 text-xs font-semibold text-white shadow-xs transition-all duration-150 hover:from-slate-800 hover:to-slate-800 hover:shadow active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-slate-700/40 cursor-pointer shrink-0"
         >
-          <Sparkles className="h-3.5 w-3.5 text-purple-200" />
+          <Sparkles className="h-3.5 w-3.5 text-slate-200" />
           <span className="hidden xs:inline sm:inline">Declare Incident</span>
           <span className="inline xs:hidden sm:hidden">Declare</span>
         </button>

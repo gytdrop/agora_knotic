@@ -47,7 +47,7 @@ export class ErrorBoundary extends React.Component<
               An error occurred while loading the conversation. Please try refreshing the page.
             </p>
             {this.state.error?.message && (
-              <p className="text-xs font-mono text-zinc-500 bg-zinc-100 dark:bg-zinc-800 p-2.5 rounded-md mb-5 break-words max-h-24 overflow-y-auto">
+              <p className="text-xs font-mono text-slate-500 bg-slate-100 dark:bg-slate-800 p-2.5 rounded-md mb-5 break-words max-h-24 overflow-y-auto">
                 {this.state.error.message}
               </p>
             )}

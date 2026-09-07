@@ -54,7 +54,7 @@ export function IncidentActionsView({
   return (
     <div className={cn('py-4 space-y-4', className)}>
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
           In-Incident Action Checklist ({actions.filter((a) => a.completed).length}/{actions.length})
         </h3>
 
@@ -62,7 +62,7 @@ export function IncidentActionsView({
           <button
             type="button"
             onClick={() => setIsAdding(true)}
-            className="inline-flex items-center gap-1 text-xs font-semibold text-purple-600 dark:text-purple-400 hover:text-purple-700 cursor-pointer"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-slate-900 dark:text-slate-400 hover:text-slate-800 cursor-pointer"
           >
             <Plus className="h-3.5 w-3.5" />
             <span>Add Action</span>
@@ -77,19 +77,19 @@ export function IncidentActionsView({
             placeholder="Action description..."
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
-            className="flex-1 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-1.5 text-xs text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-purple-500/20"
+            className="flex-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-xs text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-slate-700/20"
             autoFocus
           />
           <button
             type="submit"
-            className="rounded-lg bg-purple-600 px-3 py-1.5 text-xs font-semibold text-white shadow-2xs hover:bg-purple-500 cursor-pointer"
+            className="rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white shadow-2xs hover:bg-slate-700 cursor-pointer"
           >
             Save
           </button>
           <button
             type="button"
             onClick={() => setIsAdding(false)}
-            className="rounded-lg border border-zinc-200 dark:border-zinc-700 px-3 py-1.5 text-xs font-medium text-zinc-500 cursor-pointer"
+            className="rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-500 cursor-pointer"
           >
             Cancel
           </button>
@@ -97,7 +97,7 @@ export function IncidentActionsView({
       )}
 
       {actions.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-zinc-200 dark:border-zinc-800 p-8 text-center text-xs text-zinc-400">
+        <div className="rounded-xl border border-dashed border-slate-200 dark:border-slate-800 p-8 text-center text-xs text-slate-400">
           No live incident actions recorded. Click &quot;Add Action&quot; to assign tasks during response.
         </div>
       ) : (
@@ -106,20 +106,20 @@ export function IncidentActionsView({
             <div
               key={action.id}
               onClick={() => handleToggle(action.id)}
-              className="flex items-center justify-between p-3 rounded-lg border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-colors"
+              className="flex items-center justify-between p-3 rounded-lg border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors"
             >
               <div className="flex items-center gap-2.5">
                 {action.completed ? (
                   <CheckSquare className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 ) : (
-                  <Square className="h-4 w-4 text-zinc-400 shrink-0" />
+                  <Square className="h-4 w-4 text-slate-400 shrink-0" />
                 )}
                 <span
                   className={cn(
                     'text-xs font-medium',
                     action.completed
-                      ? 'line-through text-zinc-400 dark:text-zinc-500'
-                      : 'text-zinc-900 dark:text-zinc-100'
+                      ? 'line-through text-slate-400 dark:text-slate-500'
+                      : 'text-slate-900 dark:text-slate-100'
                   )}
                 >
                   {action.title}
@@ -127,7 +127,7 @@ export function IncidentActionsView({
               </div>
 
               {action.assignee && (
-                <div className="flex items-center gap-1 text-[11px] text-zinc-400 font-medium">
+                <div className="flex items-center gap-1 text-[11px] text-slate-400 font-medium">
                   <User className="h-3 w-3" />
                   <span>{action.assignee}</span>
                 </div>

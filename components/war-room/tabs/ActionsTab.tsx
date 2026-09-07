@@ -39,12 +39,12 @@ export function ActionsTab({
   }, [ledgerItems, activeFilter]);
 
   return (
-    <div className="flex flex-col h-full bg-[#18191d] text-zinc-200 font-sans text-xs select-none">
+    <div className="flex flex-col h-full bg-[#18191d] text-slate-200 font-sans text-xs select-none">
       {/* Scrollable Container */}
       <div className="flex-1 overflow-y-auto p-3.5 space-y-4 custom-scrollbar">
         {/* Section 1: Relocated HITL Guardrail Capsule */}
         <div>
-          <div className="flex items-center gap-1.5 font-semibold text-zinc-200 text-xs mb-2">
+          <div className="flex items-center gap-1.5 font-semibold text-slate-200 text-xs mb-2">
             <Zap className="h-3.5 w-3.5 text-amber-400" />
             <span>HITL Remediation Capsule</span>
           </div>
@@ -60,7 +60,7 @@ export function ActionsTab({
         {/* Section 2: Conversation Parsing Header & Filter Pills */}
         <div className="pt-1">
           <div className="flex items-center justify-between mb-2">
-            <span className="font-semibold text-zinc-200 text-xs uppercase tracking-wide">
+            <span className="font-semibold text-slate-200 text-xs uppercase tracking-wide">
               Conversation Parsing
             </span>
             <span className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-800/40">
@@ -70,13 +70,13 @@ export function ActionsTab({
           </div>
 
           {/* Filter Pills */}
-          <div className="grid grid-cols-4 gap-1 p-1 rounded-xl bg-zinc-900 border border-zinc-800/80 mb-2">
+          <div className="grid grid-cols-4 gap-1 p-1 rounded-xl bg-slate-900 border border-slate-800/80 mb-2">
             <button
               onClick={() => setActiveFilter('all')}
               className={`flex items-center justify-center gap-1 py-1 rounded-lg text-[10px] font-medium transition-colors ${
                 activeFilter === 'all'
-                  ? 'bg-zinc-800 text-zinc-100 shadow-sm'
-                  : 'text-zinc-400 hover:text-zinc-200'
+                  ? 'bg-slate-800 text-slate-100 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               <MessageSquare className="h-3 w-3" />
@@ -87,8 +87,8 @@ export function ActionsTab({
               onClick={() => setActiveFilter('facts')}
               className={`flex items-center justify-center gap-1 py-1 rounded-lg text-[10px] font-medium transition-colors ${
                 activeFilter === 'facts'
-                  ? 'bg-zinc-800 text-emerald-300 shadow-sm'
-                  : 'text-zinc-400 hover:text-zinc-200'
+                  ? 'bg-slate-800 text-emerald-300 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               <CheckCircle2 className="h-3 w-3 text-emerald-400" />
@@ -99,8 +99,8 @@ export function ActionsTab({
               onClick={() => setActiveFilter('hypotheses')}
               className={`flex items-center justify-center gap-1 py-1 rounded-lg text-[10px] font-medium transition-colors ${
                 activeFilter === 'hypotheses'
-                  ? 'bg-zinc-800 text-amber-300 shadow-sm'
-                  : 'text-zinc-400 hover:text-zinc-200'
+                  ? 'bg-slate-800 text-amber-300 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               <Activity className="h-3 w-3 text-amber-400" />
@@ -111,8 +111,8 @@ export function ActionsTab({
               onClick={() => setActiveFilter('contradictions')}
               className={`flex items-center justify-center gap-1 py-1 rounded-lg text-[10px] font-medium transition-colors ${
                 activeFilter === 'contradictions'
-                  ? 'bg-zinc-800 text-rose-300 shadow-sm'
-                  : 'text-zinc-400 hover:text-zinc-200'
+                  ? 'bg-slate-800 text-rose-300 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               <AlertTriangle className="h-3 w-3 text-rose-400" />
@@ -121,7 +121,7 @@ export function ActionsTab({
           </div>
 
           {/* State Ledger Feed */}
-          <div className="rounded-xl border border-zinc-800/60 bg-[#16171b] overflow-hidden">
+          <div className="rounded-xl border border-slate-800/60 bg-[#16171b] overflow-hidden">
             <StateLedgerPanel items={filteredItems} />
           </div>
         </div>

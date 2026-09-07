@@ -63,7 +63,7 @@ export function IncidentsPageLayout({
   return (
     <div
       className={cn(
-        'flex min-h-screen flex-col md:flex-row bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 font-sans antialiased',
+        'flex min-h-screen flex-col md:flex-row bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50 font-sans antialiased',
         className
       )}
     >
@@ -77,22 +77,22 @@ export function IncidentsPageLayout({
       {/* Main Content Area (Mobile Header + Directory Container) */}
       <div className="flex flex-1 flex-col min-w-0">
         {/* Responsive top header for mobile */}
-        <div className="flex md:hidden items-center justify-between px-4 py-3 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+        <div className="flex md:hidden items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
           <div className="flex items-center gap-2.5">
             <button
               type="button"
               onClick={handleToggleMobileMenu}
               aria-label="Toggle navigation menu"
-              className="inline-flex items-center justify-center p-1.5 -ml-1 rounded-lg text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-purple-500/20 cursor-pointer shrink-0"
+              className="inline-flex items-center justify-center p-1.5 -ml-1 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-700/20 cursor-pointer shrink-0"
             >
               <Menu className="h-5 w-5" />
             </button>
             <div className="flex items-center gap-2">
-              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-purple-600 text-white shadow-xs">
+              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-slate-900 text-white shadow-xs">
                 <Asterisk className="h-4 w-4 stroke-[2.5]" />
               </div>
-              <span className="text-sm font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
-                Ecosphere <span className="font-normal text-zinc-400 dark:text-zinc-500">/</span> Incidents
+              <span className="text-sm font-bold tracking-tight text-slate-900 dark:text-slate-100">
+                Ecosphere <span className="font-normal text-slate-400 dark:text-slate-500">/</span> Incidents
               </span>
             </div>
           </div>
@@ -108,20 +108,20 @@ export function IncidentsPageLayout({
           >
             {/* Backdrop */}
             <div
-              className="fixed inset-0 bg-zinc-900/60 backdrop-blur-xs transition-opacity"
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"
               onClick={handleCloseMobileMenu}
               aria-hidden="true"
             />
 
             {/* Drawer Panel */}
-            <div className="relative flex w-64 max-w-[80vw] flex-1 flex-col bg-white dark:bg-zinc-900 shadow-2xl z-10">
+            <div className="relative flex w-64 max-w-[80vw] flex-1 flex-col bg-white dark:bg-slate-900 shadow-2xl z-10">
               {/* Close button inside drawer */}
               <div className="absolute right-2 top-3 z-40">
                 <button
                   type="button"
                   onClick={handleCloseMobileMenu}
                   aria-label="Close navigation menu"
-                  className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:text-zinc-500 dark:hover:bg-zinc-800 dark:hover:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-purple-500/30 cursor-pointer"
+                  className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-700/30 cursor-pointer"
                 >
                   <X className="h-4 w-4" />
                 </button>

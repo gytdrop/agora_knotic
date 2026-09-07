@@ -120,16 +120,16 @@ export function AiBriefTab() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#18191d] text-zinc-200 font-sans text-xs select-none">
+    <div className="flex flex-col h-full bg-[#18191d] text-slate-200 font-sans text-xs select-none">
       {/* Header */}
-      <div className="p-3 border-b border-zinc-800/80 flex items-center justify-between">
+      <div className="p-3 border-b border-slate-800/80 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-indigo-600/90 text-white">
+          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-slate-900/90 text-white">
             <Sparkles className="h-3.5 w-3.5" />
           </div>
           <div>
-            <div className="font-semibold text-zinc-100 text-xs">EchoSphere AI Assistant</div>
-            <div className="text-[10px] text-zinc-400 font-mono">Incident context loaded</div>
+            <div className="font-semibold text-slate-100 text-xs">EchoSphere AI Assistant</div>
+            <div className="text-[10px] text-slate-400 font-mono">Incident context loaded</div>
           </div>
         </div>
 
@@ -140,12 +140,12 @@ export function AiBriefTab() {
       </div>
 
       {/* Suggested Quick Prompt Chips */}
-      <div className="p-2.5 border-b border-zinc-800/60 bg-[#151619] flex flex-wrap gap-1.5">
+      <div className="p-2.5 border-b border-slate-800/60 bg-[#151619] flex flex-wrap gap-1.5">
         {SUGGESTED_PROMPTS.map((prompt) => (
           <button
             key={prompt}
             onClick={() => handleSendQuery(prompt)}
-            className="rounded-full bg-zinc-800/90 hover:bg-zinc-700/90 text-zinc-300 hover:text-white px-2.5 py-1 text-[10px] font-medium border border-zinc-700/60 transition-colors"
+            className="rounded-full bg-slate-800/90 hover:bg-slate-700/90 text-slate-300 hover:text-white px-2.5 py-1 text-[10px] font-medium border border-slate-700/60 transition-colors"
           >
             {prompt}
           </button>
@@ -162,8 +162,8 @@ export function AiBriefTab() {
             <div
               className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-medium ${
                 msg.sender === 'user'
-                  ? 'bg-zinc-700 text-zinc-100'
-                  : 'bg-indigo-600/80 text-white'
+                  ? 'bg-slate-700 text-slate-100'
+                  : 'bg-slate-900/80 text-white'
               }`}
             >
               {msg.sender === 'user' ? 'You' : <Bot className="h-3.5 w-3.5" />}
@@ -172,12 +172,12 @@ export function AiBriefTab() {
             <div
               className={`max-w-[85%] rounded-xl p-3 text-xs leading-relaxed ${
                 msg.sender === 'user'
-                  ? 'bg-zinc-800 text-zinc-100 border border-zinc-700/80'
-                  : 'bg-[#202126] text-zinc-200 border border-zinc-700/60'
+                  ? 'bg-slate-800 text-slate-100 border border-slate-700/80'
+                  : 'bg-[#202126] text-slate-200 border border-slate-700/60'
               }`}
             >
               <p className="whitespace-pre-wrap">{msg.text}</p>
-              <div className="text-[9px] text-zinc-500 mt-1.5 font-mono text-right">
+              <div className="text-[9px] text-slate-500 mt-1.5 font-mono text-right">
                 {msg.timestamp}
               </div>
             </div>
@@ -185,8 +185,8 @@ export function AiBriefTab() {
         ))}
 
         {isLoading && (
-          <div className="flex items-center gap-2 text-zinc-400 text-xs pl-8">
-            <Loader2 className="h-3.5 w-3.5 animate-spin text-indigo-400" />
+          <div className="flex items-center gap-2 text-slate-400 text-xs pl-8">
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-slate-400" />
             <span>EchoSphere AI analyzing incident context...</span>
           </div>
         )}
@@ -194,7 +194,7 @@ export function AiBriefTab() {
       </div>
 
       {/* Input Dock */}
-      <div className="p-3 border-t border-zinc-800/80 bg-[#151619]">
+      <div className="p-3 border-t border-slate-800/80 bg-[#151619]">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -207,12 +207,12 @@ export function AiBriefTab() {
             value={inputQuery}
             onChange={(e) => setInputQuery(e.target.value)}
             placeholder="Ask EchoSphere AI about this incident..."
-            className="w-full rounded-xl bg-[#202126] border border-zinc-700/80 px-3.5 py-2.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors pr-10"
+            className="on-dark w-full rounded-xl bg-[#202126] border border-slate-700/80 px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-slate-500 transition-colors pr-10"
           />
           <button
             type="submit"
             disabled={!inputQuery.trim() || isLoading}
-            className="absolute right-2 p-1.5 rounded-lg bg-indigo-600/90 text-white hover:bg-indigo-500 disabled:opacity-30 transition-all"
+            className="absolute right-2 p-1.5 rounded-lg bg-slate-900/90 text-white hover:bg-slate-700 disabled:opacity-30 transition-all"
             title="Ask AI"
           >
             <Send className="h-3.5 w-3.5" />

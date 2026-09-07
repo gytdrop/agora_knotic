@@ -62,9 +62,9 @@ export function WarRoomSidebar({
   ];
 
   return (
-    <aside className="relative flex flex-col h-full w-84 sm:w-96 border-l border-zinc-800/80 bg-[#18191d] font-sans text-zinc-100 shrink-0 shadow-2xl transition-all duration-300">
+    <aside className="relative flex flex-col h-full w-84 sm:w-96 border-l border-slate-800/80 bg-[#18191d] font-sans text-slate-100 shrink-0 shadow-2xl transition-all duration-300">
       {/* ── Top Header Bar ── */}
-      <div className="flex h-13 items-center justify-between border-b border-zinc-800/80 px-4 py-2.5">
+      <div className="flex h-13 items-center justify-between border-b border-slate-800/80 px-4 py-2.5">
         <div className="flex items-center gap-2">
           <span className="font-semibold text-xs tracking-tight text-white">
             War Room Tools
@@ -78,7 +78,7 @@ export function WarRoomSidebar({
         {onClose && (
           <button
             onClick={onClose}
-            className="flex h-7 w-7 items-center justify-center rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
+            className="flex h-7 w-7 items-center justify-center rounded-lg hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition-colors"
             title="Close War Room Tools"
           >
             <X className="h-4 w-4" />
@@ -87,7 +87,7 @@ export function WarRoomSidebar({
       </div>
 
       {/* ── 5 Tool Tabs Navigation Bar (Teams / Zoom style) ── */}
-      <div className="grid grid-cols-5 border-b border-zinc-800/80 bg-[#141518] px-1 py-1">
+      <div className="grid grid-cols-5 border-b border-slate-800/80 bg-[#141518] px-1 py-1">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
 
@@ -97,8 +97,8 @@ export function WarRoomSidebar({
               onClick={() => handleTabClick(tab.id)}
               className={`relative flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-lg text-[10px] font-medium transition-all ${
                 isActive
-                  ? 'bg-zinc-800/90 text-white shadow-sm'
-                  : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40'
+                  ? 'bg-slate-800/90 text-white shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
               }`}
               title={tab.label}
             >
@@ -114,7 +114,7 @@ export function WarRoomSidebar({
 
               {/* Active Tab Underline Indicator */}
               {isActive && (
-                <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full bg-indigo-500" />
+                <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full bg-slate-700" />
               )}
             </button>
           );
