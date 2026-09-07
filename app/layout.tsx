@@ -48,15 +48,26 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <ClerkProvider appearance={{ theme: shadcn }}>
-      <html lang="en" className={`h-full ${montserrat.variable}`} style={{ colorScheme: 'light' }}>
-        <body className="h-full min-h-screen font-sans antialiased bg-white text-zinc-900" style={{ colorScheme: 'light' }}>
-          <ConvexClientProvider>
-            {children}
-          </ConvexClientProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+  // Clerk is optional per .env.example, and ConvexClientProvider already falls
+  // back to an unauthenticated provider when the key is absent. ClerkProvider
+  // itself throws on a missing publishableKey, which took down every route, so
+  // it is mounted only once the key is actually configured.
+  const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  const isClerkConfigured = Boolean(clerkKey && clerkKey.startsWith('pk_'));
+
+  const tree = (
+    <html lang="en" className={`h-full ${montserrat.variable}`} style={{ colorScheme: 'light' }}>
+      <body className="h-full min-h-screen font-sans antialiased bg-white text-slate-900" style={{ colorScheme: 'light' }}>
+        <ConvexClientProvider>
+          {children}
+        </ConvexClientProvider>
+      </body>
+    </html>
   );
+
+  if (!isClerkConfigured) {
+    return tree;
+  }
+
+  return <ClerkProvider appearance={{ theme: shadcn }}>{tree}</ClerkProvider>;
 }
