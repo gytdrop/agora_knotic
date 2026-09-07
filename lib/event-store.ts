@@ -168,6 +168,19 @@ export function recordIncidentEvent(
 /**
  * Retrieves the full incident state and ledger items for hydration.
  */
+/**
+ * Drop an incident's accumulated state so a demo can be run again cleanly.
+ *
+ * Without this the store keeps isResolved=true and appends another
+ * REMEDIATION_EXECUTED event on every run, so a second take's post-incident
+ * review shows two remediations and a third shows three. The next read
+ * re-seeds the incident from its defaults.
+ */
+export function resetIncidentState(incidentId: string = DEFAULT_INCIDENT_ID): boolean {
+  const normalized = incidentId.startsWith('#') ? incidentId : `#${incidentId}`;
+  return incidentStore.delete(normalized);
+}
+
 export function getIncidentState(incidentId: string = DEFAULT_INCIDENT_ID): IncidentState {
   return getOrCreateIncident(incidentId);
 }
