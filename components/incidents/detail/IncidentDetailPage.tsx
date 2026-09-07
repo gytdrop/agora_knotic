@@ -177,7 +177,7 @@ function IncidentDetailPageView({
   return (
     <div
       className={cn(
-        'min-h-screen bg-zinc-50 dark:bg-zinc-950 font-sans text-zinc-900 dark:text-zinc-100 antialiased',
+        'min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 antialiased',
         className
       )}
     >

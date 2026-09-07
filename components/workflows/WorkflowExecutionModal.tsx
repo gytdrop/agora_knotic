@@ -38,24 +38,24 @@ export function WorkflowExecutionModal({
   const running = isRunning || execution.status === 'running';
 
   const getActionIcon = (type: string) => {
-    if (type.includes('slack')) return <SlackIcon className="h-4 w-4 text-purple-600" />;
-    if (type.includes('war_room')) return <Video className="h-4 w-4 text-blue-600" />;
+    if (type.includes('slack')) return <SlackIcon className="h-4 w-4 text-slate-900" />;
+    if (type.includes('war_room')) return <Video className="h-4 w-4 text-slate-900" />;
     if (type.includes('ai') || type.includes('post_mortem')) return <Sparkles className="h-4 w-4 text-amber-500" />;
     return <Zap className="h-4 w-4 text-emerald-600" />;
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-xs font-sans">
-      <div className="relative w-full max-w-3xl max-h-[90vh] flex flex-col bg-white rounded-xl shadow-2xl border border-zinc-200 overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs font-sans">
+      <div className="relative w-full max-w-3xl max-h-[90vh] flex flex-col bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200 bg-zinc-50/50">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50/50">
           <div className="flex items-center gap-3">
             <div
               className={cn(
                 'h-9 w-9 rounded-lg flex items-center justify-center',
                 isSuccess && 'bg-emerald-100 text-emerald-700',
                 isFailed && 'bg-rose-100 text-rose-700',
-                running && 'bg-blue-100 text-blue-700'
+                running && 'bg-slate-100 text-slate-800'
               )}
             >
               {running && <Loader2 className="h-5 w-5 animate-spin" />}
@@ -64,30 +64,30 @@ export function WorkflowExecutionModal({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-sm font-bold text-zinc-900">{execution.workflowName}</h3>
+                <h3 className="text-sm font-bold text-slate-900">{execution.workflowName}</h3>
                 <span
                   className={cn(
                     'text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider',
                     isSuccess && 'bg-emerald-50 text-emerald-700 border border-emerald-200',
                     isFailed && 'bg-rose-50 text-rose-700 border border-rose-200',
-                    running && 'bg-blue-50 text-blue-700 border border-blue-200 animate-pulse'
+                    running && 'bg-slate-100 text-slate-800 border border-slate-200 animate-pulse'
                   )}
                 >
                   {execution.status}
                 </span>
               </div>
-              <div className="flex items-center gap-3 text-xs text-zinc-500 mt-0.5">
-                <span className="font-mono text-[11px] text-zinc-400">{execution.id}</span>
+              <div className="flex items-center gap-3 text-xs text-slate-500 mt-0.5">
+                <span className="font-mono text-[11px] text-slate-400">{execution.id}</span>
                 <span>•</span>
                 <span className="inline-flex items-center gap-1">
-                  <Zap className="h-3 w-3 text-purple-600" />
+                  <Zap className="h-3 w-3 text-slate-900" />
                   {execution.triggerType}
                 </span>
                 {execution.durationMs !== undefined && (
                   <>
                     <span>•</span>
                     <span className="inline-flex items-center gap-1">
-                      <Clock className="h-3 w-3 text-zinc-400" />
+                      <Clock className="h-3 w-3 text-slate-400" />
                       {execution.durationMs}ms
                     </span>
                   </>
@@ -99,22 +99,22 @@ export function WorkflowExecutionModal({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex border-b border-zinc-200 px-6 bg-white text-xs font-semibold">
+        <div className="flex border-b border-slate-200 px-6 bg-white text-xs font-semibold">
           <button
             type="button"
             onClick={() => setActiveTab('timeline')}
             className={cn(
               'py-2.5 px-3 border-b-2 transition-colors cursor-pointer',
               activeTab === 'timeline'
-                ? 'border-purple-600 text-purple-700 font-bold'
-                : 'border-transparent text-zinc-500 hover:text-zinc-800'
+                ? 'border-slate-900 text-slate-800 font-bold'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
             )}
           >
             Action Timeline ({execution.stepResults.length})
@@ -125,8 +125,8 @@ export function WorkflowExecutionModal({
             className={cn(
               'py-2.5 px-3 border-b-2 transition-colors cursor-pointer',
               activeTab === 'logs'
-                ? 'border-purple-600 text-purple-700 font-bold'
-                : 'border-transparent text-zinc-500 hover:text-zinc-800'
+                ? 'border-slate-900 text-slate-800 font-bold'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
             )}
           >
             Live Logs ({execution.logs.length})
@@ -137,8 +137,8 @@ export function WorkflowExecutionModal({
             className={cn(
               'py-2.5 px-3 border-b-2 transition-colors cursor-pointer',
               activeTab === 'context'
-                ? 'border-purple-600 text-purple-700 font-bold'
-                : 'border-transparent text-zinc-500 hover:text-zinc-800'
+                ? 'border-slate-900 text-slate-800 font-bold'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
             )}
           >
             Context & Payload
@@ -154,31 +154,31 @@ export function WorkflowExecutionModal({
                 return (
                   <div
                     key={step.actionId || idx}
-                    className="border border-zinc-200 rounded-lg overflow-hidden bg-white shadow-2xs transition-all hover:border-zinc-300"
+                    className="border border-slate-200 rounded-lg overflow-hidden bg-white shadow-2xs transition-all hover:border-slate-300"
                   >
                     <div
                       onClick={() => setExpandedStepId(isExpanded ? null : step.actionId)}
-                      className="flex items-center justify-between p-3.5 cursor-pointer bg-white hover:bg-zinc-50/70"
+                      className="flex items-center justify-between p-3.5 cursor-pointer bg-white hover:bg-slate-50/70"
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-zinc-100 shrink-0">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 shrink-0">
                           {getActionIcon(step.actionType)}
                         </div>
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-zinc-900 truncate">
+                            <span className="text-xs font-bold text-slate-900 truncate">
                               {idx + 1}. {step.actionName}
                             </span>
-                            <span className="font-mono text-[10px] text-zinc-400">({step.actionType})</span>
+                            <span className="font-mono text-[10px] text-slate-400">({step.actionType})</span>
                           </div>
-                          <p className="text-[11px] text-zinc-500 truncate">
+                          <p className="text-[11px] text-slate-500 truncate">
                             {step.status === 'success' ? 'Completed successfully' : step.error || 'Failed'}
                           </p>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-3 shrink-0">
-                        <span className="text-[11px] font-mono text-zinc-400">{step.durationMs}ms</span>
+                        <span className="text-[11px] font-mono text-slate-400">{step.durationMs}ms</span>
                         {step.status === 'success' ? (
                           <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
                             <CheckCircle2 className="h-3 w-3" />
@@ -195,19 +195,19 @@ export function WorkflowExecutionModal({
 
                     {/* Step Details */}
                     {isExpanded && (
-                      <div className="border-t border-zinc-100 bg-zinc-50 p-3.5 space-y-2 text-xs">
+                      <div className="border-t border-slate-100 bg-slate-50 p-3.5 space-y-2 text-xs">
                         {step.output && (
                           <div>
-                            <span className="font-semibold text-zinc-700 block mb-1">Step Outputs:</span>
-                            <pre className="p-2.5 rounded bg-zinc-900 text-zinc-100 text-[11px] font-mono overflow-x-auto">
+                            <span className="font-semibold text-slate-700 block mb-1">Step Outputs:</span>
+                            <pre className="p-2.5 rounded bg-slate-900 text-slate-100 text-[11px] font-mono overflow-x-auto">
                               {JSON.stringify(step.output, null, 2)}
                             </pre>
                           </div>
                         )}
                         {step.input && (
                           <div>
-                            <span className="font-semibold text-zinc-700 block mb-1">Configuration Inputs:</span>
-                            <pre className="p-2.5 rounded bg-zinc-100 border border-zinc-200 text-zinc-800 text-[11px] font-mono overflow-x-auto">
+                            <span className="font-semibold text-slate-700 block mb-1">Configuration Inputs:</span>
+                            <pre className="p-2.5 rounded bg-slate-100 border border-slate-200 text-slate-800 text-[11px] font-mono overflow-x-auto">
                               {JSON.stringify(step.input, null, 2)}
                             </pre>
                           </div>
@@ -226,26 +226,26 @@ export function WorkflowExecutionModal({
           )}
 
           {activeTab === 'logs' && (
-            <div className="rounded-lg bg-zinc-950 p-4 text-xs font-mono space-y-1.5 overflow-x-auto max-h-[500px]">
+            <div className="rounded-lg bg-slate-950 p-4 text-xs font-mono space-y-1.5 overflow-x-auto max-h-[500px]">
               {execution.logs.map((log) => (
                 <div key={log.id} className="flex items-start gap-2">
-                  <span className="text-zinc-500 shrink-0 select-none">
+                  <span className="text-slate-500 shrink-0 select-none">
                     {new Date(log.timestamp).toLocaleTimeString()}
                   </span>
                   <span
                     className={cn(
                       'uppercase text-[10px] font-bold px-1 rounded shrink-0 select-none',
-                      log.level === 'info' && 'bg-blue-900/50 text-blue-400',
+                      log.level === 'info' && 'bg-slate-900/50 text-slate-400',
                       log.level === 'warn' && 'bg-amber-900/50 text-amber-400',
                       log.level === 'error' && 'bg-rose-900/50 text-rose-400',
-                      log.level === 'debug' && 'bg-zinc-800 text-zinc-400'
+                      log.level === 'debug' && 'bg-slate-800 text-slate-400'
                     )}
                   >
                     {log.level}
                   </span>
                   <span
                     className={cn(
-                      'text-zinc-200 leading-relaxed',
+                      'text-slate-200 leading-relaxed',
                       log.level === 'error' && 'text-rose-300 font-semibold',
                       log.level === 'warn' && 'text-amber-200'
                     )}
@@ -260,15 +260,15 @@ export function WorkflowExecutionModal({
           {activeTab === 'context' && (
             <div className="space-y-4 text-xs">
               <div>
-                <span className="font-semibold text-zinc-800 block mb-1">Target Incident Context:</span>
-                <pre className="p-3 rounded-lg bg-zinc-900 text-zinc-100 text-[11px] font-mono overflow-x-auto">
+                <span className="font-semibold text-slate-800 block mb-1">Target Incident Context:</span>
+                <pre className="p-3 rounded-lg bg-slate-900 text-slate-100 text-[11px] font-mono overflow-x-auto">
                   {JSON.stringify(execution.contextSnapshot?.incident || {}, null, 2)}
                 </pre>
               </div>
 
               <div>
-                <span className="font-semibold text-zinc-800 block mb-1">Propagated Execution Variables:</span>
-                <pre className="p-3 rounded-lg bg-zinc-900 text-zinc-100 text-[11px] font-mono overflow-x-auto">
+                <span className="font-semibold text-slate-800 block mb-1">Propagated Execution Variables:</span>
+                <pre className="p-3 rounded-lg bg-slate-900 text-slate-100 text-[11px] font-mono overflow-x-auto">
                   {JSON.stringify(execution.contextSnapshot?.variables || {}, null, 2)}
                 </pre>
               </div>
@@ -277,12 +277,12 @@ export function WorkflowExecutionModal({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 py-3 border-t border-zinc-200 bg-zinc-50 text-xs text-zinc-500">
+        <div className="flex items-center justify-between px-6 py-3 border-t border-slate-200 bg-slate-50 text-xs text-slate-500">
           <span>Rootly-style Automated Workflow Engine v1.0</span>
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white font-semibold cursor-pointer"
+            className="px-4 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold cursor-pointer"
           >
             Close
           </button>
