@@ -22,11 +22,13 @@ import {
   IncidentDetailTabs,
   type IncidentDetailTab,
 } from './IncidentDetailTabs';
-import { IncidentTimelineView, type LedgerEventItem } from './IncidentTimelineView';
+import { type LedgerEventItem } from './IncidentTimelineView';
+import { IncidentTimelineVideoView } from './IncidentTimelineVideoView';
 import { IncidentActionsView } from './IncidentActionsView';
 import { IncidentFollowUpsView } from './IncidentFollowUpsView';
 import { IncidentUpdatesView } from './IncidentUpdatesView';
 import { IncidentAlertsView } from './IncidentAlertsView';
+import { IncidentResponseTeamView } from './IncidentResponseTeamView';
 import { AskIncidentDrawer } from './AskIncidentDrawer';
 import { EscalateModal } from './EscalateModal';
 import { demoIncidentStore } from '@/lib/demo/payment-incident-scenario';
@@ -155,6 +157,23 @@ function IncidentDetailPageView({
 
   const activeSeverity = normalizeSeverity(localSeverity);
 
+  // The approval gate fronts the first action still awaiting a decision. When
+  // everything is done the gate disappears rather than showing a dead button.
+  const liveActions = isDemo ? demoActions : actions;
+  const nextPendingAction = liveActions.find((action) => !action.completed) ?? null;
+  const pendingRemediation = nextPendingAction
+    ? {
+        title: nextPendingAction.title,
+        assignee: nextPendingAction.assignee ?? 'Unassigned',
+      }
+    : null;
+
+  const handleAuthorizeRemediation = () => {
+    if (nextPendingAction && isDemo) {
+      demoIncidentStore.toggleAction(nextPendingAction.id);
+    }
+  };
+
   return (
     <div
       className={cn(
@@ -208,10 +227,22 @@ function IncidentDetailPageView({
           {/* Active Tab View */}
           <div className="min-h-[300px]">
             {activeTab === 'timeline' && (
-              <IncidentTimelineView
+              <IncidentTimelineVideoView
                 timelineEvents={timelineEvents}
                 ledgerEvents={ledgerEvents}
                 isExpanded={isExpanded}
+                pendingAction={pendingRemediation}
+                onAuthorizeRemediation={handleAuthorizeRemediation}
+              />
+            )}
+
+            {activeTab === 'response-team' && (
+              <IncidentResponseTeamView
+                lead={initialRecord.lead}
+                reporter={initialRecord.reporter}
+                participants={participants}
+                affectedTeam={initialRecord.affectedTeam}
+                reviewer={initialRecord.reviewer}
               />
             )}
 
@@ -261,9 +292,9 @@ function IncidentDetailPageView({
       <button
         type="button"
         onClick={() => setIsAskAiOpen(true)}
-        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-2.5 text-xs font-bold text-white shadow-xl hover:from-purple-700 hover:to-indigo-700 hover:shadow-2xl transition-all duration-150 active:scale-95 cursor-pointer"
+        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full bg-gradient-to-r from-slate-900 to-slate-900 px-4 py-2.5 text-xs font-bold text-white shadow-xl hover:from-slate-800 hover:to-slate-800 hover:shadow-2xl transition-all duration-150 active:scale-95 cursor-pointer"
       >
-        <Sparkles className="h-4 w-4 text-purple-200" />
+        <Sparkles className="h-4 w-4 text-slate-200" />
         <span>Ask EchoSphere AI</span>
       </button>
 
