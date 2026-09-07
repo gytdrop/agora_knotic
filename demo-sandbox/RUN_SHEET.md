@@ -287,3 +287,95 @@ sandbox rather than a production payment system.
 remediation path executes code. There the numbers are scripted and the red-to-green
 flip rides a cross-tab signal. It looks identical. **Record locally** if you want
 the numbers to be genuine.
+
+---
+
+## DO NOT — read this before every take
+
+### 🔴 Will end the take. Start over.
+
+**Never press `Ctrl+R` / `F5` / `Cmd+R` in the war room tab.**
+Beat progress lives in memory with no persistence whatsoever. A reload resets
+the ledger to zero *and* drops you out of the Agora call. There is no recovery —
+you re-join and restart from Scene 1. This is the single most expensive mistake
+available, and it is one keystroke away.
+
+**Never close or navigate away from the war room tab.** Same outcome. That
+includes:
+- clicking the sidebar (Dashboard, Metrics, Workflows, any nav item)
+- the browser Back button
+- the **Leave** button in the control dock
+- clicking **Enter War Room** from another tab — it starts a fresh session
+
+If you need another page during the call, **open it in a new tab** (middle-click,
+or `Ctrl+click`). Never in the war room tab.
+
+**Never press `Ctrl+W`.** Muscle memory for closing a tab. It closes *the* tab.
+
+### 🟠 Will visibly break the demo
+
+**Do not press `Ctrl+Alt+N` unless a beat genuinely failed to fire.** It advances
+the beat immediately, and **there is no way back** — no undo, no previous-beat.
+Fire it early and you skip a scene on camera.
+
+**Do not say the *next* beat's trigger words early.** The ordering guard stops
+jumps *forward past* a beat, but the next beat is always armed. Saying "memory
+leak" during Scene 2 fires Beat 2 before B has spoken. Words to keep out of
+improvised dialogue until their scene:
+
+| Scene | Do not say yet |
+|---|---|
+| 1–2 | memory leak · worker thread · orchestrator · v2.8.1 · recent deploy |
+| 3 | disproving · connection pool · nominal at 58 · not a memory leak |
+| 4 | downstream · socket · backlog · fraud detection · timeout rate |
+| 5 | canary rollback · dashboard · three immediate · broadcast customer |
+
+**Do not click `Authorize 1-Click` before Beat 5.** It fires the rollback
+immediately and auto-routes to the post-mortem after ~1.2 seconds, ending the war
+room scene. There is no confirmation dialog.
+
+**Do not click Authorize twice.** The first click disables the button, but a
+double-click can land before the state updates.
+
+**Do not click "Reset for next take"** — on `localhost:4000` **or** the link at
+the bottom of acme-pay — at any point during a take. It flips the customer app
+back to red instantly.
+
+**Do not click "Stop traffic"** on the sandbox console. Metrics freeze and the
+window goes stale within seconds.
+
+### 🟡 Will look unprofessional
+
+**Do not show `localhost:4000` on camera.** That is the machinery. Keep it on a
+second monitor or minimised.
+
+**Do not open DevTools.** The console prints beat-matcher debug lines with
+`[EchoSphere:VoiceMatcher] Matched Demo Beat #N` — which tells the audience the
+beats are keyword-triggered.
+
+**Do not mute/unmute repeatedly** during the call. Toggling the mic can cut the
+transcript mid-sentence and drop the keyword that fires the beat.
+
+**Do not talk over each other.** Speech-to-text merges overlapping speakers and
+the trigger phrase can be mangled. Let each line finish. One beat, one speaker,
+clean air.
+
+**Do not change browser zoom mid-take.** Layout reflows on camera.
+
+**Do not resize the window** while the war room is connected — the video grid
+re-lays out.
+
+### ⚪ Harmless, in case you are worried
+
+- Reloading the **acme-pay** tab is safe. It re-reads state on mount.
+- Reloading the **portal** or **incident detail** page is safe.
+- Moving the mouse, scrolling the ledger, and hovering chapter pins are all safe.
+- `curl` in a terminal never affects the UI state.
+
+---
+
+## The one-line safety rule
+
+**Once the war room tab is live, the only keys you touch are `Ctrl+Alt+N`, and
+the only thing you click is `Authorize 1-Click`.** Everything else happens in
+other tabs.
