@@ -1,109 +1,96 @@
 # EchoSphere — INC-8921 Demo Run Sheet
 
+**Everything runs on the deployed URL. Nothing to install, nothing to start.**
+
+```
+https://agora-knotic-5vyh.vercel.app
+```
+
 **Cast:** 3 people + the AI. **Target runtime:** 4:00–4:30.
 
 ---
 
-## Casting — this is not arbitrary
+## 1 · What each person opens
+
+### Person A — Incident Commander *(shares screen — the audience sees only this)*
+
+Open these four tabs, in this order, before recording:
+
+| Tab | URL |
+|---|---|
+| **1** | `https://agora-knotic-5vyh.vercel.app` |
+| **2** | `https://agora-knotic-5vyh.vercel.app/demo-app` |
+| **3** | `https://agora-knotic-5vyh.vercel.app/war-room` |
+| **4** | `https://agora-knotic-5vyh.vercel.app/incidents/INC-8921` |
+
+### Person B — Lead SRE
+One tab only:
+```
+https://agora-knotic-5vyh.vercel.app/war-room
+```
+
+### Person C — Comms Lead
+One tab only:
+```
+https://agora-knotic-5vyh.vercel.app/war-room
+```
+
+**Only A shares their screen.** B and C are in the call as participants — their
+faces and voices carry, but nobody sees their browser. This removes most of the
+ways a take can be ruined.
+
+> Use the address above, **not** a preview URL with a build hash in it
+> (`...-lraoqtwi9-...`). Preview deployments are access-protected and will show a
+> "Request Sent" screen instead of the app.
+
+---
+
+## 2 · Casting — this is not arbitrary
 
 Ledger cards are attributed to the **scripted** speaker, not to whoever actually
-talks. So the first two roles are fixed:
+talks. Two roles are therefore fixed:
 
 | Person | Plays | Must speak |
 |---|---|---|
 | **A** | Ashley Sawatsky — Incident Commander | Beats **1** and **5** |
 | **B** | David Chen — Lead SRE | Beats **2**, **3**, **4** |
-| **C** | Sarah Connor — Comms Lead | **No beats.** Colour, comms, dashboard tour |
+| **C** | Sarah Connor — Comms Lead | **No beats** — reaction and comms only |
 
-If B speaks beat 1, the card still says "Ashley Sawatsky" and the demo reads
-wrong. Keep A and B on their own beats.
+If B speaks Beat 1, the card still reads "Ashley Sawatsky" and the demo looks
+broken. Keep A and B on their own beats.
 
-**A drives the screen share** throughout. C takes over the browser only for the
-dashboard tour in Scene 5 — or A keeps driving and C narrates. Decide beforehand.
-
-**C must avoid trigger words.** Her lines below are written to be safe. If she
-improvises, keep her clear of: *dashboard, socket, downstream, error rate,
-memory leak, connection pool, fraud detection, canary rollback, v2.8.1*.
+**C must avoid trigger words** if improvising: *dashboard, socket, downstream,
+error rate, memory leak, connection pool, fraud detection, canary rollback,
+v2.8.1*. Her scripted lines below are already verified clear of all of them.
 
 ---
 
-## Pre-flight — 10 minutes before recording
+## 3 · Pre-flight — 3 minutes
 
-**1. Start the sandbox** (terminal 1):
-
-```bash
-cd demo-sandbox && npm start
-```
-
-If it says the port is in use, a previous one is still alive:
-
-```bash
-pkill -f "node server.mjs" && cd demo-sandbox && npm start
-```
-
-**2. Confirm `.env.local` has `DEMO_SANDBOX=1`**, then start the app (terminal 2):
-
-```bash
-pnpm run dev
-```
-
-**3. Start traffic** (terminal 3, or click **Start traffic** at `localhost:4000`):
-
-```bash
-curl -X POST http://127.0.0.1:4000/load/start
-```
-
-**4. Wait ~30 seconds**, then confirm the numbers have converged:
-
-```bash
-curl -s http://127.0.0.1:4000/metrics
-```
-
-Expect error rate 43–48%, p99 ~6,100–6,800ms. If they are still at 0, traffic
-did not start.
-
-**5. Open tabs in this order** (A's screen):
-
-| Tab | URL | Role |
-|---|---|---|
-| 1 | `localhost:3000` | Portal — the opening shot |
-| 2 | `localhost:3000/demo-app` | acme-pay — should be **RED** |
-| 3 | `localhost:3000/war-room` | The call |
-| 4 | `localhost:3000/incidents/INC-8921` | Command center, for Scene 5 |
-
-Keep `localhost:4000` open on a **second monitor** or minimised. It is your
-control panel — never show it on camera.
-
-**6. Verify the reset state.** Tab 2 must be red and say *504 Gateway Timeout*.
-If it is green, click **Reset for next take** on `localhost:4000`, then reload.
-
-**7. B and C join the war room** from their own machines using the production
-URL (`agora-knotic-5vyh.vercel.app/war-room`) — or all three on one machine with
-separate browser profiles if you are recording solo-style.
+1. **A opens the four tabs above.** B and C open the war room.
+2. **Check Tab 2 is RED** and reads *504 Gateway Timeout*.
+   If it is green, scroll to the bottom of that page and click
+   **Reset for next take**, then reload.
+3. **All three join the war room** — enter names, allow mic and camera, click
+   **Join War Room**. Wait until the EchoSphere AI Sentinel appears as a
+   participant. That is your transcription; without it, beats fire only by
+   hotkey.
+4. **A returns to Tab 1** (the portal). That is the opening shot.
+5. **A starts screen share and recording.**
 
 ---
 
 ## SCENE 1 — The hook (0:00–0:25)
 
-**Screen:** Tab 1, the portal.
+**Screen: Tab 1 — the portal.**
 
 > **A:** "This is EchoSphere. Two surfaces of the same outage — the checkout our
-> customers are hitting, and the incident commander watching the call."
+> customers are hitting, and the incident commander that's listening to the call."
 
-**A clicks the acme-pay card.** Tab 2 opens: full red, **504 Gateway Timeout**,
-error rate climbing live.
+**A clicks the acme-pay card** → Tab 2: full red, **504 Gateway Timeout**.
 
-> **A:** "Payments are down. Forty-seven percent of checkouts are failing right
-> now, and p99 is over six seconds. These numbers are live — that is real traffic
-> hitting a real service."
-
-*Optional, strong if you have the terminal on screen:*
-
-```bash
-curl -i -X POST http://127.0.0.1:4000/checkout
-```
-
-> **A:** "Watch this hang… five seconds… and a 504."
+> **A:** "Payments are down. Forty-seven percent of checkouts failing, p99 over
+> six seconds. Right now a customer clicking Pay gets nothing."
 
 **A switches to Tab 3 — the war room.**
 
@@ -111,61 +98,58 @@ curl -i -X POST http://127.0.0.1:4000/checkout
 
 ## SCENE 2 — Triage (0:25–1:05) → **BEAT 1**
 
-**Screen:** Tab 3. All three visible, EchoSphere AI listed as a silent participant.
+**Screen: Tab 3.** All three participants visible, plus EchoSphere AI.
 
-> **C (Sarah):** "Comms is on. I have the status page staged and I am holding
-> until you confirm what customers are seeing."
+> **C:** "Comms is on. I've got the status page staged and I'm holding until you
+> confirm what customers are seeing."
 
-*(Safe — no trigger words. Noise filter may skip it entirely, which is fine.)*
-
-> **A (Ashley) — BEAT 1, say this clearly:**
+> **A — BEAT 1, say this clearly:**
 > **"Team, starting triage on INC-8921. Payment processing 5xx error rate is at
 > 47.2% and p99 latency spiked to 6.2 seconds. Approximately 1,420 checkout
 > attempts per minute are failing."**
 
-▶ **A green `FACT` card appears in the ledger.** Pause two seconds and let the
-audience see it land.
+▶ **A green `FACT` card appears.** Pause two seconds. Let it land.
 
 > **A:** "EchoSphere is listening. It just committed that as a confirmed fact —
-> not a guess."
+> not a guess. Nobody typed anything."
 
 ---
 
 ## SCENE 3 — The hypothesis (1:05–1:40) → **BEAT 2**
 
-> **B (David) — BEAT 2:**
+> **B — BEAT 2:**
 > **"Looking at recent deploys. payment-service v2.8.1 went live 20 minutes ago.
 > Hypothesis: worker thread recursion memory leak on the new payment
 > orchestrator."**
 
 ▶ **An amber `HYPOTHESIS` card appears.**
 
-> **A:** "Note it did not record that as fact. It is tagged as a hypothesis,
+> **A:** "Notice it did not record that as fact. It's tagged as a hypothesis —
 > still open."
 
-> **C:** "Do I tell customers it is a bad release? I do not want to publish
+> **C:** "Do I tell customers it's a bad release? I don't want to publish
 > something we walk back."
 
-> **A:** "Hold. We have not confirmed it."
+> **A:** "Hold. We haven't confirmed it."
 
-*(C's line is the reason the next beat matters — do not cut it.)*
+*(C's line sets up the next scene. Do not cut it.)*
 
 ---
 
 ## SCENE 4 — The contradiction (1:40–2:20) → **BEATS 3 & 4**
 
-> **B (David) — BEAT 3:**
+> **B — BEAT 3:**
 > **"Wait, disproving that. HolmesGPT telemetry query confirms DB connection pool
 > utilization is at 22% and pod memory usage is nominal at 58%. It is NOT a
 > memory leak or connection starvation."**
 
 ▶ **A red `CONTRADICTION` card appears** with the analysis box.
 
-> **A:** "That is the moment. Two responders disagreed, and EchoSphere caught it
-> against live telemetry — the memory-leak theory is dead. In a real war room
-> that is twenty minutes of people chasing the wrong thing."
+> **A:** "That's the moment. Two responders disagreed, and EchoSphere caught it
+> against telemetry. The memory-leak theory is dead. In a real war room that's
+> twenty minutes of people chasing the wrong thing."
 
-> **B (David) — BEAT 4:**
+> **B — BEAT 4:**
 > **"Isolating downstream trace: downstream dependency fraud detection service
 > timeout rate is 45%. It is holding open client sockets and exhausting the
 > connection backlog."**
@@ -180,23 +164,25 @@ audience see it land.
 
 ## SCENE 5 — Authorize (2:20–3:00) → **BEAT 5**
 
-> **A (Ashley) — BEAT 5:**
+> **A — BEAT 5:**
 > **"Acknowledged. Three immediate action items: first, execute canary rollback on
 > payment-service to v2.8.0. Second, page Fraud SRE on-call for socket
 > saturation. Third, broadcast customer update on Slack and Statuspage."**
 
-▶ **An `ACTION` card appears, and the Human Approval card surfaces** with
+▶ **An `ACTION` card appears and the Human Approval card surfaces**, showing
 **Authorize 1-Click**.
 
-> **A:** "Nothing has executed. EchoSphere staged the fix and stopped — a human
-> authorizes, always."
+> **A:** "Nothing has executed. EchoSphere staged the fix and stopped. A human
+> authorizes — always."
 
 **A clicks `Authorize 1-Click`.**
 
-*Alternative, more impressive if the agent is reliable — A says instead:*
+*Riskier but stronger, if the agent has been transcribing reliably all the way
+through — A says instead:*
 > **"EchoSphere, authorize the rollback."**
 
-Both do exactly the same thing.
+Both do exactly the same thing. **Decide before you record; do not improvise
+this.**
 
 ---
 
@@ -204,178 +190,183 @@ Both do exactly the same thing.
 
 **A switches to Tab 2 — acme-pay.**
 
-Within about two seconds it flips **GREEN**, **200 OK**, *All systems
-operational*.
+It is **GREEN**. **200 OK.** *All systems operational.*
 
-> **A:** "Error rate: zero point three percent. p99: under half a second."
+> **A:** "Error rate: nought point three percent. p99: under half a second."
 
-**Point at the two greyed-out tiles.**
+**A points at the two greyed-out tiles.**
 
-> **A:** "And look at these. Pod memory: fifty-eight percent. DB pool:
-> twenty-two of a hundred. Exactly where they were before. They never moved —
-> because they were never the problem. That is the hypothesis EchoSphere threw
+> **A:** "And look at these two. Pod memory, fifty-eight percent. Database pool,
+> twenty-two out of a hundred. Exactly where they were before. They never moved —
+> because they were never the problem. That's the hypothesis EchoSphere threw
 > out, proven wrong on screen."
 
-*This is the strongest ten seconds in the demo. Do not rush it.*
+*Strongest ten seconds in the demo. Slow down.*
 
 ---
 
-## SCENE 7 — Command center & post-mortem (3:30–4:20)
+## SCENE 7 — Command centre & post-mortem (3:30–4:20)
 
-The authorize action auto-routes to the post-mortem after ~1.2s. Let it, or go
-to Tab 4 first for the tour.
+Authorizing auto-routes to the post-mortem after about a second. **Let it go**,
+then A navigates back to Tab 4 for the tour. **A keeps driving; C narrates.**
 
-**C drives here.**
+> **C:** "Status page is going out, and the record's already written."
 
-> **C:** "Status page is going out now, and the record is already written."
+**On Tab 4 — `/incidents/INC-8921` — show briefly:**
 
-**On `/incidents/INC-8921` show, briefly:**
-
-1. **Timeline & Video** tab — scrub the recording, click a chapter pin
-2. The **AI ledger rail** — facts, hypotheses, the contradiction
-3. **Actions** tab — tick a remaining item
+1. **Timeline & Video** — scrub the recording, click a chapter pin
+2. The **AI ledger rail** — facts, hypothesis, the contradiction
+3. **Actions** — tick a remaining item
 4. **Escalate** → Fraud SRE → **Page On-Call Team**
 
-**Then the post-mortem** (`/post-mortem/INC-8921`):
+**Then the post-mortem:**
 
-> **A:** "The post-incident review wrote itself — timeline, the disproven
-> hypothesis, the root cause, and who authorized the fix. Nobody took notes."
+> **A:** "The post-incident review wrote itself. Timeline, the disproven
+> hypothesis, the root cause, who authorized the fix. Nobody took a single note."
 
 > **A (close):** "EchoSphere listened to a conversation, separated fact from
-> guess, caught the contradiction, and gated the fix behind a human. That is the
-> whole product."
+> guess, caught the contradiction, and gated the fix behind a human. That's the
+> product."
 
 ---
 
-## Between takes — 15 seconds
+## 4 · Between takes — 30 seconds
 
-1. Click **Reset for next take** on `localhost:4000`
-2. Click **Start traffic**
-3. Reload Tab 2 — confirm it is **RED** again
-4. Reload Tab 3 for a fresh war room
+1. On Tab 2 (**acme-pay**), scroll down, click **Reset for next take**
+2. Reload Tab 2 — confirm it is **RED** again
+3. Reload Tab 3 (**war room**) and all three re-join
+4. A returns to Tab 1
 
-The demo is deterministic: same inputs, same numbers, every take.
-
----
-
-## If something goes wrong
-
-| Symptom | Fix |
-|---|---|
-| A beat does not fire | Press **Ctrl+Alt+N**. Advances the next beat silently. Nobody watching can tell. |
-| Beats fire out of order | Cannot happen — only `currentBeat + 1` is eligible. |
-| acme-pay stays red after authorize | Reload the tab. State is read on mount. |
-| acme-pay opens green | Reset was skipped. Click **Reset for next take**. |
-| Numbers show 0 | Traffic is not running. Click **Start traffic**. |
-| Sandbox will not start | `pkill -f "node server.mjs"` then start again. |
-| Agent does not join | Carry on. Drive every beat with **Ctrl+Alt+N** — cards look identical. |
+Reloading the war room between takes is correct and necessary — it clears the
+ledger. Reloading it *during* a take is fatal. See below.
 
 ---
 
-## What is real, and what is not
+## 5 · DO NOT — read before every take
 
-Say this if asked; it is a strength, not a weakness.
-
-**Real, locally:** the traffic, the error rates, the 5-second socket timeouts, the
-rollback, and the recovery. `POST /checkout` genuinely fails and genuinely
-recovers.
-
-**Staged:** the spoken script, and the fact that the backend is a purpose-built
-sandbox rather than a production payment system.
-
-**On the deployed Vercel URL** the sandbox cannot run — deliberately, since the
-remediation path executes code. There the numbers are scripted and the red-to-green
-flip rides a cross-tab signal. It looks identical. **Record locally** if you want
-the numbers to be genuine.
-
----
-
-## DO NOT — read this before every take
-
-### 🔴 Will end the take. Start over.
+### 🔴 Ends the take. No recovery.
 
 **Never press `Ctrl+R` / `F5` / `Cmd+R` in the war room tab.**
-Beat progress lives in memory with no persistence whatsoever. A reload resets
-the ledger to zero *and* drops you out of the Agora call. There is no recovery —
-you re-join and restart from Scene 1. This is the single most expensive mistake
-available, and it is one keystroke away.
+Beat progress is held in memory with no persistence. A reload wipes every ledger
+card and drops you out of the call. You restart from Scene 1.
 
-**Never close or navigate away from the war room tab.** Same outcome. That
-includes:
-- clicking the sidebar (Dashboard, Metrics, Workflows, any nav item)
+**Never leave the war room tab during a take.** Same result:
+- clicking the sidebar (Dashboard, Metrics, Workflows, anything)
 - the browser Back button
 - the **Leave** button in the control dock
-- clicking **Enter War Room** from another tab — it starts a fresh session
+- `Ctrl+W`
+- clicking **Enter War Room** from another tab — starts a fresh session
 
-If you need another page during the call, **open it in a new tab** (middle-click,
-or `Ctrl+click`). Never in the war room tab.
+Need another page mid-call? `Ctrl+click` to open it in a **new tab**.
 
-**Never press `Ctrl+W`.** Muscle memory for closing a tab. It closes *the* tab.
+### 🟠 Visibly breaks it
 
-### 🟠 Will visibly break the demo
+**Do not press `Ctrl+Alt+N` unless a beat genuinely failed.** It advances
+immediately and there is **no undo** — you skip a scene on camera.
 
-**Do not press `Ctrl+Alt+N` unless a beat genuinely failed to fire.** It advances
-the beat immediately, and **there is no way back** — no undo, no previous-beat.
-Fire it early and you skip a scene on camera.
+**Do not say the next beat's trigger words early.** The guard blocks jumping
+*past* a beat, but the next one is always armed:
 
-**Do not say the *next* beat's trigger words early.** The ordering guard stops
-jumps *forward past* a beat, but the next beat is always armed. Saying "memory
-leak" during Scene 2 fires Beat 2 before B has spoken. Words to keep out of
-improvised dialogue until their scene:
-
-| Scene | Do not say yet |
+| During | Do not say yet |
 |---|---|
-| 1–2 | memory leak · worker thread · orchestrator · v2.8.1 · recent deploy |
-| 3 | disproving · connection pool · nominal at 58 · not a memory leak |
-| 4 | downstream · socket · backlog · fraud detection · timeout rate |
-| 5 | canary rollback · dashboard · three immediate · broadcast customer |
+| Scenes 1–2 | memory leak · worker thread · orchestrator · v2.8.1 · recent deploy |
+| Scene 3 | disproving · connection pool · nominal at 58 · not a memory leak |
+| Scene 4 | downstream · socket · backlog · fraud detection · timeout rate |
+| Scene 5 | canary rollback · dashboard · three immediate · broadcast customer |
 
-**Do not click `Authorize 1-Click` before Beat 5.** It fires the rollback
-immediately and auto-routes to the post-mortem after ~1.2 seconds, ending the war
-room scene. There is no confirmation dialog.
+**Do not click `Authorize 1-Click` before Beat 5.** No confirmation dialog. It
+fires and routes away to the post-mortem, ending the scene.
 
-**Do not click Authorize twice.** The first click disables the button, but a
-double-click can land before the state updates.
+**Do not click Authorize twice.**
 
-**Do not click "Reset for next take"** — on `localhost:4000` **or** the link at
-the bottom of acme-pay — at any point during a take. It flips the customer app
-back to red instantly.
+**Do not click "Reset for next take"** on acme-pay during a take.
 
-**Do not click "Stop traffic"** on the sandbox console. Metrics freeze and the
-window goes stale within seconds.
+### 🟡 Looks unprofessional
 
-### 🟡 Will look unprofessional
-
-**Do not show `localhost:4000` on camera.** That is the machinery. Keep it on a
-second monitor or minimised.
-
-**Do not open DevTools.** The console prints beat-matcher debug lines with
-`[EchoSphere:VoiceMatcher] Matched Demo Beat #N` — which tells the audience the
-beats are keyword-triggered.
-
-**Do not mute/unmute repeatedly** during the call. Toggling the mic can cut the
-transcript mid-sentence and drop the keyword that fires the beat.
+**Do not open DevTools.** The console prints
+`[EchoSphere:VoiceMatcher] Matched Demo Beat #N`, which reveals that beats are
+keyword-triggered.
 
 **Do not talk over each other.** Speech-to-text merges overlapping speakers and
-the trigger phrase can be mangled. Let each line finish. One beat, one speaker,
-clean air.
+mangles the trigger phrase. One beat, one speaker, clean air either side.
 
-**Do not change browser zoom mid-take.** Layout reflows on camera.
+**Do not toggle mute repeatedly** — it can cut the transcript mid-sentence and
+drop the keyword.
 
-**Do not resize the window** while the war room is connected — the video grid
-re-lays out.
+**Do not change zoom or resize** while the war room is connected.
 
-### ⚪ Harmless, in case you are worried
+### ⚪ Harmless — do not panic
 
-- Reloading the **acme-pay** tab is safe. It re-reads state on mount.
-- Reloading the **portal** or **incident detail** page is safe.
-- Moving the mouse, scrolling the ledger, and hovering chapter pins are all safe.
-- `curl` in a terminal never affects the UI state.
+Reloading **acme-pay**, the **portal**, or the **incident page** is safe.
+Scrolling the ledger and hovering chapter pins are safe.
+
+### The one-line rule
+
+**Once the war room is live, the only key you press is `Ctrl+Alt+N` and the only
+thing you click is `Authorize 1-Click`. Everything else happens in another tab.**
 
 ---
 
-## The one-line safety rule
+## 6 · If something goes wrong
 
-**Once the war room tab is live, the only keys you touch are `Ctrl+Alt+N`, and
-the only thing you click is `Authorize 1-Click`.** Everything else happens in
-other tabs.
+| Symptom | What to do |
+|---|---|
+| A beat does not fire | Press **Ctrl+Alt+N**. Advances silently — nobody can tell. |
+| Beats fire out of order | Cannot happen. Only the next beat is eligible. |
+| acme-pay still red after authorize | Reload that tab. State is read on mount. |
+| acme-pay opens green | Reset was skipped. Click **Reset for next take**, reload. |
+| AI Sentinel never joins | Carry on and drive all five beats with **Ctrl+Alt+N**. Cards are identical. |
+| "Request Sent" access screen | You opened a preview URL. Use the address at the top of this sheet. |
+| Someone's mic is dead | They can still act; A can cover their beat with **Ctrl+Alt+N**. |
+
+---
+
+## 7 · If asked what is real
+
+Answer plainly — it is a stronger answer than a dodge.
+
+The conversation, the diarization, the fact/hypothesis separation, the
+contradiction detection, and the human-in-the-loop gate are all real and running
+live. The **backend being recovered is a purpose-built sandbox**, not a
+production payment system, and on the deployed URL its figures are fixed rather
+than measured.
+
+Running locally, those same figures are measured from live traffic and
+`POST /checkout` genuinely fails and genuinely recovers — the sandbox is
+deliberately not exposed on the public deployment, because the remediation path
+executes code. See `demo-sandbox/README.md`.
+
+---
+
+## Appendix — running it locally instead
+
+Use this only if you want the numbers measured live. All three people must be at
+one machine.
+
+```bash
+cd demo-sandbox && npm start          # terminal 1
+```
+```bash
+pnpm run dev                          # terminal 2 (needs DEMO_SANDBOX=1 in .env.local)
+```
+```bash
+curl -X POST http://127.0.0.1:4000/load/start   # terminal 3
+```
+
+Wait ~30s, then confirm error rate is 43–48%:
+
+```bash
+curl -s http://127.0.0.1:4000/metrics
+```
+
+Swap `agora-knotic-5vyh.vercel.app` for `localhost:3000` throughout. Keep
+`localhost:4000` on a second monitor — **never on camera**. Reset between takes
+there instead of on acme-pay.
+
+Extra shot available locally, good in Scene 1:
+
+```bash
+curl -i -X POST http://127.0.0.1:4000/checkout
+```
+
+> **A:** "Watch this hang… five seconds… and a 504."
