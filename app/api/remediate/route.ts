@@ -38,7 +38,7 @@ const SANDBOX_ACTIONS = {
 type SandboxActionType = keyof typeof SANDBOX_ACTIONS;
 
 function sandboxEnabled(): boolean {
-  return process.env.NODE_ENV !== 'production' && process.env.DEMO_SANDBOX === '1';
+  return !process.env.VERCEL && process.env.DEMO_SANDBOX === '1';
 }
 
 /**
