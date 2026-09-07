@@ -70,7 +70,7 @@ export function IncidentDetailTabs({
       )}
     >
       {/* 5 Tabs */}
-      <div className="flex items-center gap-1 sm:gap-4 overflow-x-auto no-scrollbar">
+      <div className="-mb-px flex items-center gap-1 sm:gap-4 overflow-x-auto overflow-y-hidden no-scrollbar sm:overflow-visible">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
@@ -79,7 +79,7 @@ export function IncidentDetailTabs({
               type="button"
               onClick={() => onTabChange(tab.id)}
               className={cn(
-                'inline-flex items-center gap-1.5 py-3 px-2 text-xs font-semibold whitespace-nowrap transition-colors border-b-2 -mb-px cursor-pointer',
+                'inline-flex items-center gap-1.5 py-3 px-2 text-xs font-semibold whitespace-nowrap transition-colors border-b-2 cursor-pointer',
                 isActive
                   ? 'border-zinc-900 text-zinc-900 dark:border-zinc-100 dark:text-zinc-100'
                   : 'border-transparent text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200'

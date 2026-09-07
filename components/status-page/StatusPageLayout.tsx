@@ -170,8 +170,8 @@ export function StatusPageLayout() {
                   Status Pages
                 </h1>
               </div>
-              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                Manage public and internal customer status pages, component health, and incident broadcasts.
+              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400 max-w-3xl leading-relaxed">
+                Let your team and customers know when your services are down with private and public status pages. Show service uptime, post your incidents directly to the page and connect third party services your company is dependent on.
               </p>
             </div>
 
