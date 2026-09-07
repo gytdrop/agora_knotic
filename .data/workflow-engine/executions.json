@@ -1,5 +1,743 @@
 [
   {
+    "id": "exec-1788800001483-9um43",
+    "workflowId": "wf-jira-followups",
+    "workflowName": "File Jira Follow-Up Tickets for Uncompleted Actions",
+    "status": "success",
+    "triggerType": "manual",
+    "triggerPayload": {
+      "manual": true,
+      "initiatedBy": "Web UI"
+    },
+    "startedAt": 1788800001483,
+    "logs": [
+      {
+        "id": "log-1788800001483-nw3p",
+        "timestamp": 1788800001483,
+        "level": "info",
+        "message": "Workflow \"File Jira Follow-Up Tickets for Uncompleted Actions\" started by trigger \"manual\". Target incident: #7134 [SEV-1]"
+      },
+      {
+        "id": "log-1788800001484-6uqc",
+        "timestamp": 1788800001484,
+        "level": "info",
+        "stepId": "act-5-ai-action-items",
+        "stepName": "Generate AI Remediation Action Items",
+        "message": "Executing action [1/2]: \"Generate AI Remediation Action Items\" (generate_ai_action_items)"
+      },
+      {
+        "id": "log-1788800001484-ec9o",
+        "timestamp": 1788800001484,
+        "level": "info",
+        "stepId": "act-5-ai-action-items",
+        "stepName": "Generate AI Remediation Action Items",
+        "message": "Generated 3 actionable post-incident engineering tasks.",
+        "data": {
+          "actionItems": [
+            {
+              "id": "ACT-1",
+              "title": "Increase PgBouncer max client connections and adjust timeout pool",
+              "assignee": "Infra On-Call",
+              "priority": "High"
+            },
+            {
+              "id": "ACT-2",
+              "title": "Add circuit breaker on external payment webhook retries",
+              "assignee": "Core Payments Team",
+              "priority": "Medium"
+            },
+            {
+              "id": "ACT-3",
+              "title": "Configure automated synthetic canary alerts for latency threshold",
+              "assignee": "SRE Team",
+              "priority": "Medium"
+            }
+          ],
+          "count": 3
+        }
+      },
+      {
+        "id": "log-1788800001484-16y5",
+        "timestamp": 1788800001484,
+        "level": "info",
+        "stepId": "act-5-log-jira",
+        "stepName": "Log Jira Tickets Created",
+        "message": "Executing action [2/2]: \"Log Jira Tickets Created\" (log_event)"
+      },
+      {
+        "id": "log-1788800001485-i8k3",
+        "timestamp": 1788800001485,
+        "level": "info",
+        "stepId": "act-5-log-jira",
+        "stepName": "Log Jira Tickets Created",
+        "message": "Audit log recorded: \"Created follow-up Jira tickets for incident #7134\"",
+        "data": {
+          "loggedAt": 1788800001485,
+          "message": "Created follow-up Jira tickets for incident #7134"
+        }
+      },
+      {
+        "id": "log-1788800001485-hhv4",
+        "timestamp": 1788800001485,
+        "level": "info",
+        "message": "Workflow \"File Jira Follow-Up Tickets for Uncompleted Actions\" completed successfully in 2ms (2 actions executed)."
+      }
+    ],
+    "stepResults": [
+      {
+        "actionId": "act-5-ai-action-items",
+        "actionName": "Generate AI Remediation Action Items",
+        "actionType": "generate_ai_action_items",
+        "status": "success",
+        "startedAt": 1788800001484,
+        "finishedAt": 1788800001484,
+        "durationMs": 0,
+        "input": {
+          "projectKeys": [
+            "PAY",
+            "INFRA"
+          ]
+        },
+        "output": {
+          "actionItems": [
+            {
+              "id": "ACT-1",
+              "title": "Increase PgBouncer max client connections and adjust timeout pool",
+              "assignee": "Infra On-Call",
+              "priority": "High"
+            },
+            {
+              "id": "ACT-2",
+              "title": "Add circuit breaker on external payment webhook retries",
+              "assignee": "Core Payments Team",
+              "priority": "Medium"
+            },
+            {
+              "id": "ACT-3",
+              "title": "Configure automated synthetic canary alerts for latency threshold",
+              "assignee": "SRE Team",
+              "priority": "Medium"
+            }
+          ],
+          "count": 3
+        },
+        "retryCount": 0
+      },
+      {
+        "actionId": "act-5-log-jira",
+        "actionName": "Log Jira Tickets Created",
+        "actionType": "log_event",
+        "status": "success",
+        "startedAt": 1788800001484,
+        "finishedAt": 1788800001485,
+        "durationMs": 1,
+        "input": {
+          "message": "Created follow-up Jira tickets for incident {{incident.id}}"
+        },
+        "output": {
+          "loggedAt": 1788800001485,
+          "message": "Created follow-up Jira tickets for incident #7134"
+        },
+        "retryCount": 0
+      }
+    ],
+    "finishedAt": 1788800001485,
+    "durationMs": 2,
+    "contextSnapshot": {
+      "variables": {
+        "workflowName": "File Jira Follow-Up Tickets for Uncompleted Actions",
+        "triggerType": "manual",
+        "startedAtISO": "2026-09-07T16:53:21.483Z",
+        "remediationActionItems": [
+          {
+            "id": "ACT-1",
+            "title": "Increase PgBouncer max client connections and adjust timeout pool",
+            "assignee": "Infra On-Call",
+            "priority": "High"
+          },
+          {
+            "id": "ACT-2",
+            "title": "Add circuit breaker on external payment webhook retries",
+            "assignee": "Core Payments Team",
+            "priority": "Medium"
+          },
+          {
+            "id": "ACT-3",
+            "title": "Configure automated synthetic canary alerts for latency threshold",
+            "assignee": "SRE Team",
+            "priority": "Medium"
+          }
+        ]
+      },
+      "incident": {
+        "id": "#7134",
+        "title": "PostgreSQL connection pool exhausted on payment-service",
+        "severity": "SEV-1",
+        "status": "INVESTIGATING",
+        "lead": "Sarah Chen (Staff SRE)",
+        "reporter": "Alex Rivera (Infrastructure Lead)",
+        "customerImpact": true,
+        "slackChannel": "#incident-7134",
+        "warRoomUrl": "https://ecosphere.dev/warroom/7134",
+        "summary": "Elevated 500 error rates on payment checkout endpoints caused by DB connection exhaustion.",
+        "rootCause": "Analytical queries holding long locks during peak transactional hours."
+      }
+    }
+  },
+  {
+    "id": "exec-1788799993813-qwfsw",
+    "workflowId": "wf-db-outage",
+    "workflowName": "[Demo] Database Outage Escalation Pipeline",
+    "status": "success",
+    "triggerType": "manual",
+    "triggerPayload": {
+      "manual": true,
+      "initiatedBy": "Web UI"
+    },
+    "startedAt": 1788799993813,
+    "logs": [
+      {
+        "id": "log-1788799993813-12qr",
+        "timestamp": 1788799993813,
+        "level": "info",
+        "message": "Workflow \"[Demo] Database Outage Escalation Pipeline\" started by trigger \"manual\". Target incident: #7134 [SEV-1]"
+      },
+      {
+        "id": "log-1788799993815-31cw",
+        "timestamp": 1788799993815,
+        "level": "info",
+        "stepId": "act-2-slack-alert",
+        "stepName": "Post Slack Alert to Infra Channel",
+        "message": "Executing action [1/4]: \"Post Slack Alert to Infra Channel\" (post_slack_message)"
+      },
+      {
+        "id": "log-1788799993815-0pjs",
+        "timestamp": 1788799993815,
+        "level": "info",
+        "stepId": "act-2-slack-alert",
+        "stepName": "Post Slack Alert to Infra Channel",
+        "message": "Broadcast message to Slack channel #infra-alerts: \"🚨 *ESCALATION*: #7134 escalated to *SEV-1*. Initiating data...\"",
+        "data": {
+          "channel": "#infra-alerts",
+          "text": "🚨 *ESCALATION*: #7134 escalated to *SEV-1*. Initiating database triage.",
+          "ts": "1788799993.815000",
+          "permalink": "https://ecosphere.slack.com/archives/infra-alerts/p1788799993815000",
+          "delivered": true
+        }
+      },
+      {
+        "id": "log-1788799993815-tgbh",
+        "timestamp": 1788799993815,
+        "level": "info",
+        "stepId": "act-2-delay",
+        "stepName": "Wait Triage Grace Period",
+        "message": "Executing action [2/4]: \"Wait Triage Grace Period\" (wait_delay)"
+      },
+      {
+        "id": "log-1788799995315-x0h5",
+        "timestamp": 1788799995315,
+        "level": "info",
+        "stepId": "act-2-delay",
+        "stepName": "Wait Triage Grace Period",
+        "message": "Completed configured delay buffer (1.5s elapsed).",
+        "data": {
+          "delayRequestedSeconds": 1.5,
+          "delayWaitedMs": 1500
+        }
+      },
+      {
+        "id": "log-1788799995315-yqwv",
+        "timestamp": 1788799995315,
+        "level": "info",
+        "stepId": "act-2-condition",
+        "stepName": "Check Incident Active Status",
+        "message": "Executing action [3/4]: \"Check Incident Active Status\" (condition_branch)"
+      },
+      {
+        "id": "log-1788799995316-o4er",
+        "timestamp": 1788799995316,
+        "level": "info",
+        "stepId": "act-2-condition",
+        "stepName": "Check Incident Active Status",
+        "message": "Condition evaluated: incident.status (INVESTIGATING) in [\"INVESTIGATING\",\"FIXING\",\"STAGED\"] -> MATCH (Proceeding)",
+        "data": {
+          "field": "incident.status",
+          "actualValue": "INVESTIGATING",
+          "operator": "in",
+          "expectedValues": [
+            "INVESTIGATING",
+            "FIXING",
+            "STAGED"
+          ],
+          "conditionSatisfied": true
+        }
+      },
+      {
+        "id": "log-1788799995316-i0oj",
+        "timestamp": 1788799995316,
+        "level": "info",
+        "stepId": "act-2-assign-db-lead",
+        "stepName": "Assign Database Specialist Lead",
+        "message": "Executing action [4/4]: \"Assign Database Specialist Lead\" (assign_incident_commander)"
+      },
+      {
+        "id": "log-1788799995316-7vdx",
+        "timestamp": 1788799995316,
+        "level": "info",
+        "stepId": "act-2-assign-db-lead",
+        "stepName": "Assign Database Specialist Lead",
+        "message": "Assigned Database Lead role to Marcus Vance (Principal DB Engineer) with automated escalation notifications.",
+        "data": {
+          "role": "Database Lead",
+          "assignee": "Marcus Vance (Principal DB Engineer)",
+          "assignedAt": 1788799995316,
+          "notifiedVia": [
+            "Slack",
+            "PagerDuty",
+            "Email"
+          ]
+        }
+      },
+      {
+        "id": "log-1788799995316-apaq",
+        "timestamp": 1788799995316,
+        "level": "info",
+        "message": "Workflow \"[Demo] Database Outage Escalation Pipeline\" completed successfully in 1503ms (4 actions executed)."
+      }
+    ],
+    "stepResults": [
+      {
+        "actionId": "act-2-slack-alert",
+        "actionName": "Post Slack Alert to Infra Channel",
+        "actionType": "post_slack_message",
+        "status": "success",
+        "startedAt": 1788799993814,
+        "finishedAt": 1788799993815,
+        "durationMs": 1,
+        "input": {
+          "channel": "#infra-alerts",
+          "message": "🚨 *ESCALATION*: {{incident.id}} escalated to *{{incident.severity}}*. Initiating database triage."
+        },
+        "output": {
+          "channel": "#infra-alerts",
+          "text": "🚨 *ESCALATION*: #7134 escalated to *SEV-1*. Initiating database triage.",
+          "ts": "1788799993.815000",
+          "permalink": "https://ecosphere.slack.com/archives/infra-alerts/p1788799993815000",
+          "delivered": true
+        },
+        "retryCount": 0
+      },
+      {
+        "actionId": "act-2-delay",
+        "actionName": "Wait Triage Grace Period",
+        "actionType": "wait_delay",
+        "status": "success",
+        "startedAt": 1788799993815,
+        "finishedAt": 1788799995315,
+        "durationMs": 1500,
+        "input": {
+          "delaySeconds": 1.5
+        },
+        "output": {
+          "delayRequestedSeconds": 1.5,
+          "delayWaitedMs": 1500
+        },
+        "retryCount": 0
+      },
+      {
+        "actionId": "act-2-condition",
+        "actionName": "Check Incident Active Status",
+        "actionType": "condition_branch",
+        "status": "success",
+        "startedAt": 1788799995315,
+        "finishedAt": 1788799995316,
+        "durationMs": 1,
+        "input": {
+          "conditionField": "incident.status",
+          "operator": "in",
+          "values": [
+            "INVESTIGATING",
+            "FIXING",
+            "STAGED"
+          ]
+        },
+        "output": {
+          "field": "incident.status",
+          "actualValue": "INVESTIGATING",
+          "operator": "in",
+          "expectedValues": [
+            "INVESTIGATING",
+            "FIXING",
+            "STAGED"
+          ],
+          "conditionSatisfied": true
+        },
+        "retryCount": 0
+      },
+      {
+        "actionId": "act-2-assign-db-lead",
+        "actionName": "Assign Database Specialist Lead",
+        "actionType": "assign_incident_commander",
+        "status": "success",
+        "startedAt": 1788799995316,
+        "finishedAt": 1788799995316,
+        "durationMs": 0,
+        "input": {
+          "role": "Database Lead",
+          "assignee": "Marcus Vance (Principal DB Engineer)"
+        },
+        "output": {
+          "role": "Database Lead",
+          "assignee": "Marcus Vance (Principal DB Engineer)",
+          "assignedAt": 1788799995316,
+          "notifiedVia": [
+            "Slack",
+            "PagerDuty",
+            "Email"
+          ]
+        },
+        "retryCount": 0
+      }
+    ],
+    "finishedAt": 1788799995316,
+    "durationMs": 1503,
+    "contextSnapshot": {
+      "variables": {
+        "workflowName": "[Demo] Database Outage Escalation Pipeline",
+        "triggerType": "manual",
+        "startedAtISO": "2026-09-07T16:53:13.813Z",
+        "incidentCommander": "Marcus Vance (Principal DB Engineer)",
+        "incidentLead": "Marcus Vance (Principal DB Engineer)"
+      },
+      "incident": {
+        "id": "#7134",
+        "title": "PostgreSQL connection pool exhausted on payment-service",
+        "severity": "SEV-1",
+        "status": "INVESTIGATING",
+        "lead": "Marcus Vance (Principal DB Engineer)",
+        "reporter": "Alex Rivera (Infrastructure Lead)",
+        "customerImpact": true,
+        "slackChannel": "#incident-7134",
+        "warRoomUrl": "https://ecosphere.dev/warroom/7134",
+        "summary": "Elevated 500 error rates on payment checkout endpoints caused by DB connection exhaustion.",
+        "rootCause": "Analytical queries holding long locks during peak transactional hours."
+      }
+    }
+  },
+  {
+    "id": "exec-1788799988119-vi3ep",
+    "workflowId": "wf-p1-production",
+    "workflowName": "[Demo] P1 Production Incident Response",
+    "status": "success",
+    "triggerType": "manual",
+    "triggerPayload": {
+      "manual": true,
+      "initiatedBy": "Web UI"
+    },
+    "startedAt": 1788799988119,
+    "logs": [
+      {
+        "id": "log-1788799988119-vwex",
+        "timestamp": 1788799988119,
+        "level": "info",
+        "message": "Workflow \"[Demo] P1 Production Incident Response\" started by trigger \"manual\". Target incident: #7134 [SEV-1]"
+      },
+      {
+        "id": "log-1788799988120-nhpn",
+        "timestamp": 1788799988120,
+        "level": "info",
+        "stepId": "act-1-slack-channel",
+        "stepName": "Create Incident Slack Channel",
+        "message": "Executing action [1/5]: \"Create Incident Slack Channel\" (create_slack_channel)"
+      },
+      {
+        "id": "log-1788799988120-em7b",
+        "timestamp": 1788799988120,
+        "level": "info",
+        "stepId": "act-1-slack-channel",
+        "stepName": "Create Incident Slack Channel",
+        "message": "Created Slack channel #incident-7134 (C06GE2KHW) and invited 3 responders.",
+        "data": {
+          "channelId": "C06GE2KHW",
+          "channelName": "#incident-7134",
+          "permalink": "https://ecosphere.slack.com/archives/C06GE2KHW",
+          "membersInvited": [
+            "@sarah.chen",
+            "@alex.rivera",
+            "@pagerduty-bot"
+          ],
+          "topic": "Live incident coordination: PostgreSQL connection pool exhausted on payment-service",
+          "createdAt": 1788799988120
+        }
+      },
+      {
+        "id": "log-1788799988120-ma39",
+        "timestamp": 1788799988120,
+        "level": "info",
+        "stepId": "act-1-assign-commander",
+        "stepName": "Assign Incident Commander",
+        "message": "Executing action [2/5]: \"Assign Incident Commander\" (assign_incident_commander)"
+      },
+      {
+        "id": "log-1788799988121-6dth",
+        "timestamp": 1788799988121,
+        "level": "info",
+        "stepId": "act-1-assign-commander",
+        "stepName": "Assign Incident Commander",
+        "message": "Assigned Incident Commander role to Sarah Chen (Staff SRE) with automated escalation notifications.",
+        "data": {
+          "role": "Incident Commander",
+          "assignee": "Sarah Chen (Staff SRE)",
+          "assignedAt": 1788799988120,
+          "notifiedVia": [
+            "Slack",
+            "PagerDuty",
+            "Email"
+          ]
+        }
+      },
+      {
+        "id": "log-1788799988121-tjfu",
+        "timestamp": 1788799988121,
+        "level": "info",
+        "stepId": "act-1-ai-summary",
+        "stepName": "Generate AI Blast Radius Summary",
+        "message": "Executing action [3/5]: \"Generate AI Blast Radius Summary\" (generate_ai_summary)"
+      },
+      {
+        "id": "log-1788799988121-daii",
+        "timestamp": 1788799988121,
+        "level": "info",
+        "stepId": "act-1-ai-summary",
+        "stepName": "Generate AI Blast Radius Summary",
+        "message": "Generated AI Blast Radius Assessment with 94% confidence score.",
+        "data": {
+          "summary": "AI Blast Radius Analysis: Incident #7134 [SEV-1] triggered by anomalous 5xx rate spike (>14.2%) on checkout service. Upstream dependencies (Postgres connection pool, Redis cache) analyzed. Automated triage initiated under incident lead Sarah Chen (Staff SRE).",
+          "confidenceScore": 0.94,
+          "keyInsights": [
+            "5xx error rate elevated on payment gateway edge proxy",
+            "Database connection saturation detected during peak traffic window",
+            "Automated canary rollback evaluated as viable containment option"
+          ],
+          "generatedAt": 1788799988121
+        }
+      },
+      {
+        "id": "log-1788799988121-ur4c",
+        "timestamp": 1788799988121,
+        "level": "info",
+        "stepId": "act-1-war-room",
+        "stepName": "Provision Agora Video War Room",
+        "message": "Executing action [4/5]: \"Provision Agora Video War Room\" (create_war_room)"
+      },
+      {
+        "id": "log-1788799988121-x0ix",
+        "timestamp": 1788799988121,
+        "level": "info",
+        "stepId": "act-1-war-room",
+        "stepName": "Provision Agora Video War Room",
+        "message": "Provisioned Agora HD Video War Room session at https://ecosphere.dev/warroom/7134 with live RTM transcription.",
+        "data": {
+          "warRoomId": "warroom-7134",
+          "warRoomUrl": "https://ecosphere.dev/warroom/7134",
+          "agoraAppId": "ea58f23328c647f8a64a68ed880657c7",
+          "rtcChannel": "ecosphere-7134",
+          "audioMode": "HD-Spatial-SpatialVoice",
+          "rtmEnabled": true,
+          "aiTranscriptionEnabled": true,
+          "createdAt": 1788799988121
+        }
+      },
+      {
+        "id": "log-1788799988121-31c7",
+        "timestamp": 1788799988121,
+        "level": "info",
+        "stepId": "act-1-email-exec",
+        "stepName": "Send Incident Alert Email",
+        "message": "Executing action [5/5]: \"Send Incident Alert Email\" (send_email)"
+      },
+      {
+        "id": "log-1788799988121-jog3",
+        "timestamp": 1788799988121,
+        "level": "info",
+        "stepId": "act-1-email-exec",
+        "stepName": "Send Incident Alert Email",
+        "message": "Dispatched high-priority email alert to exec-alerts@ecosphere.dev with subject: \"[P1 Outage Alert] PostgreSQL connection pool exhausted on payment-service (SEV-1)\".",
+        "data": {
+          "messageId": "msg_fhaukoodydt",
+          "recipients": [
+            "exec-alerts@ecosphere.dev"
+          ],
+          "subject": "[P1 Outage Alert] PostgreSQL connection pool exhausted on payment-service (SEV-1)",
+          "status": "delivered",
+          "timestamp": 1788799988121
+        }
+      },
+      {
+        "id": "log-1788799988121-tx2c",
+        "timestamp": 1788799988121,
+        "level": "info",
+        "message": "Workflow \"[Demo] P1 Production Incident Response\" completed successfully in 2ms (5 actions executed)."
+      }
+    ],
+    "stepResults": [
+      {
+        "actionId": "act-1-slack-channel",
+        "actionName": "Create Incident Slack Channel",
+        "actionType": "create_slack_channel",
+        "status": "success",
+        "startedAt": 1788799988120,
+        "finishedAt": 1788799988120,
+        "durationMs": 0,
+        "input": {
+          "channelNameTemplate": "incident-{{incident.id}}",
+          "topic": "Live incident coordination: {{incident.title}}",
+          "inviteResponders": true
+        },
+        "output": {
+          "channelId": "C06GE2KHW",
+          "channelName": "#incident-7134",
+          "permalink": "https://ecosphere.slack.com/archives/C06GE2KHW",
+          "membersInvited": [
+            "@sarah.chen",
+            "@alex.rivera",
+            "@pagerduty-bot"
+          ],
+          "topic": "Live incident coordination: PostgreSQL connection pool exhausted on payment-service",
+          "createdAt": 1788799988120
+        },
+        "retryCount": 0
+      },
+      {
+        "actionId": "act-1-assign-commander",
+        "actionName": "Assign Incident Commander",
+        "actionType": "assign_incident_commander",
+        "status": "success",
+        "startedAt": 1788799988120,
+        "finishedAt": 1788799988121,
+        "durationMs": 0,
+        "input": {
+          "role": "Incident Commander",
+          "assignee": "Sarah Chen (Staff SRE)"
+        },
+        "output": {
+          "role": "Incident Commander",
+          "assignee": "Sarah Chen (Staff SRE)",
+          "assignedAt": 1788799988120,
+          "notifiedVia": [
+            "Slack",
+            "PagerDuty",
+            "Email"
+          ]
+        },
+        "retryCount": 0
+      },
+      {
+        "actionId": "act-1-ai-summary",
+        "actionName": "Generate AI Blast Radius Summary",
+        "actionType": "generate_ai_summary",
+        "status": "success",
+        "startedAt": 1788799988121,
+        "finishedAt": 1788799988121,
+        "durationMs": 0,
+        "input": {
+          "detailLevel": "detailed",
+          "targetAudience": "technical"
+        },
+        "output": {
+          "summary": "AI Blast Radius Analysis: Incident #7134 [SEV-1] triggered by anomalous 5xx rate spike (>14.2%) on checkout service. Upstream dependencies (Postgres connection pool, Redis cache) analyzed. Automated triage initiated under incident lead Sarah Chen (Staff SRE).",
+          "confidenceScore": 0.94,
+          "keyInsights": [
+            "5xx error rate elevated on payment gateway edge proxy",
+            "Database connection saturation detected during peak traffic window",
+            "Automated canary rollback evaluated as viable containment option"
+          ],
+          "generatedAt": 1788799988121
+        },
+        "retryCount": 0
+      },
+      {
+        "actionId": "act-1-war-room",
+        "actionName": "Provision Agora Video War Room",
+        "actionType": "create_war_room",
+        "status": "success",
+        "startedAt": 1788799988121,
+        "finishedAt": 1788799988121,
+        "durationMs": 0,
+        "input": {
+          "roomNameTemplate": "War Room #{{incident.id}}",
+          "recordSession": true
+        },
+        "output": {
+          "warRoomId": "warroom-7134",
+          "warRoomUrl": "https://ecosphere.dev/warroom/7134",
+          "agoraAppId": "ea58f23328c647f8a64a68ed880657c7",
+          "rtcChannel": "ecosphere-7134",
+          "audioMode": "HD-Spatial-SpatialVoice",
+          "rtmEnabled": true,
+          "aiTranscriptionEnabled": true,
+          "createdAt": 1788799988121
+        },
+        "retryCount": 0
+      },
+      {
+        "actionId": "act-1-email-exec",
+        "actionName": "Send Incident Alert Email",
+        "actionType": "send_email",
+        "status": "success",
+        "startedAt": 1788799988121,
+        "finishedAt": 1788799988121,
+        "durationMs": 0,
+        "input": {
+          "to": "exec-alerts@ecosphere.dev",
+          "subject": "[P1 Outage Alert] {{incident.title}} ({{incident.severity}})",
+          "priority": "urgent"
+        },
+        "output": {
+          "messageId": "msg_fhaukoodydt",
+          "recipients": [
+            "exec-alerts@ecosphere.dev"
+          ],
+          "subject": "[P1 Outage Alert] PostgreSQL connection pool exhausted on payment-service (SEV-1)",
+          "status": "delivered",
+          "timestamp": 1788799988121
+        },
+        "retryCount": 0
+      }
+    ],
+    "finishedAt": 1788799988121,
+    "durationMs": 2,
+    "contextSnapshot": {
+      "variables": {
+        "workflowName": "[Demo] P1 Production Incident Response",
+        "triggerType": "manual",
+        "startedAtISO": "2026-09-07T16:53:08.119Z",
+        "slackChannel": "#incident-7134",
+        "slackChannelId": "C06GE2KHW",
+        "slackChannelUrl": "https://ecosphere.slack.com/archives/C06GE2KHW",
+        "incidentCommander": "Sarah Chen (Staff SRE)",
+        "incidentLead": "Sarah Chen (Staff SRE)",
+        "aiSummary": "AI Blast Radius Analysis: Incident #7134 [SEV-1] triggered by anomalous 5xx rate spike (>14.2%) on checkout service. Upstream dependencies (Postgres connection pool, Redis cache) analyzed. Automated triage initiated under incident lead Sarah Chen (Staff SRE).",
+        "warRoomUrl": "https://ecosphere.dev/warroom/7134",
+        "warRoomId": "warroom-7134",
+        "agoraRtcChannel": "ecosphere-7134"
+      },
+      "incident": {
+        "id": "#7134",
+        "title": "PostgreSQL connection pool exhausted on payment-service",
+        "severity": "SEV-1",
+        "status": "INVESTIGATING",
+        "lead": "Sarah Chen (Staff SRE)",
+        "reporter": "Alex Rivera (Infrastructure Lead)",
+        "customerImpact": true,
+        "slackChannel": "#incident-7134",
+        "warRoomUrl": "https://ecosphere.dev/warroom/7134",
+        "summary": "Elevated 500 error rates on payment checkout endpoints caused by DB connection exhaustion.",
+        "rootCause": "Analytical queries holding long locks during peak transactional hours."
+      }
+    }
+  },
+  {
     "id": "exec-1788786940517-vwpvt",
     "workflowId": "wf-retry-test",
     "workflowName": "Retry Test Workflow",
