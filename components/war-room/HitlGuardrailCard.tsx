@@ -37,8 +37,10 @@ export function HitlGuardrailCard({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             actionId: 'act_hotfix_8080_8000',
-            actionType: 'K8S_INGRESS_PATCH',
-            targetService: 'ingress/auth-svc',
+            // Allowlisted in /api/remediate; performs the real sandbox rollback
+            // when DEMO_SANDBOX=1, otherwise falls back to the narrated outcome.
+            actionType: 'ROLLBACK_PAYMENT_SERVICE',
+            targetService: 'payment-service',
             authorizedBy: 'Akthar (Lead SRE)',
             passkeyUsed: true,
             incidentId: cleanIncidentId,

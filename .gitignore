@@ -198,3 +198,7 @@ venv/
 /test-results/
 playwright-report/
 blob-report/
+
+# Demo sandbox runtime
+demo-sandbox/node_modules
+demo-sandbox/.state.json
