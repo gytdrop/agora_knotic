@@ -41,7 +41,7 @@ export function PreCallHeader({
       {/* Left Branding & Incident Metadata */}
       <div className="flex items-center gap-3">
         <Link
-          href="/"
+          href="/dashboard"
           className="flex items-center gap-1.5 rounded-md border border-slate-700 bg-slate-800/80 px-2.5 py-1 text-xs text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
         >
           <ArrowLeft className="h-3.5 w-3.5" />

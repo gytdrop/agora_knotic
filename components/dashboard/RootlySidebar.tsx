@@ -293,7 +293,7 @@ export function RootlySidebar({
         {!isCollapsed ? (
           <>
             <Link
-              href="/"
+              href="/dashboard"
               onClick={() => onNavigate?.()}
               className="flex items-center gap-2.5 group"
             >
@@ -317,7 +317,7 @@ export function RootlySidebar({
         ) : (
           <div className="flex flex-col items-center gap-2">
             <Link
-              href="/"
+              href="/dashboard"
               onClick={() => onNavigate?.()}
               className="group"
               title="Ecosphere"
