@@ -1,0 +1,11 @@
+{
+  "name": "acme-pay-sandbox",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Deliberately flawed payment sandbox backing the EchoSphere INC-8921 demo.",
+  "scripts": {
+    "start": "node server.mjs",
+    "reset": "curl -s -X POST http://127.0.0.1:4000/admin/reset"
+  }
+}

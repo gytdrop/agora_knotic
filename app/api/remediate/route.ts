@@ -23,11 +23,71 @@ export async function OPTIONS(request: Request) {
   return handleCorsPreflight(request);
 }
 
+/**
+ * Allowlisted sandbox operations.
+ *
+ * The trigger chain ends in "speech causes code to run", so the request body
+ * selects a KEY only — it never supplies a command, path, or URL. Each key maps
+ * to a hardcoded operation below. Adding a case is a deliberate code change.
+ */
+const SANDBOX_ACTIONS = {
+  ROLLBACK_PAYMENT_SERVICE: { path: '/admin/version', body: { version: 'v2.8.0' } },
+  RESET_SANDBOX: { path: '/admin/reset', body: {} },
+} as const;
+
+type SandboxActionType = keyof typeof SANDBOX_ACTIONS;
+
+function sandboxEnabled(): boolean {
+  return process.env.NODE_ENV !== 'production' && process.env.DEMO_SANDBOX === '1';
+}
+
+/**
+ * Perform the real rollback against the local sandbox, returning its
+ * before/after numbers. Returns null whenever the sandbox is disabled or not
+ * running — the caller then reports the narrated outcome, so the demo works
+ * end to end with no sandbox at all.
+ */
+async function runSandboxAction(
+  actionType: string | undefined,
+): Promise<Record<string, unknown> | null> {
+  if (!sandboxEnabled()) return null;
+  if (!actionType || !(actionType in SANDBOX_ACTIONS)) return null;
+
+  const action = SANDBOX_ACTIONS[actionType as SandboxActionType];
+  try {
+    const res = await fetch(`http://127.0.0.1:4000${action.path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(action.body),
+      signal: AbortSignal.timeout(2000),
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as Record<string, unknown>;
+  } catch {
+    // Sandbox down: fall back to the narrated path rather than failing the demo.
+    return null;
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const body: RemediationRequest = await request.json().catch(() => ({}));
     
     const actionId = body.actionId || `act_${Date.now()}`;
+
+    // Perform the real rollback when the sandbox is running; null otherwise.
+    const sandbox = await runSandboxAction(body.actionType);
+    const before = (sandbox?.before ?? null) as
+      | { errorRatePct?: number; p99LatencyMs?: number; podMemoryPct?: number; dbPoolActive?: number }
+      | null;
+    const rolledBack = Boolean(sandbox);
+
+    const outcomeText = rolledBack
+      ? `payment-service rolled back ${sandbox?.from ?? 'v2.8.1'} -> ${sandbox?.to ?? 'v2.8.0'}. `
+        + `Error rate was ${before?.errorRatePct ?? '?'}%, p99 ${before?.p99LatencyMs ?? '?'}ms. `
+        + `Pod memory (${before?.podMemoryPct ?? '?'}%) and DB pool (${before?.dbPoolActive ?? '?'}/100) unchanged `
+        + `— the memory-leak hypothesis was never the cause.`
+      : 'Canary rollback executed: payment-service reverted to stable v2.8.0. Fraud check budgeted at 300ms with fallback verdict.';
     const authorizedBy = body.authorizedBy || "Incident Commander";
     const rawIncidentId = body.incidentId || 'INC-8921';
     const cleanId = rawIncidentId.replace(/^#/, '');
@@ -39,13 +99,15 @@ export async function POST(request: Request) {
       recordIncidentEvent(normalizedIncidentId, 'REMEDIATION_EXECUTED', {
         id: actionId,
         speaker: authorizedBy,
-        text: `Remediation hotfix executed: Ingress port restored (8080 -> 8000). Rolling restart deployed.`,
+        text: `Remediation executed: ${outcomeText}`,
         tag: 'ACTION',
         status: 'Remediation Executed (Active)',
         telemetryEvidence: {
           source: 'k8s-api',
           component: 'ingress-nginx',
-          details: 'Ingress port 8000 target restored, pod health checks passed.',
+          details: rolledBack
+            ? 'Live sandbox rollback confirmed; checkout error rate recovering.'
+            : 'Canary rollback staged; checkout path no longer blocks on fraud-detection-svc.',
         },
       });
     } catch (storeErr) {
@@ -56,7 +118,7 @@ export async function POST(request: Request) {
       NextResponse.json<RemediationResponse>(
         {
           success: true,
-          message: `Remediation hotfix executed successfully by ${authorizedBy}. Ingress port restored (8080 -> 8000).`,
+          message: `Remediation executed by ${authorizedBy}. ${outcomeText}`,
           timestamp: new Date().toISOString(),
           actionId,
           status: "RESOLVED",
