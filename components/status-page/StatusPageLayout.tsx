@@ -11,14 +11,18 @@ import {
   ChevronRight,
   ChevronUp,
   Copy,
+  GripVertical,
   Menu,
   Pencil,
   Plus,
   Radio,
   Search,
+  Server,
   Sparkles,
   Trash2,
+  Upload,
   Users,
+  Wrench,
   X,
 } from 'lucide-react';
 import { RootlySidebar } from '@/components/dashboard/RootlySidebar';
@@ -79,17 +83,17 @@ const INITIAL_STATUS_PAGES: StatusPageRecord[] = [
     subdomain: 'status.knotic.io',
     subscribersCount: 0,
     uptimeDurationDays: 60,
-    publicTitle: 'Lpu Systems Status',
-    publicDescription: 'Live availability and telemetry indicators for our public API and core payment infrastructure.',
+    publicTitle: '',
+    publicDescription: '',
     uptimeMessage: 'All Systems Operational',
     downtimeMessage: "Something's not quite right",
-    websiteUrl: 'https://knotic.io',
-    supportUrl: 'https://support.knotic.io',
-    privacyUrl: 'https://knotic.io/privacy',
+    websiteUrl: '',
+    supportUrl: '',
+    privacyUrl: '',
     timezone: '(GMT-07:00) Pacific Time (US & Canada)',
     allowEmailSubscribers: true,
     allowSmsSubscribers: true,
-    gaTrackingId: 'G-7X982KL',
+    gaTrackingId: '',
     authMethod: 'none',
     services: [
       { id: 'svc-1', name: '[Demo] API - Authentication', status: 'operational', color: '#FAEBB7' },
@@ -159,16 +163,24 @@ export function StatusPageLayout() {
   const [formSamlIdpUrl, setFormSamlIdpUrl] = useState('');
   const [formSamlCert, setFormSamlCert] = useState('');
 
-  // Tab 3: Customize
-  const [brandOrgName, setBrandOrgName] = useState('Lpu');
+  // Tab 3: Customize (Rootly exact fields)
+  const [brandOrgName] = useState('Lpu');
   const [formPublicTitle, setFormPublicTitle] = useState('');
   const [formPublicDescription, setFormPublicDescription] = useState('');
   const [formUptimeMessage, setFormUptimeMessage] = useState('All Systems Operational');
   const [formDowntimeMessage, setFormDowntimeMessage] = useState("Something's not quite right");
+  const [formLogoFileName, setFormLogoFileName] = useState<string | null>(null);
+  const [formFaviconFileName, setFormFaviconFileName] = useState<string | null>(null);
+  const [formOgImageFileName, setFormOgImageFileName] = useState<string | null>(null);
   const [formWebsiteUrl, setFormWebsiteUrl] = useState('');
   const [formSupportUrl, setFormSupportUrl] = useState('');
   const [formPrivacyUrl, setFormPrivacyUrl] = useState('');
   const [formTimezone, setFormTimezone] = useState('(GMT-07:00) Pacific Time (US & Canada)');
+  const [sectionOrder, setSectionOrder] = useState([
+    { id: 'maint', name: 'Scheduled Maintenance', order: 1 },
+    { id: 'status', name: 'System Status', order: 2 },
+    { id: 'incidents', name: 'Active Incidents', order: 3 },
+  ]);
 
   // Tab 4: Components
   const [formShowUptime, setFormShowUptime] = useState(true);
@@ -202,10 +214,13 @@ export function StatusPageLayout() {
     setFormAuthPassword('');
     setFormSamlIdpUrl('');
     setFormSamlCert('');
-    setFormPublicTitle('Lpu Systems Status');
+    setFormPublicTitle('');
     setFormPublicDescription('');
     setFormUptimeMessage('All Systems Operational');
     setFormDowntimeMessage("Something's not quite right");
+    setFormLogoFileName(null);
+    setFormFaviconFileName(null);
+    setFormOgImageFileName(null);
     setFormWebsiteUrl('');
     setFormSupportUrl('');
     setFormPrivacyUrl('');
@@ -233,8 +248,8 @@ export function StatusPageLayout() {
     setFormSamlIdpUrl(page.samlIdpUrl || '');
     setFormPublicTitle(page.publicTitle);
     setFormPublicDescription(page.publicDescription);
-    setFormUptimeMessage(page.uptimeMessage);
-    setFormDowntimeMessage(page.downtimeMessage);
+    setFormUptimeMessage(page.uptimeMessage || 'All Systems Operational');
+    setFormDowntimeMessage(page.downtimeMessage || "Something's not quite right");
     setFormWebsiteUrl(page.websiteUrl);
     setFormSupportUrl(page.supportUrl);
     setFormPrivacyUrl(page.privacyUrl);
@@ -341,6 +356,19 @@ export function StatusPageLayout() {
 
     setIsDirty(false);
     setView('list');
+  };
+
+  // Reorder sections helper
+  const handleMoveSection = (index: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= sectionOrder.length) return;
+    const newOrder = [...sectionOrder];
+    const temp = newOrder[index];
+    newOrder[index] = newOrder[targetIndex];
+    newOrder[targetIndex] = temp;
+    // update order numbers
+    setSectionOrder(newOrder.map((item, idx) => ({ ...item, order: idx + 1 })));
+    setIsDirty(true);
   };
 
   // Filtered status pages for listing
@@ -746,7 +774,7 @@ export function StatusPageLayout() {
         )}
 
         {/* ========================================================================= */}
-        {/* VIEW 2: NEW / EDIT STATUS PAGE BUILDER (Exact Match to media_1788782193408.png) */}
+        {/* VIEW 2: NEW / EDIT STATUS PAGE BUILDER (Exact Match to media_1788783002077.png) */}
         {/* ========================================================================= */}
         {view === 'builder' && (
           <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-6 sm:px-8 space-y-4">
@@ -821,7 +849,7 @@ export function StatusPageLayout() {
               </div>
             )}
 
-            {/* Two-Column Split Layout */}
+            {/* Two-Column Split Layout - ALWAYS PERSISTENT ACROSS ALL TABS */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-2">
               {/* Left Column: Form Controls (lg:col-span-5) */}
               <div className="lg:col-span-5 space-y-6 max-h-[calc(100vh-210px)] overflow-y-auto pr-2">
@@ -917,7 +945,6 @@ export function StatusPageLayout() {
 
                       {showAdvancedSettings && (
                         <div className="mt-3 p-4 rounded-xl border border-gray-200 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 space-y-4 text-xs">
-                          {/* Email Notifications */}
                           <label className="flex items-center justify-between cursor-pointer">
                             <span className="font-medium text-zinc-700 dark:text-zinc-300">Allow email notifications</span>
                             <input
@@ -931,7 +958,6 @@ export function StatusPageLayout() {
                             />
                           </label>
 
-                          {/* SMS Notifications */}
                           <label className="flex items-center justify-between cursor-pointer">
                             <span className="font-medium text-zinc-700 dark:text-zinc-300">Allow SMS notifications</span>
                             <input
@@ -945,7 +971,6 @@ export function StatusPageLayout() {
                             />
                           </label>
 
-                          {/* Custom Domain */}
                           <div className="space-y-1">
                             <label className="font-medium text-zinc-700 dark:text-zinc-300">External Domain Names</label>
                             <input
@@ -960,7 +985,6 @@ export function StatusPageLayout() {
                             />
                           </div>
 
-                          {/* Google Analytics ID */}
                           <div className="space-y-1">
                             <label className="font-medium text-zinc-700 dark:text-zinc-300">Google Analytics Tracking ID</label>
                             <input
@@ -997,7 +1021,6 @@ export function StatusPageLayout() {
                         </div>
 
                         <div className="space-y-2.5">
-                          {/* Mode 1: None */}
                           <label className="flex items-start gap-3 p-3 rounded-xl border border-gray-200 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 cursor-pointer">
                             <input
                               type="radio"
@@ -1015,7 +1038,6 @@ export function StatusPageLayout() {
                             </div>
                           </label>
 
-                          {/* Mode 2: Password */}
                           <label className="flex items-start gap-3 p-3 rounded-xl border border-gray-200 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 cursor-pointer">
                             <input
                               type="radio"
@@ -1048,7 +1070,6 @@ export function StatusPageLayout() {
                             </div>
                           </label>
 
-                          {/* Mode 3: SAML SSO */}
                           <label className="flex items-start gap-3 p-3 rounded-xl border border-gray-200 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 cursor-pointer">
                             <input
                               type="radio"
@@ -1096,29 +1117,19 @@ export function StatusPageLayout() {
                   </div>
                 )}
 
-                {/* TAB CONTENT: CUSTOMIZE */}
+                {/* ========================================================================= */}
+                {/* TAB CONTENT: CUSTOMIZE (Exact Match to media_1788783002077.png)           */}
+                {/* ========================================================================= */}
                 {activeTab === 'customize' && (
-                  <div className="space-y-5 text-xs">
-                    {/* Organization Brand Name */}
-                    <div className="space-y-1">
-                      <label className="font-medium text-zinc-800 dark:text-zinc-200">Organization Name</label>
-                      <p className="text-[11px] text-zinc-500">The company or team title displayed on the status page header.</p>
-                      <input
-                        type="text"
-                        value={brandOrgName}
-                        onChange={(e) => {
-                          setBrandOrgName(e.target.value);
-                          setIsDirty(true);
-                        }}
-                        placeholder="Lpu"
-                        className="w-full rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent px-3 py-1.5 text-xs"
-                      />
-                    </div>
-
-                    {/* Public Title */}
-                    <div className="space-y-1">
-                      <label className="font-medium text-zinc-800 dark:text-zinc-200">Public Title</label>
-                      <p className="text-[11px] text-zinc-500">Help status page visitors identify the purpose. Visible at the top of the status page.</p>
+                  <div className="space-y-6 text-xs">
+                    {/* 1. Public Title */}
+                    <div className="space-y-1.5">
+                      <label className="font-semibold text-xs text-zinc-900 dark:text-zinc-100">
+                        Public Title
+                      </label>
+                      <p className="text-[11px] text-zinc-500 leading-normal">
+                        Help status page visitors identify the purpose of this status page. Visible on status page.
+                      </p>
                       <input
                         type="text"
                         value={formPublicTitle}
@@ -1127,35 +1138,45 @@ export function StatusPageLayout() {
                           setIsDirty(true);
                         }}
                         placeholder="Give this status page a concise title (1-3 words)"
-                        className="w-full rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent px-3 py-1.5 text-xs"
+                        className="w-full rounded-md border border-gray-300 dark:border-zinc-700 bg-transparent px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400"
                       />
                     </div>
 
-                    {/* Public Description */}
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <label className="font-medium text-zinc-800 dark:text-zinc-200">Public Description</label>
-                        <span className="text-[10px] text-zinc-400">
-                          {1000 - formPublicDescription.length} characters remaining
-                        </span>
-                      </div>
+                    {/* 2. Public Description */}
+                    <div className="space-y-1.5">
+                      <label className="font-semibold text-xs text-zinc-900 dark:text-zinc-100">
+                        Public Description
+                      </label>
+                      <p className="text-[11px] text-zinc-500 leading-normal">
+                        Describe what services this status page represents. Visible on status page.
+                      </p>
                       <textarea
-                        rows={2}
+                        rows={3}
                         maxLength={1000}
                         value={formPublicDescription}
                         onChange={(e) => {
                           setFormPublicDescription(e.target.value);
                           setIsDirty(true);
                         }}
-                        placeholder="Describe what services this status page represents."
-                        className="w-full rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent p-2 text-xs resize-y"
+                        placeholder="Write a human readable description."
+                        className="w-full rounded-md border border-gray-300 dark:border-zinc-700 bg-transparent p-3 text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400 resize-y"
                       />
+                      <div className="text-[11px] text-zinc-400">
+                        {1000 - formPublicDescription.length} characters remaining
+                      </div>
                     </div>
 
-                    {/* Uptime Message */}
-                    <div className="space-y-1">
-                      <label className="font-medium text-zinc-800 dark:text-zinc-200">Uptime Message</label>
-                      <p className="text-[11px] text-zinc-500">Displayed on the status page when all services are healthy.</p>
+                    {/* 3. Uptime Message */}
+                    <div className="space-y-1.5">
+                      <label className="font-semibold text-xs text-zinc-900 dark:text-zinc-100">
+                        Uptime Message
+                      </label>
+                      <p className="text-[11px] text-zinc-500 leading-normal">
+                        This message will show on the status page{' '}
+                        <strong className="text-zinc-700 dark:text-zinc-300">
+                          when there are no issues or incidents with the services this status page represents.
+                        </strong>
+                      </p>
                       <input
                         type="text"
                         value={formUptimeMessage}
@@ -1164,14 +1185,21 @@ export function StatusPageLayout() {
                           setIsDirty(true);
                         }}
                         placeholder="All Systems Operational"
-                        className="w-full rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent px-3 py-1.5 text-xs"
+                        className="w-full rounded-md border border-gray-300 dark:border-zinc-700 bg-transparent px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400"
                       />
                     </div>
 
-                    {/* Downtime Message */}
-                    <div className="space-y-1">
-                      <label className="font-medium text-zinc-800 dark:text-zinc-200">Downtime Message</label>
-                      <p className="text-[11px] text-zinc-500">Displayed on the status page when any service is impaired.</p>
+                    {/* 4. Downtime Message */}
+                    <div className="space-y-1.5">
+                      <label className="font-semibold text-xs text-zinc-900 dark:text-zinc-100">
+                        Downtime Message
+                      </label>
+                      <p className="text-[11px] text-zinc-500 leading-normal">
+                        This message will show on the status page{' '}
+                        <strong className="text-zinc-700 dark:text-zinc-300">
+                          when there are issues or incidents with the services this status page represents.
+                        </strong>
+                      </p>
                       <input
                         type="text"
                         value={formDowntimeMessage}
@@ -1180,37 +1208,251 @@ export function StatusPageLayout() {
                           setIsDirty(true);
                         }}
                         placeholder="Something's not quite right"
-                        className="w-full rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent px-3 py-1.5 text-xs"
+                        className="w-full rounded-md border border-gray-300 dark:border-zinc-700 bg-transparent px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400"
                       />
                     </div>
 
-                    {/* Website Links */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                      <div className="space-y-1">
-                        <label className="font-medium text-zinc-800 dark:text-zinc-200">Website URL</label>
+                    {/* 5. Logo Upload Dropzone */}
+                    <div className="space-y-1.5">
+                      <label className="font-semibold text-xs text-zinc-900 dark:text-zinc-100">
+                        Logo
+                      </label>
+                      <p className="text-[11px] text-zinc-500 leading-normal">
+                        The logo will display at the top left side of the status page. Size &amp; Format: 64×64 jpg, png
+                      </p>
+                      <label className="border border-dashed border-gray-300 dark:border-zinc-700 rounded-lg p-5 flex items-center justify-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-900/50 transition-colors">
+                        <Upload className="h-4 w-4 text-zinc-400" />
+                        <span className="text-xs text-zinc-600 dark:text-zinc-400">
+                          {formLogoFileName ? (
+                            <strong className="text-emerald-600">{formLogoFileName}</strong>
+                          ) : (
+                            <>
+                              <span className="text-blue-600 dark:text-blue-400 font-medium hover:underline">Select a file</span> or drag and drop
+                            </>
+                          )}
+                        </span>
                         <input
-                          type="url"
-                          value={formWebsiteUrl}
+                          type="file"
+                          accept="image/png,image/jpeg"
+                          className="hidden"
                           onChange={(e) => {
-                            setFormWebsiteUrl(e.target.value);
-                            setIsDirty(true);
+                            if (e.target.files?.[0]) {
+                              setFormLogoFileName(e.target.files[0].name);
+                              setIsDirty(true);
+                            }
                           }}
-                          placeholder="https://company.com"
-                          className="w-full rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent px-2.5 py-1 text-xs"
                         />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="font-medium text-zinc-800 dark:text-zinc-200">Support URL</label>
+                      </label>
+                    </div>
+
+                    {/* 6. Favicon Upload Dropzone */}
+                    <div className="space-y-1.5">
+                      <label className="font-semibold text-xs text-zinc-900 dark:text-zinc-100">
+                        Favicon
+                      </label>
+                      <p className="text-[11px] text-zinc-500 leading-normal">
+                        This is the icon that shows up in a site tab when users visit this page. Size &amp; Format: 64×64 jpg, png
+                      </p>
+                      <label className="border border-dashed border-gray-300 dark:border-zinc-700 rounded-lg p-4 flex items-center justify-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-900/50 transition-colors">
+                        <Upload className="h-4 w-4 text-zinc-400" />
+                        <span className="text-xs text-zinc-600 dark:text-zinc-400">
+                          {formFaviconFileName ? (
+                            <strong className="text-emerald-600">{formFaviconFileName}</strong>
+                          ) : (
+                            <>
+                              <span className="text-blue-600 dark:text-blue-400 font-medium hover:underline">Select a file</span> or drag and drop
+                            </>
+                          )}
+                        </span>
                         <input
-                          type="url"
-                          value={formSupportUrl}
+                          type="file"
+                          accept="image/png,image/jpeg,image/x-icon"
+                          className="hidden"
                           onChange={(e) => {
-                            setFormSupportUrl(e.target.value);
-                            setIsDirty(true);
+                            if (e.target.files?.[0]) {
+                              setFormFaviconFileName(e.target.files[0].name);
+                              setIsDirty(true);
+                            }
                           }}
-                          placeholder="https://support.company.com"
-                          className="w-full rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent px-2.5 py-1 text-xs"
                         />
+                      </label>
+                    </div>
+
+                    {/* 7. Open Graph Image Upload Dropzone */}
+                    <div className="space-y-1.5">
+                      <label className="font-semibold text-xs text-zinc-900 dark:text-zinc-100">
+                        Open Graph Image
+                      </label>
+                      <p className="text-[11px] text-zinc-500 leading-normal">
+                        This is the image that will show in website previews when shared. Size &amp; Format: 1200×630 jpg, png
+                      </p>
+                      <label className="border border-dashed border-gray-300 dark:border-zinc-700 rounded-lg p-4 flex items-center justify-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-900/50 transition-colors">
+                        <Upload className="h-4 w-4 text-zinc-400" />
+                        <span className="text-xs text-zinc-600 dark:text-zinc-400">
+                          {formOgImageFileName ? (
+                            <strong className="text-emerald-600">{formOgImageFileName}</strong>
+                          ) : (
+                            <>
+                              <span className="text-blue-600 dark:text-blue-400 font-medium hover:underline">Select a file</span> or drag and drop
+                            </>
+                          )}
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/png,image/jpeg"
+                          className="hidden"
+                          onChange={(e) => {
+                            if (e.target.files?.[0]) {
+                              setFormOgImageFileName(e.target.files[0].name);
+                              setIsDirty(true);
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
+
+                    {/* 8. Website URL */}
+                    <div className="space-y-1.5">
+                      <label className="font-semibold text-xs text-zinc-900 dark:text-zinc-100">
+                        Website URL
+                      </label>
+                      <p className="text-[11px] text-zinc-500 leading-normal">
+                        Link users to your company’s website. This will be displayed in the status page footer.
+                      </p>
+                      <input
+                        type="url"
+                        value={formWebsiteUrl}
+                        onChange={(e) => {
+                          setFormWebsiteUrl(e.target.value);
+                          setIsDirty(true);
+                        }}
+                        placeholder="Company’s website URL"
+                        className="w-full rounded-md border border-gray-300 dark:border-zinc-700 bg-transparent px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                      />
+                    </div>
+
+                    {/* 9. Website Support URL */}
+                    <div className="space-y-1.5">
+                      <label className="font-semibold text-xs text-zinc-900 dark:text-zinc-100">
+                        Website Support URL
+                      </label>
+                      <p className="text-[11px] text-zinc-500 leading-normal">
+                        Link users to your company’s support page. This will be displayed in the status page footer.
+                      </p>
+                      <input
+                        type="url"
+                        value={formSupportUrl}
+                        onChange={(e) => {
+                          setFormSupportUrl(e.target.value);
+                          setIsDirty(true);
+                        }}
+                        placeholder="Company’s support page URL"
+                        className="w-full rounded-md border border-gray-300 dark:border-zinc-700 bg-transparent px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                      />
+                    </div>
+
+                    {/* 10. Website Privacy URL */}
+                    <div className="space-y-1.5">
+                      <label className="font-semibold text-xs text-zinc-900 dark:text-zinc-100">
+                        Website Privacy URL
+                      </label>
+                      <p className="text-[11px] text-zinc-500 leading-normal">
+                        Link users to your company’s privacy policy page. This will be displayed in the footer.
+                      </p>
+                      <input
+                        type="url"
+                        value={formPrivacyUrl}
+                        onChange={(e) => {
+                          setFormPrivacyUrl(e.target.value);
+                          setIsDirty(true);
+                        }}
+                        placeholder="Company’s privacy page URL"
+                        className="w-full rounded-md border border-gray-300 dark:border-zinc-700 bg-transparent px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                      />
+                    </div>
+
+                    {/* 11. Timezone */}
+                    <div className="space-y-1.5">
+                      <label className="font-semibold text-xs text-zinc-900 dark:text-zinc-100">
+                        Timezone
+                      </label>
+                      <p className="text-[11px] text-zinc-500 leading-normal">
+                        Set the timezone to show when the status changes occurred.
+                      </p>
+                      <select
+                        value={formTimezone}
+                        onChange={(e) => {
+                          setFormTimezone(e.target.value);
+                          setIsDirty(true);
+                        }}
+                        className="w-full rounded-md border border-gray-300 dark:border-zinc-700 bg-transparent px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                      >
+                        <option value="(GMT-07:00) Pacific Time (US & Canada)" className="dark:bg-zinc-900">
+                          (GMT-07:00) Pacific Time (US & Canada)
+                        </option>
+                        <option value="(GMT-04:00) Eastern Time (US & Canada)" className="dark:bg-zinc-900">
+                          (GMT-04:00) Eastern Time (US & Canada)
+                        </option>
+                        <option value="(GMT+00:00) UTC" className="dark:bg-zinc-900">
+                          (GMT+00:00) UTC
+                        </option>
+                        <option value="(GMT+01:00) London, Dublin" className="dark:bg-zinc-900">
+                          (GMT+01:00) London, Dublin
+                        </option>
+                        <option value="(GMT+05:30) Mumbai, New Delhi" className="dark:bg-zinc-900">
+                          (GMT+05:30) Mumbai, New Delhi
+                        </option>
+                      </select>
+                    </div>
+
+                    {/* 12. Section Order */}
+                    <div className="space-y-1.5 pt-1">
+                      <label className="font-semibold text-xs text-zinc-900 dark:text-zinc-100">
+                        Section Order
+                      </label>
+                      <p className="text-[11px] text-zinc-500 leading-normal">
+                        Drag and drop to reorder how sections appear on your public status page.
+                      </p>
+                      <div className="space-y-2 pt-1">
+                        {sectionOrder.map((section, idx) => (
+                          <div
+                            key={section.id}
+                            className="flex items-center justify-between p-3 rounded-lg border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-xs shadow-2xs"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <GripVertical className="h-4 w-4 text-zinc-400 cursor-grab" />
+                              {section.id === 'maint' && <Wrench className="h-4 w-4 text-zinc-500" />}
+                              {section.id === 'status' && <Server className="h-4 w-4 text-zinc-500" />}
+                              {section.id === 'incidents' && <AlertTriangle className="h-4 w-4 text-zinc-500" />}
+                              <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                                {section.name}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="flex flex-col gap-0.5">
+                                <button
+                                  type="button"
+                                  disabled={idx === 0}
+                                  onClick={() => handleMoveSection(idx, 'up')}
+                                  className="text-zinc-400 hover:text-zinc-700 disabled:opacity-30 cursor-pointer"
+                                >
+                                  ▲
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={idx === sectionOrder.length - 1}
+                                  onClick={() => handleMoveSection(idx, 'down')}
+                                  className="text-zinc-400 hover:text-zinc-700 disabled:opacity-30 cursor-pointer"
+                                >
+                                  ▼
+                                </button>
+                              </div>
+                              <span className="h-6 w-6 rounded-md bg-gray-100 dark:bg-zinc-800 flex items-center justify-center font-bold text-[11px] text-zinc-700 dark:text-zinc-300">
+                                {section.order}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -1219,7 +1461,6 @@ export function StatusPageLayout() {
                 {/* TAB CONTENT: COMPONENTS */}
                 {activeTab === 'components' && (
                   <div className="space-y-5 text-xs">
-                    {/* Uptime Duration Selector */}
                     <div className="p-3.5 rounded-xl border border-gray-200 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <input
@@ -1249,7 +1490,6 @@ export function StatusPageLayout() {
                       </select>
                     </div>
 
-                    {/* Services Catalog */}
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="font-semibold text-zinc-900 dark:text-zinc-100">Services Included</span>
@@ -1339,7 +1579,10 @@ export function StatusPageLayout() {
                 )}
               </div>
 
-              {/* Right Column: Live Interactive Browser Mockup (lg:col-span-7) */}
+              {/* ========================================================================= */}
+              {/* Right Column: Live Interactive Browser Mockup (lg:col-span-7)              */}
+              {/* PERSISTENT ACROSS ALL TABS (Exact Match to media_1788783002077.png)        */}
+              {/* ========================================================================= */}
               <div className="lg:col-span-7 sticky top-4">
                 <div className="rounded-2xl border border-gray-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xl overflow-hidden">
                   {/* Browser Window Chrome */}
@@ -1359,34 +1602,22 @@ export function StatusPageLayout() {
                   <div className="p-8 sm:p-12 space-y-8 bg-white dark:bg-zinc-900 min-h-[500px] flex flex-col justify-between">
                     <div className="space-y-8">
                       {/* Org Header */}
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-center pt-2">
                         <div className="flex items-center gap-2">
                           <Sparkles className="h-5 w-5 text-zinc-700 dark:text-zinc-300" />
-                          <span className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                          <span className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
                             {formPublicTitle || brandOrgName}
                           </span>
                         </div>
-                        {formAllowEmail && (
-                          <button
-                            type="button"
-                            onClick={(e) => e.preventDefault()}
-                            className="px-2.5 py-1 text-[11px] rounded-md border border-gray-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-gray-50"
-                          >
-                            Subscribe to updates
-                          </button>
-                        )}
                       </div>
 
-                      {/* Status Hero Card with Halo Badge */}
-                      <div className="rounded-[20px] bg-[#E8F8F0] dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-900/60 p-8 flex flex-col items-center justify-center text-center space-y-3 max-w-xl mx-auto shadow-2xs">
-                        {/* Halo badge */}
-                        <div className="rounded-[26px] w-20 h-20 flex items-center justify-center bg-emerald-500/15 text-white">
-                          <div className="rounded-[20px] w-14 h-14 bg-emerald-500 text-white flex items-center justify-center shadow-xs">
-                            <Check className="h-7 w-7 stroke-[2.5]" />
-                          </div>
+                      {/* Status Hero Card (Soft Green Card with Centered Checkmark) */}
+                      <div className="rounded-2xl bg-[#E8F8F0] dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-900/60 p-10 flex flex-col items-center justify-center text-center space-y-3 max-w-lg mx-auto shadow-2xs">
+                        <div className="h-14 w-14 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-xs">
+                          <Check className="h-7 w-7 stroke-[2.5]" />
                         </div>
 
-                        <h2 className="text-xl sm:text-2xl font-bold text-emerald-800 dark:text-emerald-300 tracking-tight">
+                        <h2 className="text-2xl sm:text-3xl font-bold text-emerald-800 dark:text-emerald-300 tracking-tight">
                           {formUptimeMessage || 'All Systems Operational'}
                         </h2>
 
@@ -1399,80 +1630,15 @@ export function StatusPageLayout() {
                           <ArrowUpRight className="h-3 w-3" />
                         </a>
                       </div>
-
-                      {/* 60-Day Interactive Uptime Visualizer in Mockup */}
-                      {formShowUptime && (
-                        <div className="max-w-xl mx-auto space-y-4">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="font-bold text-zinc-900 dark:text-zinc-100">System status</span>
-                            <div className="flex items-center gap-3 text-[10px] text-zinc-400">
-                              <span className="flex items-center gap-1">
-                                <span className="h-2 w-2 rounded-full bg-emerald-500" /> Operational
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <span className="h-2 w-2 rounded-full bg-rose-500" /> Affected
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Components with historical uptime bars */}
-                          <div className="space-y-3">
-                            {[
-                              { name: '[Demo] API - Authentication', uptime: '99.98%' },
-                              { name: '[Demo] DB - Production Database', uptime: '100.0%' },
-                              { name: '[Demo] UI - User Profile Block', uptime: '99.95%' },
-                            ].map((s, idx) => (
-                              <div key={idx} className="space-y-1">
-                                <div className="flex items-center justify-between text-[11px]">
-                                  <span className="font-medium text-zinc-800 dark:text-zinc-200">{s.name}</span>
-                                  <span className="font-mono text-emerald-600 font-semibold">{s.uptime}</span>
-                                </div>
-                                <div className="flex gap-0.5 h-4 w-full bg-gray-100 dark:bg-zinc-800 rounded-xs overflow-hidden p-0.5">
-                                  {Array.from({ length: formUptimeDurationDays }).map((_, bIdx) => (
-                                    <div
-                                      key={bIdx}
-                                      className={`flex-1 h-full rounded-xs transition-opacity hover:opacity-80 ${
-                                        idx === 0 && bIdx === formUptimeDurationDays - 12
-                                          ? 'bg-amber-400'
-                                          : 'bg-emerald-500'
-                                      }`}
-                                      title={`Day -${formUptimeDurationDays - bIdx}: Nominal`}
-                                    />
-                                  ))}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
                     </div>
 
                     {/* Footer in Mockup */}
-                    <div className="pt-8 text-center text-xs text-zinc-400 border-t border-gray-100 dark:border-zinc-800/80 flex flex-col sm:flex-row items-center justify-between gap-2">
-                      <div className="flex items-center gap-3 text-[11px]">
-                        {formWebsiteUrl && (
-                          <a href={formWebsiteUrl} target="_blank" rel="noreferrer" className="hover:underline">
-                            Website
-                          </a>
-                        )}
-                        {formSupportUrl && (
-                          <a href={formSupportUrl} target="_blank" rel="noreferrer" className="hover:underline">
-                            Support
-                          </a>
-                        )}
-                        {formPrivacyUrl && (
-                          <a href={formPrivacyUrl} target="_blank" rel="noreferrer" className="hover:underline">
-                            Privacy
-                          </a>
-                        )}
-                      </div>
-                      <div className="flex items-center justify-center gap-1.5">
-                        <span>Powered by</span>
-                        <span className="font-bold text-zinc-700 dark:text-zinc-200 inline-flex items-center gap-1">
-                          <Sparkles className="h-3.5 w-3.5 text-purple-600" />
-                          rootly ai
-                        </span>
-                      </div>
+                    <div className="pt-8 text-center text-xs text-zinc-400 border-t border-gray-100 dark:border-zinc-800/80 flex items-center justify-center gap-1.5">
+                      <span>Powered by</span>
+                      <span className="font-bold text-zinc-700 dark:text-zinc-200 inline-flex items-center gap-1">
+                        <Sparkles className="h-3.5 w-3.5 text-purple-600" />
+                        rootly ai
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -1528,10 +1694,8 @@ export function StatusPageLayout() {
 
                 {/* Status Hero Card */}
                 <div className="rounded-2xl bg-[#E8F8F0] dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-900/60 p-10 flex flex-col items-center justify-center text-center space-y-3 shadow-xs">
-                  <div className="rounded-[26px] w-20 h-20 flex items-center justify-center bg-emerald-500/15 text-white">
-                    <div className="rounded-[20px] w-14 h-14 bg-emerald-500 text-white flex items-center justify-center shadow-xs">
-                      <Check className="h-7 w-7 stroke-[2.5]" />
-                    </div>
+                  <div className="h-14 w-14 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-xs">
+                    <Check className="h-7 w-7 stroke-[2.5]" />
                   </div>
                   <h2 className="text-2xl sm:text-3xl font-bold text-emerald-800 dark:text-emerald-300 tracking-tight">
                     {statusPages[0]?.uptimeMessage || 'All Systems Operational'}
