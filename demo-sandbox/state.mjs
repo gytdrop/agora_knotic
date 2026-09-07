@@ -175,9 +175,17 @@ export function stopLoad() {
   return { stopped: true };
 }
 
-/** Restore the broken state for another take. */
+/**
+ * Restore the broken state for another take.
+ *
+ * Traffic is resumed if it was running. A reset between takes is meant to
+ * return to "broken and under load" — the state a take opens in — so silently
+ * stopping the generator left the next take showing zeroes.
+ */
 export function reset() {
+  const wasRunning = state.loadTimer !== null;
   stopLoad();
   state = freshState();
-  return { reset: true, version: state.version };
+  if (wasRunning) startLoad();
+  return { reset: true, version: state.version, loadResumed: wasRunning };
 }
