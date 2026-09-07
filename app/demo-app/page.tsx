@@ -73,9 +73,17 @@ export default function DemoAppPage() {
     };
   }, []);
 
-  const handleReset = useCallback(() => {
+  const handleReset = useCallback(async () => {
+    // Clear the cross-tab signal first so the flip is instant, then clear the
+    // server-side ledger — which otherwise keeps isResolved=true and appends a
+    // second remediation event on the next take.
     resetStatus();
     setStatus('CRITICAL');
+    try {
+      await fetch('/api/demo/reset', { method: 'POST' });
+    } catch {
+      // Ledger reset is best effort; the visible state is already restored.
+    }
   }, []);
 
   const critical = status === 'CRITICAL';
