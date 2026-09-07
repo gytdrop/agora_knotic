@@ -138,17 +138,32 @@ dist
 .pnp.*
 .pnpm-store/
 
-.DS_Store
+# Non-pnpm lockfiles
 package-lock.json
 yarn.lock
+bun.lockb
+
+# OS metadata
+.DS_Store
+._*
+Thumbs.db
+[Dd]esktop.ini
+
+# IDE and editor files
+.idea/
+*.swp
+*.swo
+*~
 
 # Temporary local files & scripts
 install.ps1
 *.bak
-
+*.tmp
+*.temp
 
 certificates
 .clerk/
+.worktrees/
 .worktrees
 
 # Backups and patches
@@ -161,3 +176,25 @@ patches/
 
 # Scratch directory
 scratch/
+
+# AI agent & assistant state
+.serena/
+.superpowers/
+.claude/*.local.json
+.gemini/
+.cursor/
+
+# Python environment & cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+venv/
+
+# Build caches & test runner reports
+.turbo/
+.swc/
+/test-results/
+playwright-report/
+blob-report/
