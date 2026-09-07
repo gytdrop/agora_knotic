@@ -25,7 +25,7 @@ export async function POST(request: Request) {
   // Best effort: return the sandbox to its broken release too, when it is
   // running locally. Absent on a deployed instance, which is expected.
   let sandboxReset = false;
-  if (process.env.NODE_ENV !== 'production' && process.env.DEMO_SANDBOX === '1') {
+  if (!process.env.VERCEL && process.env.DEMO_SANDBOX === '1') {
     try {
       const res = await fetch('http://127.0.0.1:4000/admin/reset', {
         method: 'POST',

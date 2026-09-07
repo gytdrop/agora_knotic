@@ -500,14 +500,26 @@ export default function ConversationComponent({
     isReady,
   );
 
-  const { localMicrophoneTrack } = useLocalMicrophoneTrack(isReady, {
+  const { localMicrophoneTrack, error: microphoneError } = useLocalMicrophoneTrack(isReady, {
     ANS: true,
     AEC: true,
     AGC: true,
   });
 
+  // A failed microphone previously produced no signal anywhere: the call looked
+  // connected and the person simply could not be heard. Surface it so it is
+  // diagnosable while the call is live rather than afterwards.
+  useEffect(() => {
+    if (microphoneError) {
+      console.error('[Agora RTC] Microphone unavailable:', microphoneError);
+    }
+  }, [microphoneError]);
+
   const { localCameraTrack, error: cameraError } = useLocalCameraTrack(isReady, {
-    encoderConfig: '720p_1',
+    // 480p keeps a three-way call stable on mixed networks. 720p_1 was the
+    // source of the latency and freezing reports; the visualiser and speaker
+    // cards are small enough that the resolution is not visible.
+    encoderConfig: '480p_1',
   });
 
   useEffect(() => {
@@ -1033,8 +1045,19 @@ export default function ConversationComponent({
     }
   }, [messageList, agentUID, client, remoteUsers, handleRemediateSuccess, commitLedgerMutation, localUserName, commitBeatCard]);
 
-  // Publish microphone and camera tracks once created
-  usePublish([localMicrophoneTrack, localCameraTrack]);
+  // Publish only once the client has actually joined. usePublish accepts a
+  // readiness flag; without it the publish races the join, which intermittently
+  // left a peer with no audio or no video while everything looked connected.
+  const { error: publishError } = usePublish(
+    [localMicrophoneTrack, localCameraTrack],
+    isReady && joinSuccess,
+  );
+
+  useEffect(() => {
+    if (publishError) {
+      console.error('[Agora RTC] Failed to publish local tracks:', publishError);
+    }
+  }, [publishError]);
 
   useClientEvent(client, 'user-joined', (user) => {
     console.log(`[VoicePipeline:RTC] Remote user joined: uid=${user.uid}`);

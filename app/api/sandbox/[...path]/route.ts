@@ -4,8 +4,12 @@ import { NextResponse } from 'next/server';
  * Read-only proxy to the acme-pay demo sandbox on 127.0.0.1:4000.
  *
  * Deliberately inert unless BOTH conditions hold:
- *   - NODE_ENV is not 'production'
+ *   - not running on Vercel (process.env.VERCEL is unset)
  *   - DEMO_SANDBOX === '1'
+ *
+ * Keyed on VERCEL rather than NODE_ENV because a production build is also run
+ * locally: `next start` behind a tunnel is how remote participants join a demo,
+ * and that path legitimately needs the sandbox.
  *
  * This repo ships vercel.json and railway.json, so it can be deployed. The
  * sandbox is a localhost-only demo rig and must never be reachable from a
@@ -22,7 +26,7 @@ const SANDBOX_ORIGIN = 'http://127.0.0.1:4000';
 const ALLOWED = new Set(['metrics', 'trace', 'health']);
 
 function enabled(): boolean {
-  return process.env.NODE_ENV !== 'production' && process.env.DEMO_SANDBOX === '1';
+  return !process.env.VERCEL && process.env.DEMO_SANDBOX === '1';
 }
 
 export async function GET(
