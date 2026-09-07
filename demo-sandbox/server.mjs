@@ -129,7 +129,35 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
+// A raw EADDRINUSE stack trace is the last thing anyone wants on screen during
+// a take. Most often the port is held by a sandbox left over from a previous
+// run, so say that plainly and exit quietly.
+server.on('error', (err) => {
+  if (err?.code === 'EADDRINUSE') {
+    console.error(`\nPort ${PORT} is already in use — most likely an earlier sandbox is still running.`);
+    console.error('\nFind and stop it:');
+    console.error(`  pkill -f "node server.mjs"`);
+    console.error('\nOr run this one on a different port:');
+    console.error(`  SANDBOX_PORT=4001 npm start`);
+    console.error('\nIf it is already running, you may not need a new one:');
+    console.error(`  curl -s http://${HOST}:${PORT}/health\n`);
+    process.exit(1);
+  }
+  console.error('sandbox failed to start:', err);
+  process.exit(1);
+});
+
 server.listen(PORT, HOST, () => {
   console.log(`acme-pay sandbox → http://${HOST}:${PORT}`);
   console.log(`  version ${getVersion()} (broken). POST /load/start to begin traffic.`);
 });
+
+// Ctrl-C should stop cleanly rather than leaving the port held for the next run.
+for (const signal of ['SIGINT', 'SIGTERM']) {
+  process.on(signal, () => {
+    console.log('\nstopping acme-pay sandbox');
+    server.close(() => process.exit(0));
+    // Force exit if a held socket keeps the server alive past the timeout.
+    setTimeout(() => process.exit(0), 500).unref();
+  });
+}
