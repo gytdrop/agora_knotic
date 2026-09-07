@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ShieldCheck, AlertOctagon, CheckCircle2, Loader2, Terminal, Flame, ArrowRight } from 'lucide-react';
 import { getApiUrl } from '@/lib/api-config';
+import { publishStatus } from '@/lib/demo/app-status';
 
 interface HitlGuardrailCardProps {
   isStaged?: boolean;
@@ -51,6 +52,9 @@ export function HitlGuardrailCard({
           throw new Error('Remediation webhook returned non-200 status');
         }
       }
+
+      // Flip the customer-facing app tab from red to green immediately.
+      publishStatus('RESOLVED');
 
       // Auto-route to post-mortem after brief visual confirmation (Beat 2:30)
       setTimeout(() => {

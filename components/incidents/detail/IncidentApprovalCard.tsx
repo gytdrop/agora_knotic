@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Check, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { publishStatus } from '@/lib/demo/app-status';
 
 export interface IncidentApprovalCardProps {
   /** Remediation awaiting a human decision. */
@@ -32,6 +33,8 @@ export function IncidentApprovalCard({
     setState('working');
     try {
       await onAuthorize?.();
+      // Flip the customer-facing app tab from red to green immediately.
+      publishStatus('RESOLVED');
       setState('authorized');
     } catch (err) {
       console.error('Failed to authorize remediation:', err);
