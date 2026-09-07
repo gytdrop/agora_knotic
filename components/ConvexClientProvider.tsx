@@ -1,11 +1,13 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { ConvexReactClient } from 'convex/react';
+import { ConvexReactClient, ConvexProvider } from 'convex/react';
 import { ConvexProviderWithClerk } from 'convex/react-clerk';
 import { useAuth } from '@clerk/nextjs';
 
-const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+const DEFAULT_CONVEX_URL = 'https://enchanted-pony-120.convex.cloud';
+const convexUrl =
+  process.env.NEXT_PUBLIC_CONVEX_URL || DEFAULT_CONVEX_URL;
 let convex: ConvexReactClient | null = null;
 
 if (convexUrl && convexUrl.startsWith('http')) {
@@ -21,9 +23,17 @@ export function ConvexClientProvider({ children }: { children: ReactNode }) {
     return <>{children}</>;
   }
 
-  return (
-    <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-      {children}
-    </ConvexProviderWithClerk>
-  );
+  // If Clerk publishable key is not configured, use standard ConvexProvider
+  const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  const isClerkConfigured = Boolean(clerkKey && clerkKey.startsWith('pk_'));
+
+  if (isClerkConfigured) {
+    return (
+      <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+        {children}
+      </ConvexProviderWithClerk>
+    );
+  }
+
+  return <ConvexProvider client={convex}>{children}</ConvexProvider>;
 }

@@ -39,11 +39,42 @@ import { WarRoomSidebar } from './war-room/WarRoomSidebar';
 import { FloatingControlDock } from './war-room/FloatingControlDock';
 import type { WarRoomToolTab } from '@/types/war-room';
 import type { ConversationComponentProps, LedgerItem, LedgerTag, SpeakerRole } from '@/types/conversation';
-import { useQuery, useMutation } from 'convex/react';
+import { useConvex, useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { applyLedgerMutation, type LedgerItemInput } from '@/lib/ledger';
 import { getApiUrl, getAgoraAppId } from '@/lib/api-config';
 import { demoIncidentStore, PAYMENT_INCIDENT_BEATS } from '@/lib/demo/payment-incident-scenario';
+
+type ConvexLedgerEvents = NonNullable<ReturnType<typeof useQuery<typeof api.incidents.listLedgerEvents>>>;
+
+interface ConvexIncidentSyncProps {
+  incidentId: string;
+  onNewEvents: (events: ConvexLedgerEvents) => void;
+  onResolved: () => void;
+}
+
+/**
+ * Isolated Convex watcher that only mounts when a valid ConvexProvider exists in the tree.
+ * Prevents fatal errors if ConvexProvider is missing.
+ */
+function ConvexIncidentSync({ incidentId, onNewEvents, onResolved }: ConvexIncidentSyncProps) {
+  const convexEvents = useQuery(api.incidents.listLedgerEvents, { incidentId });
+  const convexIncident = useQuery(api.incidents.getIncident, { incidentId });
+
+  useEffect(() => {
+    if (convexEvents && convexEvents.length > 0) {
+      onNewEvents(convexEvents);
+    }
+  }, [convexEvents, onNewEvents]);
+
+  useEffect(() => {
+    if (convexIncident?.status === 'RESOLVED') {
+      onResolved();
+    }
+  }, [convexIncident, onResolved]);
+
+  return null;
+}
 
 // Cap the displayed issues list to avoid overwhelming the UI during a cascade of errors.
 const MAX_CONNECTION_ISSUES = 6;
@@ -191,48 +222,41 @@ export default function ConversationComponent({
     },
   ]);
 
-  // Convex-backed live incident data & ledger events
+  // Convex-backed live incident data & ledger events (Safely guarded via useConvex)
+  const convex = useConvex();
   const activeIncidentId = incidentId || '#INC-8921';
-  const convexEvents = useQuery(api.incidents.listLedgerEvents, {
-    incidentId: activeIncidentId,
-  });
-  const convexIncident = useQuery(api.incidents.getIncident, {
-    incidentId: activeIncidentId,
-  });
-  const appendConvexLedger = useMutation(api.incidents.appendLedgerEvent);
 
   // Sync incoming Convex events to live ledger state
-  useEffect(() => {
-    if (!convexEvents || convexEvents.length === 0) return;
-    setLedgerItems((prev) => {
-      const existingIds = new Set(prev.map((i) => i.id));
-      const newItems: LedgerItem[] = [];
-      for (const ev of convexEvents) {
-        if (!existingIds.has(ev._id)) {
-          newItems.push({
-            id: ev._id,
-            timestampMs: ev.createdAt,
-            speaker: ev.speaker,
-            speakerRole: (ev.speaker.includes('Engine') || ev.speaker.includes('Sentinel')
-              ? 'agent'
-              : 'peer') as SpeakerRole,
-            text: ev.text,
-            tag: ev.tag,
-            status: 'Synced from Convex',
-          });
+  const handleConvexEvents = useCallback(
+    (events: ConvexLedgerEvents) => {
+      setLedgerItems((prev) => {
+        const existingIds = new Set(prev.map((i) => i.id));
+        const newItems: LedgerItem[] = [];
+        for (const ev of events) {
+          if (!existingIds.has(ev._id)) {
+            newItems.push({
+              id: ev._id,
+              timestampMs: ev.createdAt,
+              speaker: ev.speaker,
+              speakerRole: (ev.speaker.includes('Engine') || ev.speaker.includes('Sentinel')
+                ? 'agent'
+                : 'peer') as SpeakerRole,
+              text: ev.text,
+              tag: ev.tag,
+              status: 'Synced from Convex',
+            });
+          }
         }
-      }
-      if (newItems.length === 0) return prev;
-      return [...prev, ...newItems];
-    });
-  }, [convexEvents]);
+        if (newItems.length === 0) return prev;
+        return [...prev, ...newItems];
+      });
+    },
+    [],
+  );
 
-  // Sync Convex incident status
-  useEffect(() => {
-    if (convexIncident?.status === 'RESOLVED') {
-      setIsResolved(true);
-    }
-  }, [convexIncident]);
+  const handleConvexResolved = useCallback(() => {
+    setIsResolved(true);
+  }, []);
 
   // Centralized Ledger Mutation Function
   // All additions and modifications to ledgerItems MUST pass through this function.
@@ -263,18 +287,22 @@ export default function ConversationComponent({
           }),
         }).catch(() => {});
 
-        // Sync to Convex
-        appendConvexLedger({
-          incidentId: activeIncidentId,
-          timestamp: new Date(itemToSync.timestampMs || Date.now()).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-          }),
-          speaker: itemToSync.speaker || 'System',
-          tag: (itemToSync.tag as 'FACT' | 'HYPOTHESIS' | 'CONTRADICTION' | 'ACTION') || 'FACT',
-          text: itemToSync.text,
-        }).catch((err) => console.warn('[Convex] append error:', err));
+        // Sync to Convex if client is available
+        if (convex) {
+          convex
+            .mutation(api.incidents.appendLedgerEvent, {
+              incidentId: activeIncidentId,
+              timestamp: new Date(itemToSync.timestampMs || Date.now()).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+              }),
+              speaker: itemToSync.speaker || 'System',
+              tag: (itemToSync.tag as 'FACT' | 'HYPOTHESIS' | 'CONTRADICTION' | 'ACTION') || 'FACT',
+              text: itemToSync.text,
+            })
+            .catch((err) => console.warn('[Convex] append error:', err));
+        }
 
         // Capture high-signal alerts while muted so they can be replayed on unmute.
         // Uses the ref (not state) to avoid stale-closure issues in this stable callback.
@@ -291,7 +319,7 @@ export default function ConversationComponent({
       }
       return itemToSync;
     },
-    [onLedgerItemReceived, appendConvexLedger, activeIncidentId],
+    [onLedgerItemReceived, convex, activeIncidentId],
   );
 
   // Demo Beat State & Deterministic Failsafe Synchronization
@@ -1341,6 +1369,15 @@ export default function ConversationComponent({
             onEndCall={handleEndConversation}
           />
         </div>
+
+        {/* Real-time Convex incident subscription (rendered ONLY when Convex client is mounted) */}
+        {convex && (
+          <ConvexIncidentSync
+            incidentId={activeIncidentId}
+            onNewEvents={handleConvexEvents}
+            onResolved={handleConvexResolved}
+          />
+        )}
       </main>
     </div>
   );
