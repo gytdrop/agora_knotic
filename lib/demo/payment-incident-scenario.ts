@@ -80,7 +80,9 @@ export const PAYMENT_INCIDENT_BEATS: DemoBeat[] = [
     speaker: 'David Chen',
     role: 'Lead SRE',
     spokenCue: 'Isolating downstream trace: downstream dependency fraud-detection-svc timeout rate is 45%. It is holding open client sockets and exhausting the connection backlog.',
-    matchKeywords: ['downstream', 'fraud-detection', 'timeout rate', 'socket', 'backlog', 'isolating trace'],
+    // 'fraud detection' unhyphenated: speech-to-text emits the spoken form, so
+    // the hyphenated service name never matched a live transcript.
+    matchKeywords: ['downstream', 'fraud detection', 'timeout rate', 'socket', 'backlog', 'isolating trace'],
     card: {
       tag: '[FACT]',
       title: 'Root Cause: fraud-detection-svc Socket Timeout',

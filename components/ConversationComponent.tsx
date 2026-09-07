@@ -979,9 +979,18 @@ export default function ConversationComponent({
 
       const lower = turn.text.toLowerCase();
 
-      // Check for pre-scripted Demo Beat keyword triggers
-      const matchedBeat = PAYMENT_INCIDENT_BEATS.find((b) =>
-        b.matchKeywords.some((keyword) => lower.includes(keyword.toLowerCase())),
+      // Check for pre-scripted Demo Beat keyword triggers.
+      //
+      // Only the NEXT beat is eligible. Trigger words are ordinary English
+      // ("dashboard", "socket", "downstream"), so an unordered match let a word
+      // spoken during beat 1 jump straight to beat 5 mid-sentence. Gating on
+      // currentBeat + 1 keeps the run monotonic and also makes re-commits
+      // idempotent: once a beat fires it is no longer its own candidate.
+      const expectedBeat = demoIncidentStore.getState().currentBeat + 1;
+      const matchedBeat = PAYMENT_INCIDENT_BEATS.find(
+        (b) =>
+          b.beatNumber === expectedBeat &&
+          b.matchKeywords.some((keyword) => lower.includes(keyword.toLowerCase())),
       );
       if (matchedBeat) {
         console.log(
