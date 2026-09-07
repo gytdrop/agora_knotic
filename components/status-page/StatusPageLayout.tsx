@@ -3,24 +3,17 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import {
-  Activity,
   AlertTriangle,
   CheckCircle2,
-  Clock,
   ExternalLink,
   Globe,
   Menu,
   Plus,
-  Radio,
   Send,
-  Shield,
-  Sliders,
-  Users,
   X,
 } from 'lucide-react';
 import { RootlySidebar } from '@/components/dashboard/RootlySidebar';
 import { CreateIncidentModal } from '@/components/dashboard/CreateIncidentModal';
-import { cn } from '@/lib/utils';
 
 export interface ComponentHealthItem {
   id: string;
