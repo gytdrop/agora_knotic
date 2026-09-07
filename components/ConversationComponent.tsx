@@ -44,6 +44,7 @@ import { api } from '@/convex/_generated/api';
 import { applyLedgerMutation, type LedgerItemInput } from '@/lib/ledger';
 import { getApiUrl, getAgoraAppId } from '@/lib/api-config';
 import { demoIncidentStore, PAYMENT_INCIDENT_BEATS } from '@/lib/demo/payment-incident-scenario';
+import { publishStatus } from '@/lib/demo/app-status';
 
 type ConvexLedgerEvents = NonNullable<ReturnType<typeof useQuery<typeof api.incidents.listLedgerEvents>>>;
 
@@ -789,9 +790,10 @@ export default function ConversationComponent({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          actionId: 'act_hotfix_8080_8000',
-          actionType: 'K8S_INGRESS_PATCH',
-          targetService: 'ingress/auth-svc',
+          actionId: 'act_rollback_payment_v280',
+          // Allowlisted in /api/remediate; performs the real sandbox rollback.
+          actionType: 'ROLLBACK_PAYMENT_SERVICE',
+          targetService: 'payment-service',
           authorizedBy: 'Akthar (Lead SRE)',
           passkeyUsed: true,
         }),
@@ -803,11 +805,15 @@ export default function ConversationComponent({
 
       setIsResolved(true);
       setIsHotfixStaged(true);
+      // Flip the customer-facing app tab. The guardrail card publishes this too,
+      // but the voice-passkey path calls this handler directly and would
+      // otherwise leave acme-pay showing red after a successful rollback.
+      publishStatus('RESOLVED');
       commitLedgerMutation({
         speaker: 'EchoSphere Remediation',
-        text: 'kubectl patch ingress auth-svc applied. TargetPort restored to 8080 -> 8000.',
+        text: 'Canary rollback applied. payment-service reverted v2.8.1 -> v2.8.0; fraud check budgeted at 300ms with fallback verdict.',
         tag: 'ACTION',
-        status: '200 OK Patch Active',
+        status: '200 OK Rollback Active',
         timestampMs: Date.now(),
       });
     } catch (err) {
