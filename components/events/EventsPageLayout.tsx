@@ -47,7 +47,7 @@ export function EventsPageLayout() {
   }, [events, selectedView, searchQuery]);
 
   return (
-    <div className="flex min-h-screen flex-col md:flex-row bg-white text-zinc-900 font-sans antialiased">
+    <div className="flex min-h-screen flex-col md:flex-row bg-white text-slate-900 font-sans antialiased">
       {/* Desktop Persistent Sidebar */}
       <RootlySidebar
         className="hidden md:flex"
@@ -58,7 +58,7 @@ export function EventsPageLayout() {
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-50 flex md:hidden" role="dialog" aria-modal="true">
           <div
-            className="fixed inset-0 bg-zinc-900/60 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"
             onClick={() => setIsMobileMenuOpen(false)}
             aria-hidden="true"
           />
@@ -68,7 +68,7 @@ export function EventsPageLayout() {
                 type="button"
                 onClick={() => setIsMobileMenuOpen(false)}
                 aria-label="Close sidebar menu"
-                className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 focus:outline-none cursor-pointer"
+                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 focus:outline-none cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -88,22 +88,22 @@ export function EventsPageLayout() {
       {/* Main Responsive Canvas */}
       <div className="flex flex-1 flex-col min-w-0 min-h-screen bg-white">
         {/* Mobile Header Bar */}
-        <div className="flex md:hidden items-center justify-between px-4 py-3 border-b border-zinc-200 bg-white">
+        <div className="flex md:hidden items-center justify-between px-4 py-3 border-b border-slate-200 bg-white">
           <div className="flex items-center gap-2.5">
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen(true)}
               aria-label="Toggle navigation menu"
-              className="p-1.5 -ml-1 rounded-lg text-zinc-600 hover:bg-zinc-100 cursor-pointer"
+              className="p-1.5 -ml-1 rounded-lg text-slate-600 hover:bg-slate-100 cursor-pointer"
             >
               <Menu className="h-5 w-5" />
             </button>
             <div className="flex items-center gap-2">
-              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-purple-600 text-white shadow-xs">
+              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-slate-900 text-white shadow-xs">
                 <Asterisk className="h-4 w-4 stroke-[2.5]" />
               </div>
-              <span className="text-sm font-bold tracking-tight text-zinc-900">
-                Ecosphere <span className="font-normal text-zinc-400">/</span> Events
+              <span className="text-sm font-bold tracking-tight text-slate-900">
+                Ecosphere <span className="font-normal text-slate-400">/</span> Events
               </span>
             </div>
           </div>

@@ -300,7 +300,7 @@ function IncidentsDirectoryView({
   return (
     <div
       className={cn(
-        'min-h-screen bg-zinc-50/50 dark:bg-zinc-950 px-4 sm:px-6 lg:px-8 py-8',
+        'min-h-screen bg-slate-50/50 dark:bg-slate-950 px-4 sm:px-6 lg:px-8 py-8',
         className
       )}
     >

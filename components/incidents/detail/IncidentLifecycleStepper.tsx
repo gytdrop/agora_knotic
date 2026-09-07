@@ -60,7 +60,7 @@ export function IncidentLifecycleStepper({
   return (
     <div
       className={cn(
-        'bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-xl px-4 py-2.5 shadow-2xs flex flex-wrap items-center justify-between gap-4',
+        'bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl px-4 py-2.5 shadow-2xs flex flex-wrap items-center justify-between gap-4',
         className
       )}
     >
@@ -74,7 +74,7 @@ export function IncidentLifecycleStepper({
           return (
             <React.Fragment key={stage.id}>
               {idx > 0 && (
-                <ChevronRight className="h-3 w-3 text-zinc-300 dark:text-zinc-700 shrink-0" />
+                <ChevronRight className="h-3 w-3 text-slate-300 dark:text-slate-700 shrink-0" />
               )}
 
               {isActive ? (
@@ -112,7 +112,7 @@ export function IncidentLifecycleStepper({
                       >
                         <span>{targetStage.label}</span>
                         {targetStage.id === currentStage && (
-                          <Check className="h-3 w-3 text-purple-600" />
+                          <Check className="h-3 w-3 text-slate-900" />
                         )}
                       </DropdownMenuItem>
                     ))}
@@ -123,10 +123,10 @@ export function IncidentLifecycleStepper({
                   type="button"
                   onClick={() => onUpdateStatus?.(stage.id)}
                   className={cn(
-                    'text-xs font-medium transition-colors hover:text-zinc-700 dark:hover:text-zinc-200 cursor-pointer px-1.5 py-1',
+                    'text-xs font-medium transition-colors hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer px-1.5 py-1',
                     isPast
-                      ? 'text-zinc-600 dark:text-zinc-400'
-                      : 'text-zinc-400 dark:text-zinc-500'
+                      ? 'text-slate-600 dark:text-slate-400'
+                      : 'text-slate-400 dark:text-slate-500'
                   )}
                 >
                   {isPast && isResolved && idx === LIFECYCLE_STAGES.length - 1 ? (
@@ -158,21 +158,21 @@ export function IncidentLifecycleStepper({
                 <span
                   className={cn(
                     'w-0.5 rounded-xs transition-colors',
-                    sevConfig.barCount >= 1 ? sevConfig.dotColor : 'bg-zinc-300 dark:bg-zinc-700',
+                    sevConfig.barCount >= 1 ? sevConfig.dotColor : 'bg-slate-300 dark:bg-slate-700',
                     'h-1.5'
                   )}
                 />
                 <span
                   className={cn(
                     'w-0.5 rounded-xs transition-colors',
-                    sevConfig.barCount >= 2 ? sevConfig.dotColor : 'bg-zinc-300 dark:bg-zinc-700',
+                    sevConfig.barCount >= 2 ? sevConfig.dotColor : 'bg-slate-300 dark:bg-slate-700',
                     'h-2'
                   )}
                 />
                 <span
                   className={cn(
                     'w-0.5 rounded-xs transition-colors',
-                    sevConfig.barCount >= 3 ? sevConfig.dotColor : 'bg-zinc-300 dark:bg-zinc-700',
+                    sevConfig.barCount >= 3 ? sevConfig.dotColor : 'bg-slate-300 dark:bg-slate-700',
                     'h-2.5'
                   )}
                 />
@@ -190,7 +190,7 @@ export function IncidentLifecycleStepper({
               >
                 <span>{sevTier}</span>
                 {sevConfig.label === sevTier && (
-                  <Check className="h-3 w-3 text-purple-600" />
+                  <Check className="h-3 w-3 text-slate-900" />
                 )}
               </DropdownMenuItem>
             ))}
@@ -198,13 +198,13 @@ export function IncidentLifecycleStepper({
         </DropdownMenu>
 
         {/* Incident Type pill */}
-        <div className="hidden sm:inline-flex items-center rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/60 px-2 py-0.5 text-[11px] font-medium text-zinc-600 dark:text-zinc-400">
+        <div className="hidden sm:inline-flex items-center rounded-md border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 px-2 py-0.5 text-[11px] font-medium text-slate-600 dark:text-slate-400">
           {incidentType}
         </div>
 
         {/* Duration counter pill */}
-        <div className="inline-flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400 font-medium">
-          <Clock className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
+        <div className="inline-flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 font-medium">
+          <Clock className="h-3.5 w-3.5 text-slate-400 shrink-0" />
           <span>{durationString}</span>
         </div>
       </div>

@@ -86,7 +86,7 @@ export function FloatingControlDock({
       )}
 
       {/* Floating Dock Container (Zoom & Teams style) */}
-      <div className="pointer-events-auto relative flex items-center gap-1.5 sm:gap-2 rounded-2xl bg-[#18191dc4] px-3 sm:px-4 py-2 border border-zinc-700/60 shadow-[0_12px_40px_rgba(0,0,0,0.6)] backdrop-blur-2xl text-zinc-300">
+      <div className="pointer-events-auto relative flex items-center gap-1.5 sm:gap-2 rounded-2xl bg-[#18191dc4] px-3 sm:px-4 py-2 border border-slate-700/60 shadow-[0_12px_40px_rgba(0,0,0,0.6)] backdrop-blur-2xl text-slate-300">
         
         {/* ── 1. Microphone Toggle ── */}
         <div className="flex flex-col items-center">
@@ -96,13 +96,13 @@ export function FloatingControlDock({
             className={`flex h-10 w-10 sm:h-10 sm:w-11 items-center justify-center rounded-xl border transition-all ${
               isMicMuted
                 ? 'bg-rose-950/60 border-rose-800/70 text-rose-400 hover:bg-rose-900/60'
-                : 'bg-zinc-800/80 border-zinc-700/60 text-zinc-100 hover:bg-zinc-700/80'
+                : 'bg-slate-800/80 border-slate-700/60 text-slate-100 hover:bg-slate-700/80'
             }`}
             title={isMicMuted ? 'Unmute Microphone' : 'Mute Microphone'}
           >
             {isMicMuted ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
           </button>
-          <span className="text-[10px] text-zinc-400 mt-1 font-medium">
+          <span className="text-[10px] text-slate-400 mt-1 font-medium">
             {isMicMuted ? 'Unmute' : 'Mute'}
           </span>
         </div>
@@ -115,13 +115,13 @@ export function FloatingControlDock({
             className={`flex h-10 w-10 sm:h-10 sm:w-11 items-center justify-center rounded-xl border transition-all ${
               isVideoOff
                 ? 'bg-rose-950/60 border-rose-800/70 text-rose-400 hover:bg-rose-900/60'
-                : 'bg-zinc-800/80 border-zinc-700/60 text-zinc-100 hover:bg-zinc-700/80'
+                : 'bg-slate-800/80 border-slate-700/60 text-slate-100 hover:bg-slate-700/80'
             }`}
             title={isVideoOff ? 'Start Camera' : 'Stop Camera'}
           >
             {isVideoOff ? <VideoOff className="h-4 w-4" /> : <Video className="h-4 w-4" />}
           </button>
-          <span className="text-[10px] text-zinc-400 mt-1 font-medium">
+          <span className="text-[10px] text-slate-400 mt-1 font-medium">
             {isVideoOff ? 'Start Video' : 'Stop Video'}
           </span>
         </div>
@@ -146,7 +146,7 @@ export function FloatingControlDock({
         </div>
 
         {/* Subtle Divider */}
-        <div className="h-8 w-[1px] bg-zinc-700/60 mx-0.5 sm:mx-1" />
+        <div className="h-8 w-[1px] bg-slate-700/60 mx-0.5 sm:mx-1" />
 
         {/* ── 4. Participants (Triggers People tab) ── */}
         <div className="flex flex-col items-center">
@@ -155,17 +155,17 @@ export function FloatingControlDock({
             onClick={() => handleTabClick('people')}
             className={`relative flex h-10 w-10 sm:h-10 sm:w-11 items-center justify-center rounded-xl border transition-all ${
               isSidebarOpen && activeSidebarTab === 'people'
-                ? 'bg-indigo-600/80 border-indigo-500 text-white shadow-sm'
-                : 'bg-zinc-800/80 border-zinc-700/60 text-zinc-200 hover:bg-zinc-700/80'
+                ? 'bg-slate-900/80 border-slate-700 text-white shadow-sm'
+                : 'bg-slate-800/80 border-slate-700/60 text-slate-200 hover:bg-slate-700/80'
             }`}
             title="View In-Call Participants"
           >
             <Users className="h-4 w-4" />
-            <span className="absolute -top-1.5 -right-1 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-zinc-700 border border-zinc-600 text-[9px] font-semibold text-zinc-200">
+            <span className="absolute -top-1.5 -right-1 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-slate-700 border border-slate-600 text-[9px] font-semibold text-slate-200">
               {participantCount}
             </span>
           </button>
-          <span className="text-[10px] text-zinc-400 mt-1 font-medium">
+          <span className="text-[10px] text-slate-400 mt-1 font-medium">
             People
           </span>
         </div>
@@ -177,14 +177,14 @@ export function FloatingControlDock({
             onClick={() => handleTabClick('chat')}
             className={`relative flex h-10 w-10 sm:h-10 sm:w-11 items-center justify-center rounded-xl border transition-all ${
               isSidebarOpen && activeSidebarTab === 'chat'
-                ? 'bg-indigo-600/80 border-indigo-500 text-white shadow-sm'
-                : 'bg-zinc-800/80 border-zinc-700/60 text-zinc-200 hover:bg-zinc-700/80'
+                ? 'bg-slate-900/80 border-slate-700 text-white shadow-sm'
+                : 'bg-slate-800/80 border-slate-700/60 text-slate-200 hover:bg-slate-700/80'
             }`}
             title="Meeting Chat"
           >
             <MessageSquare className="h-4 w-4" />
           </button>
-          <span className="text-[10px] text-zinc-400 mt-1 font-medium">
+          <span className="text-[10px] text-slate-400 mt-1 font-medium">
             Chat
           </span>
         </div>
@@ -194,23 +194,23 @@ export function FloatingControlDock({
           <button
             type="button"
             onClick={() => setShowReactions(!showReactions)}
-            className="flex h-10 w-10 sm:h-10 sm:w-11 items-center justify-center rounded-xl border bg-zinc-800/80 border-zinc-700/60 text-zinc-200 hover:bg-zinc-700/80 transition-all"
+            className="flex h-10 w-10 sm:h-10 sm:w-11 items-center justify-center rounded-xl border bg-slate-800/80 border-slate-700/60 text-slate-200 hover:bg-slate-700/80 transition-all"
             title="Reactions"
           >
             <Heart className="h-4 w-4" />
           </button>
-          <span className="text-[10px] text-zinc-400 mt-1 font-medium">
+          <span className="text-[10px] text-slate-400 mt-1 font-medium">
             React
           </span>
 
           {showReactions && (
-            <div className="absolute bottom-16 -left-6 flex items-center gap-2 rounded-2xl bg-zinc-900 border border-zinc-700/80 p-2 shadow-2xl backdrop-blur-xl z-50">
+            <div className="absolute bottom-16 -left-6 flex items-center gap-2 rounded-2xl bg-slate-900 border border-slate-700/80 p-2 shadow-2xl backdrop-blur-xl z-50">
               {['👍', '❤️', '👏', '🎉', '🔥', '🚀'].map((emoji) => (
                 <button
                   key={emoji}
                   type="button"
                   onClick={() => triggerReaction(emoji)}
-                  className="p-2 rounded-xl text-lg hover:scale-125 hover:bg-zinc-800 transition-all"
+                  className="p-2 rounded-xl text-lg hover:scale-125 hover:bg-slate-800 transition-all"
                 >
                   {emoji}
                 </button>
@@ -227,13 +227,13 @@ export function FloatingControlDock({
             className={`flex h-10 w-10 sm:h-10 sm:w-11 items-center justify-center rounded-xl border transition-all ${
               isRecording
                 ? 'bg-rose-950/60 border-rose-700 text-rose-400'
-                : 'bg-zinc-800/80 border-zinc-700/60 text-zinc-200 hover:bg-zinc-700/80'
+                : 'bg-slate-800/80 border-slate-700/60 text-slate-200 hover:bg-slate-700/80'
             }`}
             title={isRecording ? 'Stop Recording' : 'Start Recording'}
           >
             <Disc className={`h-4 w-4 ${isRecording ? 'animate-pulse text-rose-400' : ''}`} />
           </button>
-          <span className="text-[10px] text-zinc-400 mt-1 font-medium">
+          <span className="text-[10px] text-slate-400 mt-1 font-medium">
             {isRecording ? 'Rec...' : 'Record'}
           </span>
         </div>
@@ -243,24 +243,24 @@ export function FloatingControlDock({
           <button
             type="button"
             onClick={() => setShowMoreMenu(!showMoreMenu)}
-            className="flex h-10 w-10 sm:h-10 sm:w-11 items-center justify-center rounded-xl border bg-zinc-800/80 border-zinc-700/60 text-zinc-200 hover:bg-zinc-700/80 transition-all"
+            className="flex h-10 w-10 sm:h-10 sm:w-11 items-center justify-center rounded-xl border bg-slate-800/80 border-slate-700/60 text-slate-200 hover:bg-slate-700/80 transition-all"
             title="More Options"
           >
             <MoreHorizontal className="h-4 w-4" />
           </button>
-          <span className="text-[10px] text-zinc-400 mt-1 font-medium">
+          <span className="text-[10px] text-slate-400 mt-1 font-medium">
             More
           </span>
 
           {showMoreMenu && (
-            <div className="absolute bottom-16 right-0 w-52 rounded-xl bg-zinc-900 border border-zinc-700/80 p-1.5 shadow-2xl z-50 text-xs text-zinc-200">
+            <div className="absolute bottom-16 right-0 w-52 rounded-xl bg-slate-900 border border-slate-700/80 p-1.5 shadow-2xl z-50 text-xs text-slate-200">
               <button
                 type="button"
                 onClick={() => {
                   handleTabClick('updates');
                   setShowMoreMenu(false);
                 }}
-                className="flex w-full items-center gap-2 px-3 py-2 rounded-lg hover:bg-zinc-800 text-left transition-colors"
+                className="flex w-full items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-800 text-left transition-colors"
               >
                 <span>Incident Updates</span>
               </button>
@@ -271,9 +271,9 @@ export function FloatingControlDock({
                   handleTabClick('ai-brief');
                   setShowMoreMenu(false);
                 }}
-                className="flex w-full items-center gap-2 px-3 py-2 rounded-lg hover:bg-zinc-800 text-left transition-colors"
+                className="flex w-full items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-800 text-left transition-colors"
               >
-                <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
+                <Sparkles className="h-3.5 w-3.5 text-slate-400" />
                 <span>AI Brief</span>
               </button>
 
@@ -284,7 +284,7 @@ export function FloatingControlDock({
                     onToggleSpeechMute();
                     setShowMoreMenu(false);
                   }}
-                  className="flex w-full items-center gap-2 px-3 py-2 rounded-lg hover:bg-zinc-800 text-left transition-colors"
+                  className="flex w-full items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-800 text-left transition-colors"
                 >
                   {speechMuted ? (
                     <>
@@ -307,14 +307,14 @@ export function FloatingControlDock({
                     onToggleSelfMonitor();
                     setShowMoreMenu(false);
                   }}
-                  className="flex w-full items-center gap-2 px-3 py-2 rounded-lg hover:bg-zinc-800 text-left transition-colors"
+                  className="flex w-full items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-800 text-left transition-colors"
                 >
-                  <Headphones className={`h-3.5 w-3.5 ${isMonitoringSelf ? 'text-emerald-400' : 'text-zinc-400'}`} />
+                  <Headphones className={`h-3.5 w-3.5 ${isMonitoringSelf ? 'text-emerald-400' : 'text-slate-400'}`} />
                   <span>{isMonitoringSelf ? 'Stop Sidetone (Loopback)' : 'Mic Sidetone Test'}</span>
                 </button>
               )}
 
-              <div className="h-[1px] bg-zinc-800 my-1" />
+              <div className="h-[1px] bg-slate-800 my-1" />
 
               <button
                 type="button"
@@ -322,7 +322,7 @@ export function FloatingControlDock({
                   if (onToggleSidebar) onToggleSidebar();
                   setShowMoreMenu(false);
                 }}
-                className="flex w-full items-center gap-2 px-3 py-2 rounded-lg hover:bg-zinc-800 text-left transition-colors"
+                className="flex w-full items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-800 text-left transition-colors"
               >
                 <span>{isSidebarOpen ? 'Hide Tools Panel' : 'Show Tools Panel'}</span>
               </button>
@@ -331,7 +331,7 @@ export function FloatingControlDock({
         </div>
 
         {/* Subtle Divider */}
-        <div className="h-8 w-[1px] bg-zinc-700/60 mx-0.5 sm:mx-1" />
+        <div className="h-8 w-[1px] bg-slate-700/60 mx-0.5 sm:mx-1" />
 
         {/* ── 9. Leave Meeting Button (Red) ── */}
         <div className="flex flex-col items-center">
@@ -344,7 +344,7 @@ export function FloatingControlDock({
             <PhoneOff className="h-4 w-4" />
             <span className="text-xs font-semibold">Leave</span>
           </button>
-          <span className="text-[10px] text-zinc-400 mt-1 font-medium invisible">
+          <span className="text-[10px] text-slate-400 mt-1 font-medium invisible">
             Leave
           </span>
         </div>

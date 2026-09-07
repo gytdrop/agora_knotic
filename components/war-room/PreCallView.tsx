@@ -32,7 +32,7 @@ export function PreCallView({
   };
 
   return (
-    <div className="flex h-screen w-screen flex-col overflow-hidden bg-[#171717] text-zinc-100 font-sans">
+    <div className="flex h-screen w-screen flex-col overflow-hidden bg-[#171717] text-slate-100 font-sans">
       {/* Google Meet Style SEV-1 Header */}
       <PreCallHeader incidentId={incidentId} severity={severity} />
 

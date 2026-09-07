@@ -86,13 +86,13 @@ export function VideoGrid({
             ? 'ring-2 ring-emerald-500/80 border-emerald-500/80 shadow-[0_0_15px_rgba(16,185,129,0.15)]'
             : localParticipant.hasContradiction && !isResolved
             ? 'border-amber-600/70'
-            : 'border-zinc-800/80'
+            : 'border-slate-800/80'
         }`}
       >
         {/* Top Bar Badges */}
         <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none">
           {localParticipant.hasContradiction && !isResolved ? (
-            <span className="inline-flex items-center gap-1 rounded-md bg-zinc-900/90 px-2.5 py-0.5 font-sans text-[11px] font-medium text-amber-300 border border-zinc-700 shadow-sm backdrop-blur-md">
+            <span className="inline-flex items-center gap-1 rounded-md bg-slate-900/90 px-2.5 py-0.5 font-sans text-[11px] font-medium text-amber-300 border border-slate-700 shadow-sm backdrop-blur-md">
               <AlertTriangle className="h-3 w-3 text-amber-400" /> Contradiction Flag
             </span>
           ) : (
@@ -100,13 +100,13 @@ export function VideoGrid({
           )}
 
           {/* Top-Right Mic Status Pill */}
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-950/80 text-zinc-300 backdrop-blur-md border border-zinc-800 shadow-sm">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-950/80 text-slate-300 backdrop-blur-md border border-slate-800 shadow-sm">
             {isLocalSpeaking ? (
               <Activity className="h-3.5 w-3.5 text-emerald-400 animate-pulse" />
             ) : isLocalMuted ? (
               <MicOff className="h-3.5 w-3.5 text-rose-400" />
             ) : (
-              <Mic className="h-3.5 w-3.5 text-zinc-300" />
+              <Mic className="h-3.5 w-3.5 text-slate-300" />
             )}
           </div>
         </div>
@@ -144,17 +144,17 @@ export function VideoGrid({
           ) : (
             <div className="flex flex-col items-center">
               <div
-                className={`flex h-20 w-20 items-center justify-center rounded-full border bg-zinc-800/90 font-sans shadow-lg ${
+                className={`flex h-20 w-20 items-center justify-center rounded-full border bg-slate-800/90 font-sans shadow-lg ${
                   isLocalSpeaking
                     ? 'border-emerald-400 text-emerald-400 ring-4 ring-emerald-500/20'
-                    : 'border-zinc-700 text-zinc-300'
+                    : 'border-slate-700 text-slate-300'
                 }`}
               >
                 <span className="font-semibold text-xl">
                   {localParticipant.name.slice(0, 2).toUpperCase()}
                 </span>
               </div>
-              <span className="mt-2.5 text-xs text-zinc-400 font-medium">
+              <span className="mt-2.5 text-xs text-slate-400 font-medium">
                 Camera Off
               </span>
             </div>
@@ -162,12 +162,12 @@ export function VideoGrid({
 
           {/* Speech Overlay Bubble - Non-intrusive Subtitle */}
           {localParticipant.statement && !isResolved && (
-            <div className="absolute bottom-12 left-3 right-3 rounded-xl border border-zinc-700/80 bg-zinc-950/90 p-3 text-xs text-zinc-200 backdrop-blur-md shadow-lg transition-all duration-200">
+            <div className="absolute bottom-12 left-3 right-3 rounded-xl border border-slate-700/80 bg-slate-950/90 p-3 text-xs text-slate-200 backdrop-blur-md shadow-lg transition-all duration-200">
               <p className="font-sans font-medium text-xs text-amber-300 leading-relaxed">
                 {localParticipant.statement}
               </p>
               {localParticipant.factCheckTelemetry && (
-                <p className="mt-1 font-mono text-[11px] text-zinc-300 leading-normal">
+                <p className="mt-1 font-mono text-[11px] text-slate-300 leading-normal">
                   {localParticipant.factCheckTelemetry}
                 </p>
               )}
@@ -176,7 +176,7 @@ export function VideoGrid({
         </div>
 
         {/* Bottom-Left Zoom/Teams Style Frosted Participant Name Pill */}
-        <div className="absolute bottom-3 left-3 z-10 flex items-center gap-2 rounded-lg bg-zinc-950/80 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md border border-white/10 shadow-sm">
+        <div className="absolute bottom-3 left-3 z-10 flex items-center gap-2 rounded-lg bg-slate-950/80 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md border border-white/10 shadow-sm">
           {/* Audio Activity Icon */}
           {isLocalSpeaking ? (
             <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
@@ -186,10 +186,10 @@ export function VideoGrid({
             <Mic className="h-3 w-3 text-emerald-400" />
           )}
 
-          <span className="font-sans font-medium text-zinc-100">
+          <span className="font-sans font-medium text-slate-100">
             {localParticipant.name}
           </span>
-          <span className="text-[11px] text-zinc-400 font-normal">
+          <span className="text-[11px] text-slate-400 font-normal">
             ({localParticipant.role})
           </span>
         </div>
@@ -210,16 +210,16 @@ export function VideoGrid({
         return (
           <div
             key={user.uid}
-            className="relative flex flex-col justify-between overflow-hidden rounded-2xl bg-[#1c1d22] border border-zinc-800/80 shadow-md transition-all"
+            className="relative flex flex-col justify-between overflow-hidden rounded-2xl bg-[#1c1d22] border border-slate-800/80 shadow-md transition-all"
           >
             {/* Top Bar Status */}
             <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none">
-              <span className="inline-flex items-center gap-1.5 rounded-md bg-zinc-900/90 px-2.5 py-0.5 font-sans text-[11px] font-medium text-zinc-300 border border-zinc-700 shadow-sm backdrop-blur-md">
+              <span className="inline-flex items-center gap-1.5 rounded-md bg-slate-900/90 px-2.5 py-0.5 font-sans text-[11px] font-medium text-slate-300 border border-slate-700 shadow-sm backdrop-blur-md">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 Network Peer
               </span>
 
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-950/80 text-zinc-300 backdrop-blur-md border border-zinc-800 shadow-sm">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-950/80 text-slate-300 backdrop-blur-md border border-slate-800 shadow-sm">
                 {user.hasAudio ? (
                   <Mic className="h-3.5 w-3.5 text-emerald-400" />
                 ) : (
@@ -239,27 +239,27 @@ export function VideoGrid({
                 />
               ) : (
                 <div className="flex flex-col items-center">
-                  <div className="flex h-20 w-20 items-center justify-center rounded-full border border-zinc-700 bg-zinc-800 font-sans shadow-md text-zinc-300">
+                  <div className="flex h-20 w-20 items-center justify-center rounded-full border border-slate-700 bg-slate-800 font-sans shadow-md text-slate-300">
                     <span className="font-semibold text-xl">
                       {shortName.slice(0, 2).toUpperCase()}
                     </span>
                   </div>
-                  <span className="mt-2.5 text-xs text-zinc-400 font-medium">Remote Camera Off</span>
+                  <span className="mt-2.5 text-xs text-slate-400 font-medium">Remote Camera Off</span>
                 </div>
               )}
             </div>
 
             {/* Bottom-Left Frosted Participant Name Pill */}
-            <div className="absolute bottom-3 left-3 z-10 flex items-center gap-2 rounded-lg bg-zinc-950/80 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md border border-white/10 shadow-sm">
+            <div className="absolute bottom-3 left-3 z-10 flex items-center gap-2 rounded-lg bg-slate-950/80 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md border border-white/10 shadow-sm">
               {user.hasAudio ? (
                 <Mic className="h-3 w-3 text-emerald-400" />
               ) : (
                 <MicOff className="h-3 w-3 text-rose-400" />
               )}
-              <span className="font-sans font-medium text-zinc-100">
+              <span className="font-sans font-medium text-slate-100">
                 {shortName}
               </span>
-              <span className="text-[11px] text-zinc-400 font-normal">
+              <span className="text-[11px] text-slate-400 font-normal">
                 (Remote SRE)
               </span>
             </div>
@@ -281,19 +281,19 @@ export function VideoGrid({
                 ? 'ring-2 ring-emerald-500/80 border-emerald-500/80'
                 : peer.hasContradiction && !isResolved
                 ? 'border-amber-600/70'
-                : 'border-zinc-800/80'
+                : 'border-slate-800/80'
             }`}
           >
             <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none">
               {peer.hasContradiction && !isResolved ? (
-                <span className="inline-flex items-center gap-1 rounded-md bg-zinc-900/90 px-2 py-0.5 font-sans text-[11px] font-medium text-amber-300 border border-zinc-700 shadow-sm backdrop-blur-md">
+                <span className="inline-flex items-center gap-1 rounded-md bg-slate-900/90 px-2 py-0.5 font-sans text-[11px] font-medium text-amber-300 border border-slate-700 shadow-sm backdrop-blur-md">
                   <AlertTriangle className="h-3 w-3 text-amber-400" /> Contradiction Flag
                 </span>
               ) : (
                 <span />
               )}
 
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-950/80 text-zinc-300 backdrop-blur-md border border-zinc-800">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-950/80 text-slate-300 backdrop-blur-md border border-slate-800">
                 {isPeerSpeaking ? (
                   <Mic className="h-3.5 w-3.5 text-emerald-400" />
                 ) : isPeerViewpoint ? (
@@ -301,7 +301,7 @@ export function VideoGrid({
                 ) : isPeerMuted ? (
                   <MicOff className="h-3.5 w-3.5 text-rose-400" />
                 ) : (
-                  <Radio className="h-3.5 w-3.5 text-zinc-500" />
+                  <Radio className="h-3.5 w-3.5 text-slate-500" />
                 )}
               </div>
             </div>
@@ -309,10 +309,10 @@ export function VideoGrid({
             <div className="relative flex flex-1 items-center justify-center bg-[#18191d] overflow-hidden">
               <div className="flex flex-col items-center">
                 <div
-                  className={`flex h-20 w-20 items-center justify-center rounded-full border bg-zinc-800 font-sans shadow-md ${
+                  className={`flex h-20 w-20 items-center justify-center rounded-full border bg-slate-800 font-sans shadow-md ${
                     isPeerSpeaking
                       ? 'border-emerald-400 text-emerald-400 ring-4 ring-emerald-500/20'
-                      : 'border-zinc-700 text-zinc-300'
+                      : 'border-slate-700 text-slate-300'
                   }`}
                 >
                   <span className="font-semibold text-xl">
@@ -322,16 +322,16 @@ export function VideoGrid({
               </div>
             </div>
 
-            <div className="absolute bottom-3 left-3 z-10 flex items-center gap-2 rounded-lg bg-zinc-950/80 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md border border-white/10 shadow-sm">
+            <div className="absolute bottom-3 left-3 z-10 flex items-center gap-2 rounded-lg bg-slate-950/80 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md border border-white/10 shadow-sm">
               {isPeerSpeaking ? (
                 <Mic className="h-3 w-3 text-emerald-400" />
               ) : (
                 <MicOff className="h-3 w-3 text-rose-400" />
               )}
-              <span className="font-sans font-medium text-zinc-100">
+              <span className="font-sans font-medium text-slate-100">
                 {peer.name}
               </span>
-              <span className="text-[11px] text-zinc-400 font-normal">
+              <span className="text-[11px] text-slate-400 font-normal">
                 ({peer.role})
               </span>
             </div>

@@ -69,9 +69,9 @@ export function getStatusConfig(status: string): StatusConfig {
     case 'TRIAGE':
       return {
         label: 'TRIAGE',
-        dotColor: 'bg-blue-600',
+        dotColor: 'bg-slate-900',
         badgeClasses:
-          'border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300',
+          'border-slate-200 bg-slate-100 text-slate-800 dark:border-slate-900/60 dark:bg-slate-950/40 dark:text-slate-300',
       };
     case 'INVESTIGATING':
       return {
@@ -83,9 +83,9 @@ export function getStatusConfig(status: string): StatusConfig {
     case 'FIXING':
       return {
         label: 'FIXING',
-        dotColor: 'bg-blue-500',
+        dotColor: 'bg-slate-700',
         badgeClasses:
-          'border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300',
+          'border-slate-200 bg-slate-100 text-slate-800 dark:border-slate-900/60 dark:bg-slate-950/40 dark:text-slate-300',
       };
     case 'MONITORING':
       return {
@@ -97,18 +97,18 @@ export function getStatusConfig(status: string): StatusConfig {
     case 'RESOLVED':
       return {
         label: 'RESOLVED',
-        dotColor: 'bg-zinc-400 dark:bg-zinc-500',
+        dotColor: 'bg-slate-400 dark:bg-slate-500',
         badgeClasses:
-          'border-zinc-200 bg-zinc-100 text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300',
+          'border-slate-200 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300',
         isResolved: true,
       };
     case 'ACTIVE':
     default:
       return {
         label: normalized || 'ACTIVE',
-        dotColor: 'bg-red-500',
+        dotColor: 'bg-rose-500',
         badgeClasses:
-          'border-red-200 bg-red-50 text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300',
+          'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-300',
       };
   }
 }
@@ -182,12 +182,12 @@ export function getLeadInitials(name: string): string {
  */
 function getLeadAvatarGradient(name: string): string {
   if (name.toLowerCase().includes('ashley')) {
-    return 'from-purple-600 to-indigo-600 text-white';
+    return 'from-slate-900 to-slate-900 text-white';
   }
   if (name.toLowerCase().includes('sre') || name.toLowerCase().includes('call')) {
-    return 'from-cyan-600 to-blue-600 text-white';
+    return 'from-slate-900 to-slate-900 text-white';
   }
-  return 'from-emerald-600 to-teal-600 text-white';
+  return 'from-emerald-600 to-emerald-600 text-white';
 }
 
 export function IncidentsTable({
@@ -204,14 +204,14 @@ export function IncidentsTable({
     return (
       <div
         className={cn(
-          'w-full overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs',
+          'w-full overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs',
           className
         )}
       >
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm border-collapse">
             <thead>
-              <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-900/80 text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+              <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                 <th className="px-4 sm:px-6 py-3.5">INCIDENT</th>
                 <th className="px-4 py-3.5">SEVERITY</th>
                 <th className="px-4 py-3.5">STATUS</th>
@@ -220,32 +220,32 @@ export function IncidentsTable({
                 <th className="w-[185px] px-4 sm:px-5 py-3.5 text-right">ACTIONS</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
               {[...Array(5)].map((_, i) => (
                 <tr key={i} className="animate-pulse">
                   <td className="px-4 sm:px-6 py-4">
                     <div className="space-y-2">
-                      <div className="h-4 w-48 bg-zinc-200 dark:bg-zinc-800 rounded" />
-                      <div className="h-3 w-28 bg-zinc-100 dark:bg-zinc-850 rounded" />
+                      <div className="h-4 w-48 bg-slate-200 dark:bg-slate-800 rounded" />
+                      <div className="h-3 w-28 bg-slate-100 dark:bg-slate-800 rounded" />
                     </div>
                   </td>
                   <td className="px-4 py-4">
-                    <div className="h-5 w-16 bg-zinc-200 dark:bg-zinc-800 rounded-full" />
+                    <div className="h-5 w-16 bg-slate-200 dark:bg-slate-800 rounded-full" />
                   </td>
                   <td className="px-4 py-4">
-                    <div className="h-5 w-24 bg-zinc-200 dark:bg-zinc-800 rounded-full" />
+                    <div className="h-5 w-24 bg-slate-200 dark:bg-slate-800 rounded-full" />
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-2">
-                      <div className="h-6 w-6 rounded-full bg-zinc-200 dark:bg-zinc-800" />
-                      <div className="h-3.5 w-24 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                      <div className="h-6 w-6 rounded-full bg-slate-200 dark:bg-slate-800" />
+                      <div className="h-3.5 w-24 bg-slate-200 dark:bg-slate-800 rounded" />
                     </div>
                   </td>
                   <td className="px-4 py-4">
-                    <div className="h-3.5 w-14 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                    <div className="h-3.5 w-14 bg-slate-200 dark:bg-slate-800 rounded" />
                   </td>
                   <td className="w-[185px] px-4 sm:px-5 py-4 text-right">
-                    <div className="inline-block h-7 w-28 bg-zinc-200 dark:bg-zinc-800 rounded-lg" />
+                    <div className="inline-block h-7 w-28 bg-slate-200 dark:bg-slate-800 rounded-lg" />
                   </td>
                 </tr>
               ))}
@@ -263,14 +263,14 @@ export function IncidentsTable({
   return (
     <div
       className={cn(
-        'w-full overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs',
+        'w-full overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs',
         className
       )}
     >
       <div className="w-full">
         <table className="w-full table-fixed text-left text-sm border-collapse">
           <thead>
-            <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/90 dark:bg-zinc-900/90 text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 select-none">
+            <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-900/90 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 select-none">
               <th scope="col" className="px-4 sm:px-6 py-3.5">
                 INCIDENT
               </th>
@@ -291,7 +291,7 @@ export function IncidentsTable({
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60">
+          <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
             {incidents.map((incident) => {
               const cleanId = incident.incidentId.replace(/^#/, '');
               const sevConfig = getSeverityConfig(incident.severity);
@@ -318,13 +318,13 @@ export function IncidentsTable({
                 <tr
                   key={incident.incidentId}
                   onClick={handleRowClick}
-                  className="group cursor-pointer border-b border-zinc-100 dark:border-zinc-800/60 last:border-b-0 transition-colors duration-150 hover:bg-zinc-50/70 dark:hover:bg-zinc-800/40"
+                  className="group cursor-pointer border-b border-slate-100 dark:border-slate-800/60 last:border-b-0 transition-colors duration-150 hover:bg-slate-50/70 dark:hover:bg-slate-800/40"
                 >
                   {/* Column 1: INCIDENT (ID + Title + Slack Tag) */}
                   <td className="px-4 sm:px-6 py-3.5 align-middle">
                     <div className="flex flex-col gap-1 min-w-0">
                       <div className="flex items-center gap-2 min-w-0">
-                        <span className="font-mono text-xs font-semibold text-zinc-500 dark:text-zinc-400 shrink-0">
+                        <span className="font-mono text-xs font-semibold text-slate-500 dark:text-slate-400 shrink-0">
                           {incident.incidentId}
                         </span>
                         <Link
@@ -333,24 +333,24 @@ export function IncidentsTable({
                             e.stopPropagation();
                             onRowClick?.(incident);
                           }}
-                          className="font-semibold text-sm text-zinc-900 dark:text-zinc-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors truncate"
+                          className="font-semibold text-sm text-slate-900 dark:text-slate-100 group-hover:text-slate-900 dark:group-hover:text-slate-400 transition-colors truncate"
                         >
                           {incident.title}
                         </Link>
                       </div>
 
-                      <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400 min-w-0">
+                      <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 min-w-0">
                         <span
-                          className="inline-flex items-center gap-1 rounded bg-zinc-100 dark:bg-zinc-800/80 px-1.5 py-0.5 text-[11px] font-medium text-zinc-600 dark:text-zinc-300 shrink-0"
+                          className="inline-flex items-center gap-1 rounded bg-slate-100 dark:bg-slate-800/80 px-1.5 py-0.5 text-[11px] font-medium text-slate-600 dark:text-slate-300 shrink-0"
                           title={`Slack Channel: ${slackChannelTag}`}
                         >
-                          <SlackIcon className="h-3 w-3 text-zinc-400 dark:text-zinc-400 shrink-0" />
+                          <SlackIcon className="h-3 w-3 text-slate-400 dark:text-slate-400 shrink-0" />
                           <span>{slackChannelTag}</span>
                         </span>
 
                         {incident.rootCause && (
                           <span
-                            className="hidden sm:inline-block text-[11px] text-zinc-400 dark:text-zinc-500 truncate"
+                            className="hidden sm:inline-block text-[11px] text-slate-400 dark:text-slate-500 truncate"
                             title={incident.rootCause}
                           >
                             • {incident.rootCause}
@@ -372,21 +372,21 @@ export function IncidentsTable({
                         <span
                           className={cn(
                             'w-0.5 rounded-xs transition-colors',
-                            sevConfig.barCount >= 1 ? sevConfig.dotColor : 'bg-zinc-300 dark:bg-zinc-700',
+                            sevConfig.barCount >= 1 ? sevConfig.dotColor : 'bg-slate-300 dark:bg-slate-700',
                             'h-1.5'
                           )}
                         />
                         <span
                           className={cn(
                             'w-0.5 rounded-xs transition-colors',
-                            sevConfig.barCount >= 2 ? sevConfig.dotColor : 'bg-zinc-300 dark:bg-zinc-700',
+                            sevConfig.barCount >= 2 ? sevConfig.dotColor : 'bg-slate-300 dark:bg-slate-700',
                             'h-2'
                           )}
                         />
                         <span
                           className={cn(
                             'w-0.5 rounded-xs transition-colors',
-                            sevConfig.barCount >= 3 ? sevConfig.dotColor : 'bg-zinc-300 dark:bg-zinc-700',
+                            sevConfig.barCount >= 3 ? sevConfig.dotColor : 'bg-slate-300 dark:bg-slate-700',
                             'h-2.5'
                           )}
                         />
@@ -404,7 +404,7 @@ export function IncidentsTable({
                       )}
                     >
                       {statusConfig.isResolved ? (
-                        <Check className="h-3 w-3 text-zinc-500 dark:text-zinc-400" />
+                        <Check className="h-3 w-3 text-slate-500 dark:text-slate-400" />
                       ) : (
                         <span className="inline-flex items-center justify-center h-2 w-2 rounded-full border border-current">
                           <span className={cn('h-1 w-1 rounded-full', statusConfig.dotColor)} />
@@ -426,7 +426,7 @@ export function IncidentsTable({
                       >
                         {initials}
                       </div>
-                      <span className="text-xs font-medium text-zinc-800 dark:text-zinc-200">
+                      <span className="text-xs font-medium text-slate-800 dark:text-slate-200">
                         {leadName}
                       </span>
                     </div>
@@ -434,8 +434,8 @@ export function IncidentsTable({
 
                   {/* Column 5: CREATED (Relative duration '1h ago', '22h ago') */}
                   <td className="px-3 py-3.5 align-middle whitespace-nowrap">
-                    <div className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400 font-medium">
-                      <Clock className="h-3.5 w-3.5 text-zinc-400 dark:text-zinc-500 shrink-0" />
+                    <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-medium">
+                      <Clock className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
                       <span>{duration}</span>
                     </div>
                   </td>
@@ -451,7 +451,7 @@ export function IncidentsTable({
                           incident.severity
                         );
                       }}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-purple-200 dark:border-purple-800/60 bg-purple-50 dark:bg-purple-950/40 px-2.5 py-1.5 text-xs font-semibold text-purple-700 dark:text-purple-300 transition-all duration-150 hover:bg-purple-600 hover:text-white dark:hover:bg-purple-600 dark:hover:text-white hover:border-transparent shadow-2xs cursor-pointer"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-800/60 bg-slate-100 dark:bg-slate-950/40 px-2.5 py-1.5 text-xs font-semibold text-slate-800 dark:text-slate-300 transition-all duration-150 hover:bg-slate-900 hover:text-white dark:hover:bg-slate-900 dark:hover:text-white hover:border-transparent shadow-2xs cursor-pointer"
                     >
                       <Video className="h-3.5 w-3.5 shrink-0" />
                       <span>Enter War Room</span>
@@ -465,12 +465,12 @@ export function IncidentsTable({
       </div>
 
       {/* Table Footer */}
-      <div className="flex items-center justify-between border-t border-zinc-100 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-900/50 px-4 sm:px-6 py-3 text-xs text-zinc-500 dark:text-zinc-400">
+      <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/50 px-4 sm:px-6 py-3 text-xs text-slate-500 dark:text-slate-400">
         <div>
-          Showing <span className="font-semibold text-zinc-700 dark:text-zinc-200">{incidents.length}</span>{' '}
+          Showing <span className="font-semibold text-slate-700 dark:text-slate-200">{incidents.length}</span>{' '}
           {incidents.length === 1 ? 'incident' : 'incidents'}
         </div>
-        <div className="text-[11px] text-zinc-400 dark:text-zinc-500">
+        <div className="text-[11px] text-slate-400 dark:text-slate-500">
           Real-time updates via Convex
         </div>
       </div>

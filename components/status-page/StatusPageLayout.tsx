@@ -380,7 +380,7 @@ export function StatusPageLayout() {
   }, [statusPages, searchQuery]);
 
   return (
-    <div className="flex min-h-screen flex-col md:flex-row bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 font-sans antialiased">
+    <div className="flex min-h-screen flex-col md:flex-row bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-50 font-sans antialiased">
       {/* Desktop Persistent Sidebar */}
       <RootlySidebar
         className="hidden md:flex"
@@ -391,17 +391,17 @@ export function StatusPageLayout() {
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-50 flex md:hidden" role="dialog" aria-modal="true">
           <div
-            className="fixed inset-0 bg-zinc-900/60 backdrop-blur-xs"
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs"
             onClick={() => setIsMobileMenuOpen(false)}
             aria-hidden="true"
           />
-          <div className="relative flex w-64 max-w-[80vw] flex-1 flex-col bg-white dark:bg-zinc-900 shadow-2xl z-10">
+          <div className="relative flex w-64 max-w-[80vw] flex-1 flex-col bg-white dark:bg-slate-900 shadow-2xl z-10">
             <div className="absolute right-2 top-3 z-40">
               <button
                 type="button"
                 onClick={() => setIsMobileMenuOpen(false)}
                 aria-label="Close menu"
-                className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800 cursor-pointer"
+                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -422,9 +422,9 @@ export function StatusPageLayout() {
       <div className="flex flex-1 flex-col min-w-0 min-h-screen">
         {/* Top Yellow Warning Banner */}
         {!isTrialBannerDismissed && (
-          <div className="bg-yellow-100 border-b border-yellow-300 text-yellow-800 px-4 py-2 text-xs flex items-center justify-between">
+          <div className="bg-amber-100 border-b border-amber-300 text-amber-800 px-4 py-2 text-xs flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-yellow-600 shrink-0" />
+              <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
               <span>
                 <strong className="font-semibold">Your trial is ending in 12 days.</strong> Talk to sales to upgrade your account.
               </span>
@@ -436,14 +436,14 @@ export function StatusPageLayout() {
                   e.preventDefault();
                   alert('Thank you for contacting sales! Our team will reach out shortly.');
                 }}
-                className="font-medium hover:underline text-yellow-900"
+                className="font-medium hover:underline text-amber-900"
               >
                 Talk to sales
               </a>
               <button
                 type="button"
                 onClick={() => setIsTrialBannerDismissed(true)}
-                className="text-yellow-700 hover:text-yellow-900 cursor-pointer"
+                className="text-amber-700 hover:text-amber-900 cursor-pointer"
                 aria-label="Dismiss banner"
               >
                 <X className="h-3.5 w-3.5" />
@@ -453,24 +453,24 @@ export function StatusPageLayout() {
         )}
 
         {/* Mobile Header Bar */}
-        <div className="flex md:hidden items-center justify-between px-4 py-3 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+        <div className="flex md:hidden items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen(true)}
             aria-label="Toggle navigation menu"
-            className="p-1.5 -ml-1 rounded-lg text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 cursor-pointer"
+            className="p-1.5 -ml-1 rounded-lg text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 cursor-pointer"
           >
             <Menu className="h-5 w-5" />
           </button>
           <div className="flex items-center gap-2">
-            <Radio className="h-4 w-4 text-purple-600" />
+            <Radio className="h-4 w-4 text-slate-900" />
             <span className="text-sm font-bold tracking-tight">Status Pages</span>
           </div>
         </div>
 
         {/* Toast Notification */}
         {copyToast && (
-          <div className="fixed top-4 right-4 z-50 flex items-center gap-2 px-3.5 py-2 rounded-lg bg-zinc-900 text-white text-xs font-medium shadow-xl animate-in fade-in slide-in-from-top-2">
+          <div className="fixed top-4 right-4 z-50 flex items-center gap-2 px-3.5 py-2 rounded-lg bg-slate-900 text-white text-xs font-medium shadow-xl animate-in fade-in slide-in-from-top-2">
             <Check className="h-3.5 w-3.5 text-emerald-400" />
             <span>{copyToast}</span>
           </div>
@@ -482,15 +482,15 @@ export function StatusPageLayout() {
         {view === 'list' && (
           <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-6 sm:px-8 space-y-6">
             {/* Header with Title & + New Status Page Button */}
-            <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-4">
-              <h1 className="text-xl sm:text-[22px] font-semibold text-zinc-900 dark:text-zinc-100">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+              <h1 className="text-xl sm:text-[22px] font-semibold text-slate-900 dark:text-slate-100">
                 Status Pages
               </h1>
 
               <button
                 type="button"
                 onClick={handleOpenNewBuilder}
-                className="bg-black text-white hover:bg-zinc-800 transition-colors duration-200 rounded-lg px-2.5 py-1.5 h-[30px] inline-flex items-center gap-1.5 text-xs font-semibold shadow-xs cursor-pointer"
+                className="bg-black text-white hover:bg-slate-800 transition-colors duration-200 rounded-lg px-2.5 py-1.5 h-[30px] inline-flex items-center gap-1.5 text-xs font-semibold shadow-xs cursor-pointer"
               >
                 <Plus className="h-3.5 w-3.5" />
                 <span>New Status Page</span>
@@ -498,15 +498,15 @@ export function StatusPageLayout() {
             </div>
 
             {/* Hero Card Banner */}
-            <div className="flex flex-col xl:flex-row items-center justify-between gap-8 rounded-[20px] border border-gray-300 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-900/40 p-6 sm:p-8 my-6">
+            <div className="flex flex-col xl:flex-row items-center justify-between gap-8 rounded-[20px] border border-slate-300 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 p-6 sm:p-8 my-6">
               <div className="flex-1 space-y-2">
-                <p className="text-sm sm:text-base font-normal text-zinc-800 dark:text-zinc-200 leading-relaxed max-w-3xl">
+                <p className="text-sm sm:text-base font-normal text-slate-800 dark:text-slate-200 leading-relaxed max-w-3xl">
                   Let your team and customers know when your services are down with private and public status pages. Show service uptime, post your incidents directly to the page and connect third party services your company is dependent on. You can even integrate directly with{' '}
                   <a
                     href="https://docs.rootly.com/integrations/status-page-io"
                     target="_blank"
                     rel="noreferrer"
-                    className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                    className="text-slate-900 dark:text-slate-400 hover:underline font-medium"
                   >
                     Atlassian’s StatusPage.io
                   </a>{' '}
@@ -515,23 +515,23 @@ export function StatusPageLayout() {
               </div>
 
               {/* Graphic Illustration on the Right */}
-              <div className="shrink-0 w-full max-w-[280px] sm:max-w-[320px] bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 p-3.5 shadow-sm space-y-2.5">
-                <div className="flex items-center justify-between border-b border-gray-100 dark:border-zinc-800 pb-2">
+              <div className="shrink-0 w-full max-w-[280px] sm:max-w-[320px] bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-3.5 shadow-sm space-y-2.5">
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
                   <div className="flex items-center gap-1.5">
                     <span className="h-2 w-2 rounded-full bg-rose-500" />
-                    <span className="text-[11px] font-bold text-zinc-800 dark:text-zinc-200">
+                    <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200">
                       Services Down
                     </span>
                   </div>
-                  <span className="text-[10px] text-zinc-400 font-mono">Live Sync</span>
+                  <span className="text-[10px] text-slate-400 font-mono">Live Sync</span>
                 </div>
 
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between text-[10px]">
-                    <span className="text-zinc-600 dark:text-zinc-400">Payment Processing</span>
+                    <span className="text-slate-600 dark:text-slate-400">Payment Processing</span>
                     <span className="text-rose-600 font-semibold">Degraded</span>
                   </div>
-                  <div className="flex gap-0.5 h-3 w-full bg-gray-100 dark:bg-zinc-800 rounded-xs overflow-hidden">
+                  <div className="flex gap-0.5 h-3 w-full bg-slate-100 dark:bg-slate-800 rounded-xs overflow-hidden">
                     {Array.from({ length: 26 }).map((_, i) => (
                       <div
                         key={i}
@@ -541,7 +541,7 @@ export function StatusPageLayout() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between text-[10px] text-zinc-400 pt-1 border-t border-gray-100 dark:border-zinc-800">
+                <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-100 dark:border-slate-800">
                   <span>API Services: Operational</span>
                   <span className="text-emerald-600 font-medium">99.98% Uptime</span>
                 </div>
@@ -551,19 +551,19 @@ export function StatusPageLayout() {
             {/* Transparent Search Filter Bar */}
             <div className="flex items-center justify-between gap-4">
               <div className="relative w-full max-w-sm">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 pointer-events-none" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
                 <input
                   type="search"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search Status Pages"
-                  className="w-full h-10 pl-9 pr-8 rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400 transition-colors"
+                  className="w-full h-10 pl-9 pr-8 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400 transition-colors"
                 />
                 {searchQuery && (
                   <button
                     type="button"
                     onClick={() => setSearchQuery('')}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 cursor-pointer"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -572,9 +572,9 @@ export function StatusPageLayout() {
             </div>
 
             {/* Status Page Accordion Container */}
-            <div className="rounded-md border border-gray-300 dark:border-zinc-800 divide-y divide-gray-300 dark:divide-zinc-800 bg-white dark:bg-zinc-900 shadow-2xs">
+            <div className="rounded-md border border-slate-300 dark:border-slate-800 divide-y divide-slate-300 dark:divide-slate-800 bg-white dark:bg-slate-900 shadow-2xs">
               {filteredPages.length === 0 ? (
-                <div className="py-12 text-center text-zinc-500 text-xs">
+                <div className="py-12 text-center text-slate-500 text-xs">
                   No status pages matching &quot;{searchQuery}&quot;.
                 </div>
               ) : (
@@ -594,7 +594,7 @@ export function StatusPageLayout() {
                             aria-checked={page.enabled}
                             onClick={() => handleTogglePageEnabled(page.id)}
                             className={`relative inline-flex h-4 w-7 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                              page.enabled ? 'bg-purple-600' : 'bg-gray-300 dark:bg-zinc-700'
+                              page.enabled ? 'bg-slate-900' : 'bg-slate-300 dark:bg-slate-700'
                             }`}
                           >
                             <span
@@ -608,7 +608,7 @@ export function StatusPageLayout() {
                           <button
                             type="button"
                             onClick={() => handleOpenEditBuilder(page)}
-                            className="font-semibold text-base sm:text-lg text-purple-900 dark:text-purple-300 hover:underline cursor-pointer truncate text-left"
+                            className="font-semibold text-base sm:text-lg text-slate-900 dark:text-slate-300 hover:underline cursor-pointer truncate text-left"
                           >
                             {page.name}
                           </button>
@@ -616,7 +616,7 @@ export function StatusPageLayout() {
                           {/* Badges & Actions */}
                           <div className="flex items-center gap-2 shrink-0">
                             {page.isPublic && (
-                              <span className="px-2 py-0.5 bg-green-100 text-green-700 dark:bg-green-950/60 dark:text-green-400 border border-green-300 dark:border-green-800 rounded-full text-xs font-medium">
+                              <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800 rounded-full text-xs font-medium">
                                 Public
                               </span>
                             )}
@@ -625,9 +625,9 @@ export function StatusPageLayout() {
                             <button
                               type="button"
                               onClick={() => setIsPublicPreviewModalOpen(true)}
-                              className="px-2 py-0.5 bg-gray-50 dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 border border-gray-300 dark:border-zinc-700 rounded-full text-xs inline-flex items-center gap-1 hover:bg-gray-100 dark:hover:bg-zinc-700 cursor-pointer"
+                              className="px-2 py-0.5 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 rounded-full text-xs inline-flex items-center gap-1 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer"
                             >
-                              <Radio className="h-3 w-3 text-purple-600 shrink-0" />
+                              <Radio className="h-3 w-3 text-slate-900 shrink-0" />
                               <span>View</span>
                               <ArrowUpRight className="h-3 w-3 shrink-0" />
                             </button>
@@ -641,7 +641,7 @@ export function StatusPageLayout() {
                             type="button"
                             onClick={() => handleCopyLink(`https://${page.subdomain}`)}
                             title="Copy Status Page URL"
-                            className="h-8 w-8 rounded-md border border-gray-300 dark:border-zinc-700 flex items-center justify-center text-gray-600 dark:text-zinc-400 hover:bg-gray-100 dark:hover:bg-zinc-800 cursor-pointer transition-colors"
+                            className="h-8 w-8 rounded-md border border-slate-300 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors"
                           >
                             <Copy className="h-3.5 w-3.5" />
                           </button>
@@ -651,7 +651,7 @@ export function StatusPageLayout() {
                             type="button"
                             onClick={() => handleOpenEditBuilder(page)}
                             title="Edit Status Page"
-                            className="h-8 w-8 rounded-md border border-gray-300 dark:border-zinc-700 flex items-center justify-center text-gray-600 dark:text-zinc-400 hover:bg-gray-100 dark:hover:bg-zinc-800 cursor-pointer transition-colors"
+                            className="h-8 w-8 rounded-md border border-slate-300 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors"
                           >
                             <Pencil className="h-3.5 w-3.5" />
                           </button>
@@ -661,7 +661,7 @@ export function StatusPageLayout() {
                             type="button"
                             onClick={() => handleDeletePage(page.id, page.name)}
                             title="Delete Status Page"
-                            className="h-8 w-8 rounded-md border border-gray-300 dark:border-zinc-700 flex items-center justify-center text-gray-600 dark:text-zinc-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer transition-colors"
+                            className="h-8 w-8 rounded-md border border-slate-300 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer transition-colors"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
@@ -671,7 +671,7 @@ export function StatusPageLayout() {
                             type="button"
                             onClick={() => setExpandedPageId(isExpanded ? null : page.id)}
                             title="Toggle details"
-                            className="h-8 w-8 rounded-md flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-zinc-800 cursor-pointer transition-colors"
+                            className="h-8 w-8 rounded-md flex items-center justify-center text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors"
                           >
                             {isExpanded ? (
                               <ChevronUp className="h-4 w-4" />
@@ -684,18 +684,18 @@ export function StatusPageLayout() {
 
                       {/* Accordion Body: 3 Columns (Services, Functionalities, Subscribers) */}
                       {isExpanded && (
-                        <div className="mx-6 pb-5 pt-4 border-t border-gray-200 dark:border-zinc-800">
+                        <div className="mx-6 pb-5 pt-4 border-t border-slate-200 dark:border-slate-800">
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
                             {/* Column 1: Services */}
                             <div className="flex flex-col gap-2">
-                              <span className="text-gray-700 dark:text-zinc-300 font-medium">
+                              <span className="text-slate-700 dark:text-slate-300 font-medium">
                                 Services
                               </span>
                               <div className="flex flex-wrap gap-2">
                                 {page.services.map((svc) => (
                                   <span
                                     key={svc.id}
-                                    className="px-2.5 py-1 bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 border border-gray-200 dark:border-zinc-700 rounded-full inline-flex items-center gap-2"
+                                    className="px-2.5 py-1 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-full inline-flex items-center gap-2"
                                   >
                                     <span
                                       className="inline-block w-2 h-2 rounded-full shrink-0"
@@ -709,24 +709,24 @@ export function StatusPageLayout() {
 
                             {/* Column 2: Functionalities */}
                             <div className="flex flex-col gap-2">
-                              <span className="text-gray-700 dark:text-zinc-300 font-medium">
+                              <span className="text-slate-700 dark:text-slate-300 font-medium">
                                 Functionalities
                               </span>
-                              <span className="text-gray-500 dark:text-zinc-400">
+                              <span className="text-slate-500 dark:text-slate-400">
                                 No items under this category.
                               </span>
                             </div>
 
                             {/* Column 3: Subscribers */}
                             <div className="flex flex-col gap-2">
-                              <span className="text-gray-700 dark:text-zinc-300 font-medium">
+                              <span className="text-slate-700 dark:text-slate-300 font-medium">
                                 Subscribers
                               </span>
                               <div className="flex items-center">
-                                <span className="px-2.5 py-1 bg-gray-50 dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 border border-gray-200 dark:border-zinc-700 rounded-full inline-flex items-center gap-1.5">
-                                  <Users className="h-3.5 w-3.5 text-zinc-500" />
+                                <span className="px-2.5 py-1 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-full inline-flex items-center gap-1.5">
+                                  <Users className="h-3.5 w-3.5 text-slate-500" />
                                   <span>{page.subscribersCount} Subscribers</span>
-                                  <ArrowUpRight className="h-3 w-3 text-zinc-400" />
+                                  <ArrowUpRight className="h-3 w-3 text-slate-400" />
                                 </span>
                               </div>
                             </div>
@@ -739,31 +739,31 @@ export function StatusPageLayout() {
               )}
 
               {/* Pagination Footer */}
-              <div className="w-full bg-gray-50 dark:bg-zinc-900/60 px-4 py-3 flex items-center justify-between text-xs text-gray-700 dark:text-zinc-300">
+              <div className="w-full bg-slate-50 dark:bg-slate-900/60 px-4 py-3 flex items-center justify-between text-xs text-slate-700 dark:text-slate-300">
                 <div className="flex items-center gap-1.5">
                   <span>
                     Showing <strong className="font-bold">1</strong> to{' '}
                     <strong className="font-bold">{filteredPages.length}</strong> of{' '}
                     <strong className="font-bold">{filteredPages.length}</strong>
                   </span>
-                  <Pencil className="h-3 w-3 text-gray-400 ml-1" />
+                  <Pencil className="h-3 w-3 text-slate-400 ml-1" />
                 </div>
 
                 <div className="flex items-center gap-1">
                   <button
                     type="button"
                     disabled
-                    className="px-2 py-0.5 border border-gray-300 dark:border-zinc-700 rounded text-gray-400 opacity-50 cursor-not-allowed"
+                    className="px-2 py-0.5 border border-slate-300 dark:border-slate-700 rounded text-slate-400 opacity-50 cursor-not-allowed"
                   >
                     &lt;
                   </button>
-                  <span className="px-2 py-0.5 border border-blue-500 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 font-bold rounded">
+                  <span className="px-2 py-0.5 border border-slate-700 bg-slate-100 dark:bg-slate-950/40 text-slate-900 dark:text-slate-400 font-bold rounded">
                     1
                   </span>
                   <button
                     type="button"
                     disabled
-                    className="px-2 py-0.5 border border-gray-300 dark:border-zinc-700 rounded text-gray-400 opacity-50 cursor-not-allowed"
+                    className="px-2 py-0.5 border border-slate-300 dark:border-slate-700 rounded text-slate-400 opacity-50 cursor-not-allowed"
                   >
                     &gt;
                   </button>
@@ -779,26 +779,26 @@ export function StatusPageLayout() {
         {view === 'builder' && (
           <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-6 sm:px-8 space-y-4">
             {/* Top Navigation Bar: Breadcrumbs + Center Tabs + Create Button */}
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-zinc-200 dark:border-zinc-800 pb-3">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-3">
               {/* Breadcrumbs */}
-              <nav className="flex items-center gap-2 text-xs text-zinc-500">
+              <nav className="flex items-center gap-2 text-xs text-slate-500">
                 <button
                   type="button"
                   onClick={() => setView('list')}
-                  className="hover:text-zinc-900 dark:hover:text-zinc-100 cursor-pointer"
+                  className="hover:text-slate-900 dark:hover:text-slate-100 cursor-pointer"
                 >
                   Home
                 </button>
-                <ChevronRight className="h-3 w-3 text-zinc-400" />
+                <ChevronRight className="h-3 w-3 text-slate-400" />
                 <button
                   type="button"
                   onClick={() => setView('list')}
-                  className="hover:text-zinc-900 dark:hover:text-zinc-100 cursor-pointer"
+                  className="hover:text-slate-900 dark:hover:text-slate-100 cursor-pointer"
                 >
                   Status Pages
                 </button>
-                <ChevronRight className="h-3 w-3 text-zinc-400" />
-                <span className="text-zinc-900 dark:text-zinc-100 font-semibold">
+                <ChevronRight className="h-3 w-3 text-slate-400" />
+                <span className="text-slate-900 dark:text-slate-100 font-semibold">
                   {editingPageId ? 'Edit Status Page' : 'New Status Page'}
                 </span>
               </nav>
@@ -820,8 +820,8 @@ export function StatusPageLayout() {
                     onClick={() => setActiveTab(tab.key)}
                     className={`pb-2.5 transition-colors cursor-pointer ${
                       activeTab === tab.key
-                        ? 'border-b-2 border-indigo-600 font-semibold text-zinc-900 dark:text-zinc-100'
-                        : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300'
+                        ? 'border-b-2 border-slate-900 font-semibold text-slate-900 dark:text-slate-100'
+                        : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
                     }`}
                   >
                     {tab.label}
@@ -833,7 +833,7 @@ export function StatusPageLayout() {
               <button
                 type="button"
                 onClick={handleSaveStatusPage}
-                className="bg-black text-white hover:bg-zinc-800 transition-colors rounded-lg px-4 py-1.5 text-xs font-semibold shadow-xs cursor-pointer"
+                className="bg-black text-white hover:bg-slate-800 transition-colors rounded-lg px-4 py-1.5 text-xs font-semibold shadow-xs cursor-pointer"
               >
                 {editingPageId ? 'Save Changes' : 'Create'}
               </button>
@@ -841,8 +841,8 @@ export function StatusPageLayout() {
 
             {/* Unsaved Changes Banner (Reactive when dirty) */}
             {isDirty && (
-              <div className="rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-800 px-4 py-2.5 text-xs flex items-center gap-2">
-                <AlertCircle className="h-4 w-4 text-yellow-600 shrink-0" />
+              <div className="rounded-lg bg-amber-100 border border-amber-300 text-amber-800 px-4 py-2.5 text-xs flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 text-amber-600 shrink-0" />
                 <span>
                   You have unsaved changes. The status page you are seeing is a live preview. You will need to save the form to have your changes take effect.
                 </span>
@@ -858,11 +858,11 @@ export function StatusPageLayout() {
                   <div className="space-y-6">
                     {/* Field 1: Name * */}
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 flex items-center gap-0.5">
+                      <label className="text-xs font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-0.5">
                         <span>Name</span>
                         <span className="text-rose-500">*</span>
                       </label>
-                      <p className="text-[11px] text-zinc-500 leading-normal">
+                      <p className="text-[11px] text-slate-500 leading-normal">
                         An easy name to identify the status page internally. Customers won&apos;t see this.
                       </p>
                       <input
@@ -874,16 +874,16 @@ export function StatusPageLayout() {
                         }}
                         placeholder="Give this status page a concise name (1-3 words)"
                         required
-                        className="w-full rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                        className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent px-3 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
                       />
                     </div>
 
                     {/* Field 2: Internal Description */}
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+                      <label className="text-xs font-semibold text-slate-900 dark:text-slate-100">
                         Internal Description
                       </label>
-                      <p className="text-[11px] text-zinc-500 leading-normal">
+                      <p className="text-[11px] text-slate-500 leading-normal">
                         Let your team know when this page is best to update or send out to a customer.
                       </p>
                       <textarea
@@ -894,7 +894,7 @@ export function StatusPageLayout() {
                           setIsDirty(true);
                         }}
                         placeholder="Write a human readable description."
-                        className="w-full rounded-lg border border-gray-300 dark:border-zinc-700 bg-transparent p-3 text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400 resize-y"
+                        className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent p-3 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400 resize-y"
                       />
                     </div>
 
@@ -910,7 +910,7 @@ export function StatusPageLayout() {
                             setIsDirty(true);
                           }}
                           className={`relative inline-flex h-4 w-7 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                            formIsPublic ? 'bg-purple-600' : 'bg-gray-300 dark:bg-zinc-700'
+                            formIsPublic ? 'bg-slate-900' : 'bg-slate-300 dark:bg-slate-700'
                           }`}
                         >
                           <span
@@ -919,11 +919,11 @@ export function StatusPageLayout() {
                             }`}
                           />
                         </button>
-                        <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+                        <span className="text-xs font-semibold text-slate-900 dark:text-slate-100">
                           Public
                         </span>
                       </div>
-                      <p className="text-[11px] text-zinc-500 leading-normal">
+                      <p className="text-[11px] text-slate-500 leading-normal">
                         When this is on, anyone with a link can see this page. When this is off, only users logged into Rootly can see the page.
                       </p>
                     </div>
@@ -933,7 +933,7 @@ export function StatusPageLayout() {
                       <button
                         type="button"
                         onClick={() => setShowAdvancedSettings(!showAdvancedSettings)}
-                        className="text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 inline-flex items-center gap-1 cursor-pointer"
+                        className="text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 inline-flex items-center gap-1 cursor-pointer"
                       >
                         {showAdvancedSettings ? (
                           <ChevronUp className="h-3.5 w-3.5" />
@@ -944,9 +944,9 @@ export function StatusPageLayout() {
                       </button>
 
                       {showAdvancedSettings && (
-                        <div className="mt-3 p-4 rounded-xl border border-gray-200 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 space-y-4 text-xs">
+                        <div className="mt-3 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 space-y-4 text-xs">
                           <label className="flex items-center justify-between cursor-pointer">
-                            <span className="font-medium text-zinc-700 dark:text-zinc-300">Allow email notifications</span>
+                            <span className="font-medium text-slate-700 dark:text-slate-300">Allow email notifications</span>
                             <input
                               type="checkbox"
                               checked={formAllowEmail}
@@ -954,12 +954,12 @@ export function StatusPageLayout() {
                                 setFormAllowEmail(e.target.checked);
                                 setIsDirty(true);
                               }}
-                              className="rounded border-gray-300 bg-transparent text-purple-600 focus:ring-purple-500"
+                              className="rounded border-slate-300 bg-transparent text-slate-900 focus:ring-slate-700"
                             />
                           </label>
 
                           <label className="flex items-center justify-between cursor-pointer">
-                            <span className="font-medium text-zinc-700 dark:text-zinc-300">Allow SMS notifications</span>
+                            <span className="font-medium text-slate-700 dark:text-slate-300">Allow SMS notifications</span>
                             <input
                               type="checkbox"
                               checked={formAllowSms}
@@ -967,12 +967,12 @@ export function StatusPageLayout() {
                                 setFormAllowSms(e.target.checked);
                                 setIsDirty(true);
                               }}
-                              className="rounded border-gray-300 bg-transparent text-purple-600 focus:ring-purple-500"
+                              className="rounded border-slate-300 bg-transparent text-slate-900 focus:ring-slate-700"
                             />
                           </label>
 
                           <div className="space-y-1">
-                            <label className="font-medium text-zinc-700 dark:text-zinc-300">External Domain Names</label>
+                            <label className="font-medium text-slate-700 dark:text-slate-300">External Domain Names</label>
                             <input
                               type="text"
                               value={formExternalDomain}
@@ -981,12 +981,12 @@ export function StatusPageLayout() {
                                 setIsDirty(true);
                               }}
                               placeholder="status.yourcompany.com"
-                              className="w-full rounded-md border border-gray-300 dark:border-zinc-700 bg-transparent px-2.5 py-1.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                              className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-transparent px-2.5 py-1.5 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-slate-400"
                             />
                           </div>
 
                           <div className="space-y-1">
-                            <label className="font-medium text-zinc-700 dark:text-zinc-300">Google Analytics Tracking ID</label>
+                            <label className="font-medium text-slate-700 dark:text-slate-300">Google Analytics Tracking ID</label>
                             <input
                               type="text"
                               value={formGaId}
@@ -995,7 +995,7 @@ export function StatusPageLayout() {
                                 setIsDirty(true);
                               }}
                               placeholder="G-XXXXXXXXXX"
-                              className="w-full rounded-md border border-gray-300 dark:border-zinc-700 bg-transparent px-2.5 py-1.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                              className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-transparent px-2.5 py-1.5 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-slate-400"
                             />
                           </div>
                         </div>
@@ -1008,20 +1008,20 @@ export function StatusPageLayout() {
                 {activeTab === 'authentication' && (
                   <div className="space-y-5 text-xs">
                     {!formIsPublic ? (
-                      <div className="p-3.5 rounded-lg bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 text-purple-800 dark:text-purple-300 leading-relaxed">
+                      <div className="p-3.5 rounded-lg bg-slate-100 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-300 leading-relaxed">
                         Authentication settings are only available for public status pages. Switch to &quot;Public&quot; in Setup to configure guest authentication.
                       </div>
                     ) : (
                       <>
                         <div className="space-y-1">
-                          <h3 className="text-xs font-bold text-zinc-900 dark:text-zinc-100">Access Control & Security</h3>
-                          <p className="text-zinc-500 text-[11px]">
+                          <h3 className="text-xs font-bold text-slate-900 dark:text-slate-100">Access Control & Security</h3>
+                          <p className="text-slate-500 text-[11px]">
                             Choose how visitors authenticate to access this status page.
                           </p>
                         </div>
 
                         <div className="space-y-2.5">
-                          <label className="flex items-start gap-3 p-3 rounded-xl border border-gray-200 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 cursor-pointer">
+                          <label className="flex items-start gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 cursor-pointer">
                             <input
                               type="radio"
                               name="auth_mode"
@@ -1033,12 +1033,12 @@ export function StatusPageLayout() {
                               className="mt-0.5 bg-transparent"
                             />
                             <div>
-                              <div className="font-semibold text-zinc-900 dark:text-zinc-100">No Authentication</div>
-                              <div className="text-zinc-500 text-[11px]">Status page is publicly accessible without any credentials.</div>
+                              <div className="font-semibold text-slate-900 dark:text-slate-100">No Authentication</div>
+                              <div className="text-slate-500 text-[11px]">Status page is publicly accessible without any credentials.</div>
                             </div>
                           </label>
 
-                          <label className="flex items-start gap-3 p-3 rounded-xl border border-gray-200 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 cursor-pointer">
+                          <label className="flex items-start gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 cursor-pointer">
                             <input
                               type="radio"
                               name="auth_mode"
@@ -1050,11 +1050,11 @@ export function StatusPageLayout() {
                               className="mt-0.5 bg-transparent"
                             />
                             <div className="flex-1">
-                              <div className="font-semibold text-zinc-900 dark:text-zinc-100">Password Authentication</div>
-                              <div className="text-zinc-500 text-[11px]">Visitors enter a shared password to unlock access.</div>
+                              <div className="font-semibold text-slate-900 dark:text-slate-100">Password Authentication</div>
+                              <div className="text-slate-500 text-[11px]">Visitors enter a shared password to unlock access.</div>
 
                               {formAuthMethod === 'password' && (
-                                <div className="mt-2.5 pt-2 border-t border-gray-200 dark:border-zinc-800">
+                                <div className="mt-2.5 pt-2 border-t border-slate-200 dark:border-slate-800">
                                   <input
                                     type="password"
                                     value={formAuthPassword}
@@ -1063,14 +1063,14 @@ export function StatusPageLayout() {
                                       setIsDirty(true);
                                     }}
                                     placeholder="Enter a secure password"
-                                    className="w-full rounded-md border border-gray-300 dark:border-zinc-700 bg-transparent px-2.5 py-1.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                                    className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-transparent px-2.5 py-1.5 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-slate-400"
                                   />
                                 </div>
                               )}
                             </div>
                           </label>
 
-                          <label className="flex items-start gap-3 p-3 rounded-xl border border-gray-200 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 cursor-pointer">
+                          <label className="flex items-start gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 cursor-pointer">
                             <input
                               type="radio"
                               name="auth_mode"
@@ -1082,11 +1082,11 @@ export function StatusPageLayout() {
                               className="mt-0.5 bg-transparent"
                             />
                             <div className="flex-1">
-                              <div className="font-semibold text-zinc-900 dark:text-zinc-100">SAML Single Sign-On</div>
-                              <div className="text-zinc-500 text-[11px]">Visitors authenticate through your SAML identity provider (Okta, Azure AD).</div>
+                              <div className="font-semibold text-slate-900 dark:text-slate-100">SAML Single Sign-On</div>
+                              <div className="text-slate-500 text-[11px]">Visitors authenticate through your SAML identity provider (Okta, Azure AD).</div>
 
                               {formAuthMethod === 'saml' && (
-                                <div className="mt-2.5 pt-2 border-t border-gray-200 dark:border-zinc-800 space-y-2">
+                                <div className="mt-2.5 pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
                                   <input
                                     type="url"
                                     value={formSamlIdpUrl}
@@ -1095,7 +1095,7 @@ export function StatusPageLayout() {
                                       setIsDirty(true);
                                     }}
                                     placeholder="IdP SSO URL (e.g. https://yourcompany.okta.com/app/...)"
-                                    className="w-full rounded-md border border-gray-300 dark:border-zinc-700 bg-transparent px-2.5 py-1.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                                    className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-transparent px-2.5 py-1.5 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-slate-400"
                                   />
                                   <textarea
                                     rows={3}
@@ -1105,7 +1105,7 @@ export function StatusPageLayout() {
                                       setIsDirty(true);
                                     }}
                                     placeholder="-----BEGIN CERTIFICATE-----&#10;...&#10;-----END CERTIFICATE-----"
-                                    className="w-full rounded-md border border-gray-300 dark:border-zinc-700 bg-transparent p-2 text-[10px] font-mono text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                                    className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-transparent p-2 text-[10px] font-mono text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-slate-400"
                                   />
                                 </div>
                               )}
@@ -1124,10 +1124,10 @@ export function StatusPageLayout() {
                   <div className="space-y-6 text-xs">
                     {/* 1. Public Title */}
                     <div className="space-y-1.5">
-                      <label className="font-semibold text-xs text-zinc-900 dark:text-zinc-100">
+                      <label className="font-semibold text-xs text-slate-900 dark:text-slate-100">
                         Public Title
                       </label>
-                      <p className="text-[11px] text-zinc-500 leading-normal">
+                      <p className="text-[11px] text-slate-500 leading-normal">
                         Help status page visitors identify the purpose of this status page. Visible on status page.
                       </p>
                       <input
@@ -1138,16 +1138,16 @@ export function StatusPageLayout() {
                           setIsDirty(true);
                         }}
                         placeholder="Give this status page a concise title (1-3 words)"
-                        className="w-full rounded-md border border-gray-300 dark:border-zinc-700 bg-transparent px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                        className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-transparent px-3 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
                       />
                     </div>
 
                     {/* 2. Public Description */}
                     <div className="space-y-1.5">
-                      <label className="font-semibold text-xs text-zinc-900 dark:text-zinc-100">
+                      <label className="font-semibold text-xs text-slate-900 dark:text-slate-100">
                         Public Description
                       </label>
-                      <p className="text-[11px] text-zinc-500 leading-normal">
+                      <p className="text-[11px] text-slate-500 leading-normal">
                         Describe what services this status page represents. Visible on status page.
                       </p>
                       <textarea
@@ -1159,21 +1159,21 @@ export function StatusPageLayout() {
                           setIsDirty(true);
                         }}
                         placeholder="Write a human readable description."
-                        className="w-full rounded-md border border-gray-300 dark:border-zinc-700 bg-transparent p-3 text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400 resize-y"
+                        className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-transparent p-3 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400 resize-y"
                       />
-                      <div className="text-[11px] text-zinc-400">
+                      <div className="text-[11px] text-slate-400">
                         {1000 - formPublicDescription.length} characters remaining
                       </div>
                     </div>
 
                     {/* 3. Uptime Message */}
                     <div className="space-y-1.5">
-                      <label className="font-semibold text-xs text-zinc-900 dark:text-zinc-100">
+                      <label className="font-semibold text-xs text-slate-900 dark:text-slate-100">
                         Uptime Message
                       </label>
-                      <p className="text-[11px] text-zinc-500 leading-normal">
+                      <p className="text-[11px] text-slate-500 leading-normal">
                         This message will show on the status page{' '}
-                        <strong className="text-zinc-700 dark:text-zinc-300">
+                        <strong className="text-slate-700 dark:text-slate-300">
                           when there are no issues or incidents with the services this status page represents.
                         </strong>
                       </p>
@@ -1185,18 +1185,18 @@ export function StatusPageLayout() {
                           setIsDirty(true);
                         }}
                         placeholder="All Systems Operational"
-                        className="w-full rounded-md border border-gray-300 dark:border-zinc-700 bg-transparent px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                        className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-transparent px-3 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
                       />
                     </div>
 
                     {/* 4. Downtime Message */}
                     <div className="space-y-1.5">
-                      <label className="font-semibold text-xs text-zinc-900 dark:text-zinc-100">
+                      <label className="font-semibold text-xs text-slate-900 dark:text-slate-100">
                         Downtime Message
                       </label>
-                      <p className="text-[11px] text-zinc-500 leading-normal">
+                      <p className="text-[11px] text-slate-500 leading-normal">
                         This message will show on the status page{' '}
-                        <strong className="text-zinc-700 dark:text-zinc-300">
+                        <strong className="text-slate-700 dark:text-slate-300">
                           when there are issues or incidents with the services this status page represents.
                         </strong>
                       </p>
@@ -1208,26 +1208,26 @@ export function StatusPageLayout() {
                           setIsDirty(true);
                         }}
                         placeholder="Something's not quite right"
-                        className="w-full rounded-md border border-gray-300 dark:border-zinc-700 bg-transparent px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                        className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-transparent px-3 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
                       />
                     </div>
 
                     {/* 5. Logo Upload Dropzone */}
                     <div className="space-y-1.5">
-                      <label className="font-semibold text-xs text-zinc-900 dark:text-zinc-100">
+                      <label className="font-semibold text-xs text-slate-900 dark:text-slate-100">
                         Logo
                       </label>
-                      <p className="text-[11px] text-zinc-500 leading-normal">
+                      <p className="text-[11px] text-slate-500 leading-normal">
                         The logo will display at the top left side of the status page. Size &amp; Format: 64×64 jpg, png
                       </p>
-                      <label className="border border-dashed border-gray-300 dark:border-zinc-700 rounded-lg p-5 flex items-center justify-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-900/50 transition-colors">
-                        <Upload className="h-4 w-4 text-zinc-400" />
-                        <span className="text-xs text-zinc-600 dark:text-zinc-400">
+                      <label className="border border-dashed border-slate-300 dark:border-slate-700 rounded-lg p-5 flex items-center justify-center gap-2 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
+                        <Upload className="h-4 w-4 text-slate-400" />
+                        <span className="text-xs text-slate-600 dark:text-slate-400">
                           {formLogoFileName ? (
                             <strong className="text-emerald-600">{formLogoFileName}</strong>
                           ) : (
                             <>
-                              <span className="text-blue-600 dark:text-blue-400 font-medium hover:underline">Select a file</span> or drag and drop
+                              <span className="text-slate-900 dark:text-slate-400 font-medium hover:underline">Select a file</span> or drag and drop
                             </>
                           )}
                         </span>
@@ -1247,20 +1247,20 @@ export function StatusPageLayout() {
 
                     {/* 6. Favicon Upload Dropzone */}
                     <div className="space-y-1.5">
-                      <label className="font-semibold text-xs text-zinc-900 dark:text-zinc-100">
+                      <label className="font-semibold text-xs text-slate-900 dark:text-slate-100">
                         Favicon
                       </label>
-                      <p className="text-[11px] text-zinc-500 leading-normal">
+                      <p className="text-[11px] text-slate-500 leading-normal">
                         This is the icon that shows up in a site tab when users visit this page. Size &amp; Format: 64×64 jpg, png
                       </p>
-                      <label className="border border-dashed border-gray-300 dark:border-zinc-700 rounded-lg p-4 flex items-center justify-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-900/50 transition-colors">
-                        <Upload className="h-4 w-4 text-zinc-400" />
-                        <span className="text-xs text-zinc-600 dark:text-zinc-400">
+                      <label className="border border-dashed border-slate-300 dark:border-slate-700 rounded-lg p-4 flex items-center justify-center gap-2 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
+                        <Upload className="h-4 w-4 text-slate-400" />
+                        <span className="text-xs text-slate-600 dark:text-slate-400">
                           {formFaviconFileName ? (
                             <strong className="text-emerald-600">{formFaviconFileName}</strong>
                           ) : (
                             <>
-                              <span className="text-blue-600 dark:text-blue-400 font-medium hover:underline">Select a file</span> or drag and drop
+                              <span className="text-slate-900 dark:text-slate-400 font-medium hover:underline">Select a file</span> or drag and drop
                             </>
                           )}
                         </span>
@@ -1280,20 +1280,20 @@ export function StatusPageLayout() {
 
                     {/* 7. Open Graph Image Upload Dropzone */}
                     <div className="space-y-1.5">
-                      <label className="font-semibold text-xs text-zinc-900 dark:text-zinc-100">
+                      <label className="font-semibold text-xs text-slate-900 dark:text-slate-100">
                         Open Graph Image
                       </label>
-                      <p className="text-[11px] text-zinc-500 leading-normal">
+                      <p className="text-[11px] text-slate-500 leading-normal">
                         This is the image that will show in website previews when shared. Size &amp; Format: 1200×630 jpg, png
                       </p>
-                      <label className="border border-dashed border-gray-300 dark:border-zinc-700 rounded-lg p-4 flex items-center justify-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-900/50 transition-colors">
-                        <Upload className="h-4 w-4 text-zinc-400" />
-                        <span className="text-xs text-zinc-600 dark:text-zinc-400">
+                      <label className="border border-dashed border-slate-300 dark:border-slate-700 rounded-lg p-4 flex items-center justify-center gap-2 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
+                        <Upload className="h-4 w-4 text-slate-400" />
+                        <span className="text-xs text-slate-600 dark:text-slate-400">
                           {formOgImageFileName ? (
                             <strong className="text-emerald-600">{formOgImageFileName}</strong>
                           ) : (
                             <>
-                              <span className="text-blue-600 dark:text-blue-400 font-medium hover:underline">Select a file</span> or drag and drop
+                              <span className="text-slate-900 dark:text-slate-400 font-medium hover:underline">Select a file</span> or drag and drop
                             </>
                           )}
                         </span>
@@ -1313,10 +1313,10 @@ export function StatusPageLayout() {
 
                     {/* 8. Website URL */}
                     <div className="space-y-1.5">
-                      <label className="font-semibold text-xs text-zinc-900 dark:text-zinc-100">
+                      <label className="font-semibold text-xs text-slate-900 dark:text-slate-100">
                         Website URL
                       </label>
-                      <p className="text-[11px] text-zinc-500 leading-normal">
+                      <p className="text-[11px] text-slate-500 leading-normal">
                         Link users to your company’s website. This will be displayed in the status page footer.
                       </p>
                       <input
@@ -1327,16 +1327,16 @@ export function StatusPageLayout() {
                           setIsDirty(true);
                         }}
                         placeholder="Company’s website URL"
-                        className="w-full rounded-md border border-gray-300 dark:border-zinc-700 bg-transparent px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                        className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-transparent px-3 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
                       />
                     </div>
 
                     {/* 9. Website Support URL */}
                     <div className="space-y-1.5">
-                      <label className="font-semibold text-xs text-zinc-900 dark:text-zinc-100">
+                      <label className="font-semibold text-xs text-slate-900 dark:text-slate-100">
                         Website Support URL
                       </label>
-                      <p className="text-[11px] text-zinc-500 leading-normal">
+                      <p className="text-[11px] text-slate-500 leading-normal">
                         Link users to your company’s support page. This will be displayed in the status page footer.
                       </p>
                       <input
@@ -1347,16 +1347,16 @@ export function StatusPageLayout() {
                           setIsDirty(true);
                         }}
                         placeholder="Company’s support page URL"
-                        className="w-full rounded-md border border-gray-300 dark:border-zinc-700 bg-transparent px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                        className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-transparent px-3 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
                       />
                     </div>
 
                     {/* 10. Website Privacy URL */}
                     <div className="space-y-1.5">
-                      <label className="font-semibold text-xs text-zinc-900 dark:text-zinc-100">
+                      <label className="font-semibold text-xs text-slate-900 dark:text-slate-100">
                         Website Privacy URL
                       </label>
-                      <p className="text-[11px] text-zinc-500 leading-normal">
+                      <p className="text-[11px] text-slate-500 leading-normal">
                         Link users to your company’s privacy policy page. This will be displayed in the footer.
                       </p>
                       <input
@@ -1367,16 +1367,16 @@ export function StatusPageLayout() {
                           setIsDirty(true);
                         }}
                         placeholder="Company’s privacy page URL"
-                        className="w-full rounded-md border border-gray-300 dark:border-zinc-700 bg-transparent px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                        className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-transparent px-3 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
                       />
                     </div>
 
                     {/* 11. Timezone */}
                     <div className="space-y-1.5">
-                      <label className="font-semibold text-xs text-zinc-900 dark:text-zinc-100">
+                      <label className="font-semibold text-xs text-slate-900 dark:text-slate-100">
                         Timezone
                       </label>
-                      <p className="text-[11px] text-zinc-500 leading-normal">
+                      <p className="text-[11px] text-slate-500 leading-normal">
                         Set the timezone to show when the status changes occurred.
                       </p>
                       <select
@@ -1385,21 +1385,21 @@ export function StatusPageLayout() {
                           setFormTimezone(e.target.value);
                           setIsDirty(true);
                         }}
-                        className="w-full rounded-md border border-gray-300 dark:border-zinc-700 bg-transparent px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                        className="w-full rounded-md border border-slate-300 dark:border-slate-700 bg-transparent px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-slate-400"
                       >
-                        <option value="(GMT-07:00) Pacific Time (US & Canada)" className="dark:bg-zinc-900">
+                        <option value="(GMT-07:00) Pacific Time (US & Canada)" className="dark:bg-slate-900">
                           (GMT-07:00) Pacific Time (US & Canada)
                         </option>
-                        <option value="(GMT-04:00) Eastern Time (US & Canada)" className="dark:bg-zinc-900">
+                        <option value="(GMT-04:00) Eastern Time (US & Canada)" className="dark:bg-slate-900">
                           (GMT-04:00) Eastern Time (US & Canada)
                         </option>
-                        <option value="(GMT+00:00) UTC" className="dark:bg-zinc-900">
+                        <option value="(GMT+00:00) UTC" className="dark:bg-slate-900">
                           (GMT+00:00) UTC
                         </option>
-                        <option value="(GMT+01:00) London, Dublin" className="dark:bg-zinc-900">
+                        <option value="(GMT+01:00) London, Dublin" className="dark:bg-slate-900">
                           (GMT+01:00) London, Dublin
                         </option>
-                        <option value="(GMT+05:30) Mumbai, New Delhi" className="dark:bg-zinc-900">
+                        <option value="(GMT+05:30) Mumbai, New Delhi" className="dark:bg-slate-900">
                           (GMT+05:30) Mumbai, New Delhi
                         </option>
                       </select>
@@ -1407,24 +1407,24 @@ export function StatusPageLayout() {
 
                     {/* 12. Section Order */}
                     <div className="space-y-1.5 pt-1">
-                      <label className="font-semibold text-xs text-zinc-900 dark:text-zinc-100">
+                      <label className="font-semibold text-xs text-slate-900 dark:text-slate-100">
                         Section Order
                       </label>
-                      <p className="text-[11px] text-zinc-500 leading-normal">
+                      <p className="text-[11px] text-slate-500 leading-normal">
                         Drag and drop to reorder how sections appear on your public status page.
                       </p>
                       <div className="space-y-2 pt-1">
                         {sectionOrder.map((section, idx) => (
                           <div
                             key={section.id}
-                            className="flex items-center justify-between p-3 rounded-lg border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-xs shadow-2xs"
+                            className="flex items-center justify-between p-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs shadow-2xs"
                           >
                             <div className="flex items-center gap-2.5">
-                              <GripVertical className="h-4 w-4 text-zinc-400 cursor-grab" />
-                              {section.id === 'maint' && <Wrench className="h-4 w-4 text-zinc-500" />}
-                              {section.id === 'status' && <Server className="h-4 w-4 text-zinc-500" />}
-                              {section.id === 'incidents' && <AlertTriangle className="h-4 w-4 text-zinc-500" />}
-                              <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                              <GripVertical className="h-4 w-4 text-slate-400 cursor-grab" />
+                              {section.id === 'maint' && <Wrench className="h-4 w-4 text-slate-500" />}
+                              {section.id === 'status' && <Server className="h-4 w-4 text-slate-500" />}
+                              {section.id === 'incidents' && <AlertTriangle className="h-4 w-4 text-slate-500" />}
+                              <span className="font-medium text-slate-900 dark:text-slate-100">
                                 {section.name}
                               </span>
                             </div>
@@ -1434,7 +1434,7 @@ export function StatusPageLayout() {
                                   type="button"
                                   disabled={idx === 0}
                                   onClick={() => handleMoveSection(idx, 'up')}
-                                  className="text-zinc-400 hover:text-zinc-700 disabled:opacity-30 cursor-pointer"
+                                  className="text-slate-400 hover:text-slate-700 disabled:opacity-30 cursor-pointer"
                                 >
                                   ▲
                                 </button>
@@ -1442,12 +1442,12 @@ export function StatusPageLayout() {
                                   type="button"
                                   disabled={idx === sectionOrder.length - 1}
                                   onClick={() => handleMoveSection(idx, 'down')}
-                                  className="text-zinc-400 hover:text-zinc-700 disabled:opacity-30 cursor-pointer"
+                                  className="text-slate-400 hover:text-slate-700 disabled:opacity-30 cursor-pointer"
                                 >
                                   ▼
                                 </button>
                               </div>
-                              <span className="h-6 w-6 rounded-md bg-gray-100 dark:bg-zinc-800 flex items-center justify-center font-bold text-[11px] text-zinc-700 dark:text-zinc-300">
+                              <span className="h-6 w-6 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-[11px] text-slate-700 dark:text-slate-300">
                                 {section.order}
                               </span>
                             </div>
@@ -1461,7 +1461,7 @@ export function StatusPageLayout() {
                 {/* TAB CONTENT: COMPONENTS */}
                 {activeTab === 'components' && (
                   <div className="space-y-5 text-xs">
-                    <div className="p-3.5 rounded-xl border border-gray-200 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 flex items-center justify-between">
+                    <div className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <input
                           type="checkbox"
@@ -1470,9 +1470,9 @@ export function StatusPageLayout() {
                             setFormShowUptime(e.target.checked);
                             setIsDirty(true);
                           }}
-                          className="rounded border-gray-300 bg-transparent text-purple-600"
+                          className="rounded border-slate-300 bg-transparent text-slate-900"
                         />
-                        <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                        <span className="font-medium text-slate-900 dark:text-slate-100">
                           Display historical uptime over
                         </span>
                       </div>
@@ -1482,7 +1482,7 @@ export function StatusPageLayout() {
                           setFormUptimeDurationDays(Number(e.target.value));
                           setIsDirty(true);
                         }}
-                        className="rounded-md border border-gray-300 dark:border-zinc-700 bg-transparent px-2 py-1 text-xs"
+                        className="rounded-md border border-slate-300 dark:border-slate-700 bg-transparent px-2 py-1 text-xs"
                       >
                         <option value={30}>30 days</option>
                         <option value={60}>60 days</option>
@@ -1492,10 +1492,10 @@ export function StatusPageLayout() {
 
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="font-semibold text-zinc-900 dark:text-zinc-100">Services Included</span>
-                        <span className="text-[11px] text-zinc-400">3 of 3 Active</span>
+                        <span className="font-semibold text-slate-900 dark:text-slate-100">Services Included</span>
+                        <span className="text-[11px] text-slate-400">3 of 3 Active</span>
                       </div>
-                      <div className="divide-y divide-gray-200 dark:divide-zinc-800 border border-gray-200 dark:border-zinc-800 rounded-xl overflow-hidden bg-white dark:bg-zinc-900">
+                      <div className="divide-y divide-slate-200 dark:divide-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900">
                         {[
                           { name: '[Demo] API - Authentication', color: '#FAEBB7' },
                           { name: '[Demo] DB - Production Database', color: '#F4CFD1' },
@@ -1504,7 +1504,7 @@ export function StatusPageLayout() {
                           <div key={idx} className="p-3 flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: s.color }} />
-                              <span className="font-medium text-zinc-800 dark:text-zinc-200">{s.name}</span>
+                              <span className="font-medium text-slate-800 dark:text-slate-200">{s.name}</span>
                             </div>
                             <span className="text-emerald-600 font-semibold text-[11px] inline-flex items-center gap-1">
                               <CheckCircle2 className="h-3 w-3" />
@@ -1527,8 +1527,8 @@ export function StatusPageLayout() {
                           onClick={() => setTemplateSubTab('incident')}
                           className={`px-3 py-1 rounded-md font-medium cursor-pointer ${
                             templateSubTab === 'incident'
-                              ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900'
-                              : 'text-zinc-500 hover:text-zinc-900'
+                              ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900'
+                              : 'text-slate-500 hover:text-slate-900'
                           }`}
                         >
                           Incident Templates
@@ -1538,8 +1538,8 @@ export function StatusPageLayout() {
                           onClick={() => setTemplateSubTab('maintenance')}
                           className={`px-3 py-1 rounded-md font-medium cursor-pointer ${
                             templateSubTab === 'maintenance'
-                              ? 'bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900'
-                              : 'text-zinc-500 hover:text-zinc-900'
+                              ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900'
+                              : 'text-slate-500 hover:text-slate-900'
                           }`}
                         >
                           Maintenance Templates
@@ -1548,29 +1548,29 @@ export function StatusPageLayout() {
                       <button
                         type="button"
                         onClick={() => alert('New template dialog')}
-                        className="px-2.5 py-1 text-xs border border-gray-300 dark:border-zinc-700 rounded-lg hover:bg-gray-50"
+                        className="px-2.5 py-1 text-xs border border-slate-300 dark:border-slate-700 rounded-lg hover:bg-slate-50"
                       >
                         + Add
                       </button>
                     </div>
 
                     <div className="space-y-2.5 pt-1">
-                      <div className="p-3 rounded-xl border border-gray-200 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 space-y-1">
-                        <div className="font-semibold text-zinc-900 dark:text-zinc-100 flex items-center justify-between">
+                      <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 space-y-1">
+                        <div className="font-semibold text-slate-900 dark:text-slate-100 flex items-center justify-between">
                           <span>Investigating Service Degradation</span>
                           <span className="text-emerald-600 text-[10px] font-semibold">Enabled</span>
                         </div>
-                        <p className="text-zinc-500 text-[11px]">
+                        <p className="text-slate-500 text-[11px]">
                           &quot;We are currently investigating elevated latency affecting regional endpoints. Next update in 20 minutes.&quot;
                         </p>
                       </div>
 
-                      <div className="p-3 rounded-xl border border-gray-200 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/40 space-y-1">
-                        <div className="font-semibold text-zinc-900 dark:text-zinc-100 flex items-center justify-between">
+                      <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 space-y-1">
+                        <div className="font-semibold text-slate-900 dark:text-slate-100 flex items-center justify-between">
                           <span>Scheduled Database Maintenance</span>
                           <span className="text-emerald-600 text-[10px] font-semibold">Enabled</span>
                         </div>
-                        <p className="text-zinc-500 text-[11px]">
+                        <p className="text-slate-500 text-[11px]">
                           &quot;Routine maintenance scheduled on production database read replicas. No downtime anticipated.&quot;
                         </p>
                       </div>
@@ -1584,28 +1584,28 @@ export function StatusPageLayout() {
               {/* PERSISTENT ACROSS ALL TABS (Exact Match to media_1788783002077.png)        */}
               {/* ========================================================================= */}
               <div className="lg:col-span-7 sticky top-4">
-                <div className="rounded-2xl border border-gray-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xl overflow-hidden">
+                <div className="rounded-2xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl overflow-hidden">
                   {/* Browser Window Chrome */}
-                  <div className="bg-gray-100 dark:bg-zinc-800/80 px-4 py-2.5 border-b border-gray-200 dark:border-zinc-700 flex items-center justify-between">
+                  <div className="bg-slate-100 dark:bg-slate-800/80 px-4 py-2.5 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
                       <span className="h-2.5 w-2.5 rounded-full bg-rose-400/80 inline-block" />
                       <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80 inline-block" />
                       <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80 inline-block" />
                     </div>
-                    <span className="text-[10px] font-mono text-zinc-400">
+                    <span className="text-[10px] font-mono text-slate-400">
                       {formExternalDomain || 'status.knotic.io'}
                     </span>
                     <div className="w-8" />
                   </div>
 
                   {/* Public Status Page Simulated Canvas */}
-                  <div className="p-8 sm:p-12 space-y-8 bg-white dark:bg-zinc-900 min-h-[500px] flex flex-col justify-between">
+                  <div className="p-8 sm:p-12 space-y-8 bg-white dark:bg-slate-900 min-h-[500px] flex flex-col justify-between">
                     <div className="space-y-8">
                       {/* Org Header */}
                       <div className="flex items-center justify-center pt-2">
                         <div className="flex items-center gap-2">
-                          <Sparkles className="h-5 w-5 text-zinc-700 dark:text-zinc-300" />
-                          <span className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
+                          <Sparkles className="h-5 w-5 text-slate-700 dark:text-slate-300" />
+                          <span className="text-xl font-bold text-slate-900 dark:text-slate-100">
                             {formPublicTitle || brandOrgName}
                           </span>
                         </div>
@@ -1633,10 +1633,10 @@ export function StatusPageLayout() {
                     </div>
 
                     {/* Footer in Mockup */}
-                    <div className="pt-8 text-center text-xs text-zinc-400 border-t border-gray-100 dark:border-zinc-800/80 flex items-center justify-center gap-1.5">
+                    <div className="pt-8 text-center text-xs text-slate-400 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-center gap-1.5">
                       <span>Powered by</span>
-                      <span className="font-bold text-zinc-700 dark:text-zinc-200 inline-flex items-center gap-1">
-                        <Sparkles className="h-3.5 w-3.5 text-purple-600" />
+                      <span className="font-bold text-slate-700 dark:text-slate-200 inline-flex items-center gap-1">
+                        <Sparkles className="h-3.5 w-3.5 text-slate-900" />
                         rootly ai
                       </span>
                     </div>
@@ -1651,23 +1651,23 @@ export function StatusPageLayout() {
         {/* PUBLIC STATUS PAGE MODAL PREVIEW (Activated by ((•)) View ↗)               */}
         {/* ========================================================================= */}
         {isPublicPreviewModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-zinc-900/70 backdrop-blur-xs animate-in fade-in">
-            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/70 backdrop-blur-xs animate-in fade-in">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col">
               {/* Modal Top Bar */}
-              <div className="px-6 py-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between sticky top-0 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-xs z-10">
+              <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between sticky top-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xs z-10">
                 <div className="flex items-center gap-2">
-                  <Radio className="h-4 w-4 text-purple-600" />
-                  <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+                  <Radio className="h-4 w-4 text-slate-900" />
+                  <span className="text-xs font-semibold text-slate-900 dark:text-slate-100">
                     Public Status Page Preview: {statusPages[0]?.name}
                   </span>
-                  <span className="text-[11px] font-mono text-zinc-400">
+                  <span className="text-[11px] font-mono text-slate-400">
                     ({statusPages[0]?.subdomain})
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsPublicPreviewModalOpen(false)}
-                  className="p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 cursor-pointer"
+                  className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -1678,15 +1678,15 @@ export function StatusPageLayout() {
                 {/* Org Logo & Name */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="h-6 w-6 text-zinc-800 dark:text-zinc-200" />
-                    <span className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
+                    <Sparkles className="h-6 w-6 text-slate-800 dark:text-slate-200" />
+                    <span className="text-xl font-bold text-slate-900 dark:text-slate-100">
                       {statusPages[0]?.publicTitle || brandOrgName}
                     </span>
                   </div>
                   <button
                     type="button"
                     onClick={() => alert('Subscribed to status notifications!')}
-                    className="px-3.5 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 text-xs font-semibold text-zinc-800 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                    className="px-3.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800"
                   >
                     Subscribe to Updates
                   </button>
@@ -1707,10 +1707,10 @@ export function StatusPageLayout() {
 
                 {/* Services List */}
                 <div className="space-y-3">
-                  <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
                     System Services
                   </h3>
-                  <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-800 text-xs">
+                  <div className="rounded-xl border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 text-xs">
                     {statusPages[0]?.services.map((svc) => (
                       <div key={svc.id} className="p-4 flex items-center justify-between">
                         <div className="flex items-center gap-2.5">
@@ -1718,7 +1718,7 @@ export function StatusPageLayout() {
                             className="inline-block w-2.5 h-2.5 rounded-full"
                             style={{ backgroundColor: svc.color }}
                           />
-                          <span className="font-semibold text-zinc-800 dark:text-zinc-200">{svc.name}</span>
+                          <span className="font-semibold text-slate-800 dark:text-slate-200">{svc.name}</span>
                         </div>
                         <span className="font-semibold text-emerald-600 inline-flex items-center gap-1">
                           <CheckCircle2 className="h-3.5 w-3.5" />
@@ -1730,9 +1730,9 @@ export function StatusPageLayout() {
                 </div>
 
                 {/* Incident History Link */}
-                <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between text-xs text-zinc-400">
+                <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-400">
                   <span>Incident History Archive (Past 90 Days)</span>
-                  <span className="font-bold text-zinc-600 dark:text-zinc-300">
+                  <span className="font-bold text-slate-600 dark:text-slate-300">
                     Powered by rootly ai
                   </span>
                 </div>

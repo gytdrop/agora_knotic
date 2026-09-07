@@ -75,24 +75,24 @@ export function EscalateModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-xs" role="dialog" aria-modal="true">
-      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl max-w-md w-full p-5 shadow-2xl space-y-4 animate-in zoom-in-95 duration-150">
-        <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-3">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs" role="dialog" aria-modal="true">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl max-w-md w-full p-5 shadow-2xl space-y-4 animate-in zoom-in-95 duration-150">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
           <div className="flex items-center gap-2">
             <div className="flex h-7 w-7 items-center justify-center rounded-md bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400">
               <PhoneCall className="h-4 w-4" />
             </div>
             <div>
-              <h3 className="font-bold text-zinc-900 dark:text-zinc-100 text-sm">
+              <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm">
                 Escalate Incident to On-Call Team
               </h3>
-              <span className="text-[10px] text-zinc-400 font-mono">{incidentId}</span>
+              <span className="text-[10px] text-slate-400 font-mono">{incidentId}</span>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 cursor-pointer"
+            className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
           >
             <X className="h-4 w-4" />
           </button>
@@ -109,13 +109,13 @@ export function EscalateModal({
           <div className="space-y-4 text-xs">
             {/* Team Selection */}
             <div className="space-y-1.5">
-              <label className="font-semibold text-zinc-700 dark:text-zinc-300">
+              <label className="font-semibold text-slate-700 dark:text-slate-300">
                 Target Escalation Team
               </label>
               <select
                 value={selectedTeam}
                 onChange={(e) => handleTeamChange(e.target.value)}
-                className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 p-2.5 text-xs text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-purple-500/30"
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2.5 text-xs text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-slate-700/30"
               >
                 {teams.map((t) => (
                   <option key={t.name} value={t.name}>
@@ -126,17 +126,17 @@ export function EscalateModal({
             </div>
 
             {/* Engineer Target */}
-            <div className="p-3 rounded-lg border border-zinc-100 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/40 space-y-1">
-              <div className="text-[11px] font-medium text-zinc-400">Current On-Call Responder</div>
-              <div className="flex items-center gap-2 font-semibold text-zinc-800 dark:text-zinc-200">
-                <User className="h-3.5 w-3.5 text-purple-600" />
+            <div className="p-3 rounded-lg border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 space-y-1">
+              <div className="text-[11px] font-medium text-slate-400">Current On-Call Responder</div>
+              <div className="flex items-center gap-2 font-semibold text-slate-800 dark:text-slate-200">
+                <User className="h-3.5 w-3.5 text-slate-900" />
                 <span>{selectedEngineer}</span>
               </div>
             </div>
 
             {/* Urgency */}
             <div className="space-y-1.5">
-              <label className="font-semibold text-zinc-700 dark:text-zinc-300">
+              <label className="font-semibold text-slate-700 dark:text-slate-300">
                 Escalation Urgency
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -147,7 +147,7 @@ export function EscalateModal({
                     'p-2.5 rounded-lg border text-left transition-colors cursor-pointer',
                     urgency === 'high'
                       ? 'border-rose-500 bg-rose-50/70 dark:bg-rose-950/40 text-rose-900 dark:text-rose-200'
-                      : 'border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400'
+                      : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
                   )}
                 >
                   <div className="font-bold flex items-center gap-1.5">
@@ -163,8 +163,8 @@ export function EscalateModal({
                   className={cn(
                     'p-2.5 rounded-lg border text-left transition-colors cursor-pointer',
                     urgency === 'low'
-                      ? 'border-purple-500 bg-purple-50/70 dark:bg-purple-950/40 text-purple-900 dark:text-purple-200'
-                      : 'border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400'
+                      ? 'border-slate-700 bg-slate-100/70 dark:bg-slate-950/40 text-slate-900 dark:text-slate-200'
+                      : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
                   )}
                 >
                   <div className="font-bold">Low Urgency</div>
@@ -173,11 +173,11 @@ export function EscalateModal({
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 cursor-pointer"
+                className="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 cursor-pointer"
               >
                 Cancel
               </button>

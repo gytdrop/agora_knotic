@@ -112,20 +112,20 @@ export function ChatTab({ currentUser = 'Akthar' }: ChatTabProps) {
   };
 
   const getAvatarColor = (name: string, isAi?: boolean) => {
-    if (isAi) return 'bg-indigo-600/80 text-white';
+    if (isAi) return 'bg-slate-900/80 text-white';
     const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     const colors = [
       'bg-emerald-700/80 text-emerald-100',
-      'bg-sky-700/80 text-sky-100',
+      'bg-slate-800/80 text-slate-100',
       'bg-amber-700/80 text-amber-100',
-      'bg-purple-700/80 text-purple-100',
-      'bg-teal-700/80 text-teal-100',
+      'bg-slate-800/80 text-slate-100',
+      'bg-emerald-700/80 text-emerald-100',
     ];
     return colors[hash % colors.length];
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#18191d] text-zinc-200 font-sans text-xs select-none">
+    <div className="flex flex-col h-full bg-[#18191d] text-slate-200 font-sans text-xs select-none">
       {/* Messages Scroll Area */}
       <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4 custom-scrollbar">
         {messages.map((msg) => {
@@ -144,15 +144,15 @@ export function ChatTab({ currentUser = 'Akthar' }: ChatTabProps) {
               {/* Message Content */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-baseline gap-2">
-                  <span className="font-semibold text-zinc-100 text-xs">{msg.senderName}</span>
-                  <span className="text-[10px] text-zinc-400 font-mono">{msg.timestamp}</span>
+                  <span className="font-semibold text-slate-100 text-xs">{msg.senderName}</span>
+                  <span className="text-[10px] text-slate-400 font-mono">{msg.timestamp}</span>
                 </div>
 
-                <p className="text-zinc-300 text-xs mt-0.5 leading-relaxed break-words">{msg.text}</p>
+                <p className="text-slate-300 text-xs mt-0.5 leading-relaxed break-words">{msg.text}</p>
 
                 {/* Attachment cards if present */}
                 {msg.attachment && (
-                  <div className="mt-2 rounded-xl border border-zinc-700/80 bg-zinc-900/90 p-2.5 shadow-sm">
+                  <div className="mt-2 rounded-xl border border-slate-700/80 bg-slate-900/90 p-2.5 shadow-sm">
                     {msg.attachment.type === 'incident_context' && (
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -160,23 +160,23 @@ export function ChatTab({ currentUser = 'Akthar' }: ChatTabProps) {
                             <FileText className="h-3.5 w-3.5" />
                           </div>
                           <div>
-                            <div className="font-semibold text-zinc-200 text-xs">
+                            <div className="font-semibold text-slate-200 text-xs">
                               {msg.attachment.title}
                             </div>
-                            <div className="text-[11px] text-zinc-400 font-mono">
+                            <div className="text-[11px] text-slate-400 font-mono">
                               {msg.attachment.details}
                             </div>
                           </div>
                         </div>
-                        <ExternalLink className="h-3.5 w-3.5 text-zinc-400 hover:text-zinc-200 cursor-pointer" />
+                        <ExternalLink className="h-3.5 w-3.5 text-slate-400 hover:text-slate-200 cursor-pointer" />
                       </div>
                     )}
 
                     {msg.attachment.type === 'image' && (
                       <div>
                         {/* Mock graph line chart SVG */}
-                        <div className="h-16 w-full rounded-lg bg-zinc-950 flex items-center justify-center p-2 border border-zinc-800">
-                          <svg className="w-full h-full text-indigo-400" viewBox="0 0 200 40" fill="none">
+                        <div className="h-16 w-full rounded-lg bg-slate-950 flex items-center justify-center p-2 border border-slate-800">
+                          <svg className="w-full h-full text-slate-400" viewBox="0 0 200 40" fill="none">
                             <path
                               d="M 0 30 Q 30 28, 60 25 T 120 10 T 150 35 T 200 15"
                               stroke="currentColor"
@@ -190,8 +190,8 @@ export function ChatTab({ currentUser = 'Akthar' }: ChatTabProps) {
                             />
                           </svg>
                         </div>
-                        <div className="flex items-center justify-between mt-1.5 text-[11px] text-zinc-400">
-                          <span className="font-medium text-zinc-300">{msg.attachment.title}</span>
+                        <div className="flex items-center justify-between mt-1.5 text-[11px] text-slate-400">
+                          <span className="font-medium text-slate-300">{msg.attachment.title}</span>
                           <span className="font-mono text-[10px]">{msg.attachment.details}</span>
                         </div>
                       </div>
@@ -206,11 +206,11 @@ export function ChatTab({ currentUser = 'Akthar' }: ChatTabProps) {
       </div>
 
       {/* Message Input Dock (Zoom / Teams style) */}
-      <div className="border-t border-zinc-800/80 p-3 bg-[#151619]">
+      <div className="border-t border-slate-800/80 p-3 bg-[#151619]">
         {/* Audience Selector */}
-        <div className="flex items-center gap-1 mb-2 text-[11px] text-zinc-400">
-          <span className="text-zinc-300 font-medium">Everyone</span>
-          <ChevronDown className="h-3 w-3 text-zinc-400" />
+        <div className="flex items-center gap-1 mb-2 text-[11px] text-slate-400">
+          <span className="text-slate-300 font-medium">Everyone</span>
+          <ChevronDown className="h-3 w-3 text-slate-400" />
         </div>
 
         {/* Input Form */}
@@ -220,28 +220,28 @@ export function ChatTab({ currentUser = 'Akthar' }: ChatTabProps) {
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder="Type a message..."
-            className="w-full rounded-xl bg-[#202126] border border-zinc-700/80 px-3.5 py-2.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors pr-24"
+            className="on-dark w-full rounded-xl bg-[#202126] border border-slate-700/80 px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-slate-500 transition-colors pr-24"
           />
 
           {/* Action Icons in Input */}
-          <div className="absolute right-2 flex items-center gap-1.5 text-zinc-400">
+          <div className="absolute right-2 flex items-center gap-1.5 text-slate-400">
             <button
               type="button"
-              className="p-1 rounded hover:text-zinc-200 hover:bg-zinc-700/50 transition-colors"
+              className="p-1 rounded hover:text-slate-200 hover:bg-slate-700/50 transition-colors"
               title="Emoji"
             >
               <Smile className="h-4 w-4" />
             </button>
             <button
               type="button"
-              className="p-1 rounded hover:text-zinc-200 hover:bg-zinc-700/50 transition-colors"
+              className="p-1 rounded hover:text-slate-200 hover:bg-slate-700/50 transition-colors"
               title="Attach File"
             >
               <Paperclip className="h-4 w-4" />
             </button>
             <button
               type="button"
-              className="p-1 rounded hover:text-zinc-200 hover:bg-zinc-700/50 transition-colors"
+              className="p-1 rounded hover:text-slate-200 hover:bg-slate-700/50 transition-colors"
               title="Mention"
             >
               <AtSign className="h-4 w-4" />
@@ -249,7 +249,7 @@ export function ChatTab({ currentUser = 'Akthar' }: ChatTabProps) {
             <button
               type="submit"
               disabled={!inputText.trim()}
-              className="p-1.5 rounded-lg bg-indigo-600/90 text-white hover:bg-indigo-500 disabled:opacity-30 disabled:hover:bg-indigo-600/90 transition-all shadow-sm"
+              className="p-1.5 rounded-lg bg-slate-900/90 text-white hover:bg-slate-700 disabled:opacity-30 disabled:hover:bg-slate-900/90 transition-all shadow-sm"
               title="Send Message"
             >
               <Send className="h-3.5 w-3.5" />

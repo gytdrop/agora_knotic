@@ -51,8 +51,8 @@ const SEVERITY_OPTIONS: SeverityOption[] = [
     label: 'Minor',
     impact: 'Localized / Low Urgency',
     barCount: 1,
-    barColor: 'bg-blue-600',
-    activeClasses: 'border-blue-500 bg-blue-50/70 text-blue-900 ring-2 ring-blue-500/20',
+    barColor: 'bg-slate-900',
+    activeClasses: 'border-slate-700 bg-slate-100/70 text-slate-900 ring-2 ring-slate-700/20',
   },
   {
     id: 'Major',
@@ -67,8 +67,8 @@ const SEVERITY_OPTIONS: SeverityOption[] = [
     label: 'Critical',
     impact: 'System Outage / Emergency',
     barCount: 3,
-    barColor: 'bg-red-600',
-    activeClasses: 'border-red-500 bg-red-50/70 text-red-900 ring-2 ring-red-500/20',
+    barColor: 'bg-rose-600',
+    activeClasses: 'border-rose-500 bg-rose-50/70 text-rose-900 ring-2 ring-rose-500/20',
   },
 ];
 
@@ -231,7 +231,7 @@ export function CreateIncidentModalForm({
     >
       {/* Semi-transparent dark backdrop */}
       <div
-        className="fixed inset-0 bg-zinc-900/60 backdrop-blur-xs transition-opacity"
+        className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -240,22 +240,22 @@ export function CreateIncidentModalForm({
       <div
         ref={modalContainerRef}
         className={cn(
-          'relative w-full max-w-xl max-h-[90vh] rounded-2xl bg-white shadow-2xl border border-zinc-200 z-10 overflow-hidden flex flex-col',
+          'relative w-full max-w-xl max-h-[90vh] rounded-2xl bg-white shadow-2xl border border-slate-200 z-10 overflow-hidden flex flex-col',
           className
         )}
       >
         {/* Header Bar */}
-        <div className="flex items-center justify-between border-b border-zinc-100 px-6 py-4">
+        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
           <h2
             id="declare-incident-title"
-            className="text-lg font-semibold tracking-tight text-zinc-900"
+            className="text-lg font-semibold tracking-tight text-slate-900"
           >
             Declare incident
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 transition-colors focus:outline-none focus:ring-2 focus:ring-zinc-400 cursor-pointer"
+            className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 cursor-pointer"
             aria-label="Close dialog"
           >
             <X className="h-4 w-4" />
@@ -263,15 +263,15 @@ export function CreateIncidentModalForm({
         </div>
 
         {/* Mode Switcher Tabs */}
-        <div className="flex items-center border-b border-zinc-100 px-6 gap-6 text-sm font-medium">
+        <div className="flex items-center border-b border-slate-100 px-6 gap-6 text-sm font-medium">
           <button
             type="button"
             onClick={() => setDeclareMode('active')}
             className={cn(
               'py-3 border-b-2 transition-colors cursor-pointer select-none',
               declareMode === 'active'
-                ? 'border-zinc-900 text-zinc-900 font-semibold'
-                : 'border-transparent text-zinc-500 hover:text-zinc-800'
+                ? 'border-slate-900 text-slate-900 font-semibold'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
             )}
           >
             Active incident
@@ -282,8 +282,8 @@ export function CreateIncidentModalForm({
             className={cn(
               'py-3 border-b-2 transition-colors cursor-pointer select-none',
               declareMode === 'retrospective'
-                ? 'border-zinc-900 text-zinc-900 font-semibold'
-                : 'border-transparent text-zinc-500 hover:text-zinc-800'
+                ? 'border-slate-900 text-slate-900 font-semibold'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
             )}
           >
             Retrospective incident
@@ -294,8 +294,8 @@ export function CreateIncidentModalForm({
             className={cn(
               'py-3 border-b-2 transition-colors cursor-pointer select-none',
               declareMode === 'test'
-                ? 'border-zinc-900 text-zinc-900 font-semibold'
-                : 'border-transparent text-zinc-500 hover:text-zinc-800'
+                ? 'border-slate-900 text-slate-900 font-semibold'
+                : 'border-transparent text-slate-500 hover:text-slate-800'
             )}
           >
             Test incident
@@ -306,8 +306,8 @@ export function CreateIncidentModalForm({
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
           {/* Error Banner */}
           {errorMessage && (
-            <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-700">
-              <AlertCircle className="h-4 w-4 shrink-0 text-red-500" />
+            <div className="flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 p-3 text-xs text-rose-700">
+              <AlertCircle className="h-4 w-4 shrink-0 text-rose-500" />
               <span>{errorMessage}</span>
             </div>
           )}
@@ -318,11 +318,11 @@ export function CreateIncidentModalForm({
               <div className="flex items-center gap-1.5">
                 <label
                   htmlFor="incident-name"
-                  className="text-sm font-medium text-zinc-900"
+                  className="text-sm font-medium text-slate-900"
                 >
                   Incident name
                 </label>
-                <span className="text-xs text-zinc-400 font-normal">(optional)</span>
+                <span className="text-xs text-slate-400 font-normal">(optional)</span>
               </div>
               <button
                 type="button"
@@ -332,12 +332,12 @@ export function CreateIncidentModalForm({
                   setSummary('Ingress prefix route mismatch (/api/v2/auth -> port 8080 instead of 8000).');
                   setLead('Akthar (Lead SRE)');
                 }}
-                className="text-[11px] font-mono text-purple-700 hover:text-purple-800 bg-purple-50 px-2 py-0.5 rounded border border-purple-200 cursor-pointer font-medium"
+                className="text-[11px] font-mono text-slate-800 hover:text-slate-800 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 cursor-pointer font-medium"
               >
                 + Auto-fill INC-8921 (Demo)
               </button>
             </div>
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-slate-500">
               Give a short description of what is happening. If you&apos;d like to, you can leave it blank and change it later
             </p>
             <input
@@ -347,7 +347,7 @@ export function CreateIncidentModalForm({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="What's happening?"
-              className="mt-2 w-full rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 shadow-2xs transition-colors hover:border-zinc-300 focus:border-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-900"
+              className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm text-slate-900 placeholder:text-slate-400 shadow-2xs transition-colors hover:border-slate-300 focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
             />
           </div>
 
@@ -356,31 +356,31 @@ export function CreateIncidentModalForm({
             <div className="flex items-center gap-1.5">
               <label
                 htmlFor="incident-type"
-                className="text-sm font-medium text-zinc-900"
+                className="text-sm font-medium text-slate-900"
               >
                 Incident type
               </label>
-              <span className="text-xs text-zinc-400 font-normal">(optional)</span>
+              <span className="text-xs text-slate-400 font-normal">(optional)</span>
             </div>
             <div className="relative">
               <select
                 id="incident-type"
                 value={incidentType}
                 onChange={(e) => setIncidentType(e.target.value)}
-                className="w-full appearance-none rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-sm text-zinc-900 shadow-2xs transition-colors hover:border-zinc-300 focus:border-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-900 pr-10 cursor-pointer"
+                className="w-full appearance-none rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm text-slate-900 shadow-2xs transition-colors hover:border-slate-300 focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900 pr-10 cursor-pointer"
               >
                 <option value="Default">Default</option>
                 <option value="Security">Security</option>
                 <option value="Infrastructure">Infrastructure</option>
                 <option value="Customer Facing">Customer Facing</option>
               </select>
-              <ChevronDown className="pointer-events-none absolute right-3 top-2.5 h-4 w-4 text-zinc-400" />
+              <ChevronDown className="pointer-events-none absolute right-3 top-2.5 h-4 w-4 text-slate-400" />
             </div>
           </div>
 
           {/* Field: Initial Status (Radio Cards) */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-900 block">
+            <label className="text-sm font-medium text-slate-900 block">
               Initial status
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -391,8 +391,8 @@ export function CreateIncidentModalForm({
                 className={cn(
                   'flex flex-col items-start p-3.5 rounded-xl border text-left transition-all cursor-pointer select-none',
                   initialStatus === 'INVESTIGATING'
-                    ? 'border-zinc-900 bg-zinc-50/60 ring-1 ring-zinc-900'
-                    : 'border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50/30'
+                    ? 'border-slate-900 bg-slate-50/60 ring-1 ring-slate-900'
+                    : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/30'
                 )}
               >
                 <div className="flex items-center gap-2 mb-1">
@@ -400,19 +400,19 @@ export function CreateIncidentModalForm({
                     className={cn(
                       'flex h-4 w-4 items-center justify-center rounded-full border',
                       initialStatus === 'INVESTIGATING'
-                        ? 'border-zinc-900 bg-zinc-900'
-                        : 'border-zinc-300 bg-white'
+                        ? 'border-slate-900 bg-slate-900'
+                        : 'border-slate-300 bg-white'
                     )}
                   >
                     {initialStatus === 'INVESTIGATING' && (
                       <span className="h-1.5 w-1.5 rounded-full bg-white" />
                     )}
                   </span>
-                  <span className="text-sm font-semibold text-zinc-900">
+                  <span className="text-sm font-semibold text-slate-900">
                     Active incident
                   </span>
                 </div>
-                <p className="text-xs text-zinc-500 leading-relaxed pl-6">
+                <p className="text-xs text-slate-500 leading-relaxed pl-6">
                   You&apos;ve confirmed there&apos;s a problem, and you&apos;d like to investigate it right away.
                 </p>
               </button>
@@ -424,8 +424,8 @@ export function CreateIncidentModalForm({
                 className={cn(
                   'flex flex-col items-start p-3.5 rounded-xl border text-left transition-all cursor-pointer select-none',
                   initialStatus === 'TRIAGE'
-                    ? 'border-zinc-900 bg-zinc-50/60 ring-1 ring-zinc-900'
-                    : 'border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50/30'
+                    ? 'border-slate-900 bg-slate-50/60 ring-1 ring-slate-900'
+                    : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/30'
                 )}
               >
                 <div className="flex items-center gap-2 mb-1">
@@ -433,19 +433,19 @@ export function CreateIncidentModalForm({
                     className={cn(
                       'flex h-4 w-4 items-center justify-center rounded-full border',
                       initialStatus === 'TRIAGE'
-                        ? 'border-zinc-900 bg-zinc-900'
-                        : 'border-zinc-300 bg-white'
+                        ? 'border-slate-900 bg-slate-900'
+                        : 'border-slate-300 bg-white'
                     )}
                   >
                     {initialStatus === 'TRIAGE' && (
                       <span className="h-1.5 w-1.5 rounded-full bg-white" />
                     )}
                   </span>
-                  <span className="text-sm font-semibold text-zinc-900">
+                  <span className="text-sm font-semibold text-slate-900">
                     Triage a problem
                   </span>
                 </div>
-                <p className="text-xs text-zinc-500 leading-relaxed pl-6">
+                <p className="text-xs text-slate-500 leading-relaxed pl-6">
                   You suspect an issue, but want to verify before sounding alarms.
                 </p>
               </button>
@@ -455,10 +455,10 @@ export function CreateIncidentModalForm({
           {/* Field: Severity */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-zinc-900">
+              <label className="text-sm font-medium text-slate-900">
                 Severity
               </label>
-              <span className="text-xs text-zinc-400">Select tier</span>
+              <span className="text-xs text-slate-400">Select tier</span>
             </div>
 
             <div className="grid grid-cols-3 gap-2.5">
@@ -473,7 +473,7 @@ export function CreateIncidentModalForm({
                       'flex flex-col items-start gap-1 rounded-xl border p-3 text-left transition-all cursor-pointer select-none',
                       isSelected
                         ? opt.activeClasses
-                        : 'border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50/50'
+                        : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50/50'
                     )}
                   >
                     <div className="flex items-center justify-between w-full">
@@ -485,24 +485,24 @@ export function CreateIncidentModalForm({
                         <span
                           className={cn(
                             'w-0.5 rounded-xs transition-colors h-1.5',
-                            opt.barCount >= 1 ? opt.barColor : 'bg-zinc-200'
+                            opt.barCount >= 1 ? opt.barColor : 'bg-slate-200'
                           )}
                         />
                         <span
                           className={cn(
                             'w-0.5 rounded-xs transition-colors h-2',
-                            opt.barCount >= 2 ? opt.barColor : 'bg-zinc-200'
+                            opt.barCount >= 2 ? opt.barColor : 'bg-slate-200'
                           )}
                         />
                         <span
                           className={cn(
                             'w-0.5 rounded-xs transition-colors h-2.5',
-                            opt.barCount >= 3 ? opt.barColor : 'bg-zinc-200'
+                            opt.barCount >= 3 ? opt.barColor : 'bg-slate-200'
                           )}
                         />
                       </span>
                     </div>
-                    <span className="text-[10px] text-zinc-500 line-clamp-1">
+                    <span className="text-[10px] text-slate-500 line-clamp-1">
                       {opt.impact}
                     </span>
                   </button>
@@ -516,24 +516,24 @@ export function CreateIncidentModalForm({
             <div className="flex items-center gap-1.5">
               <label
                 htmlFor="incident-lead"
-                className="text-sm font-medium text-zinc-900"
+                className="text-sm font-medium text-slate-900"
               >
                 Incident Lead
               </label>
-              <span className="text-xs text-zinc-400 font-normal">(optional)</span>
+              <span className="text-xs text-slate-400 font-normal">(optional)</span>
             </div>
             <div className="relative">
               <select
                 id="incident-lead"
                 value={lead}
                 onChange={(e) => setLead(e.target.value)}
-                className="w-full appearance-none rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-sm text-zinc-900 shadow-2xs transition-colors hover:border-zinc-300 focus:border-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-900 pr-10 cursor-pointer"
+                className="w-full appearance-none rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm text-slate-900 shadow-2xs transition-colors hover:border-slate-300 focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900 pr-10 cursor-pointer"
               >
                 <option value="Ashley Sawatsky">Ashley Sawatsky</option>
                 <option value="SRE On-Call">SRE On-Call</option>
                 <option value="Unassigned">Unassigned</option>
               </select>
-              <ChevronDown className="pointer-events-none absolute right-3 top-2.5 h-4 w-4 text-zinc-400" />
+              <ChevronDown className="pointer-events-none absolute right-3 top-2.5 h-4 w-4 text-slate-400" />
             </div>
           </div>
 
@@ -542,11 +542,11 @@ export function CreateIncidentModalForm({
             <div className="flex items-center justify-between">
               <label
                 htmlFor="incident-summary"
-                className="text-sm font-medium text-zinc-900"
+                className="text-sm font-medium text-slate-900"
               >
                 Summary / Initial Context
               </label>
-              <span className="text-xs text-zinc-400">Optional</span>
+              <span className="text-xs text-slate-400">Optional</span>
             </div>
             <textarea
               id="incident-summary"
@@ -554,18 +554,18 @@ export function CreateIncidentModalForm({
               value={summary}
               onChange={(e) => setSummary(e.target.value)}
               placeholder="e.g. Payments gateway returning HTTP 504 on checkout flow..."
-              className="w-full resize-none rounded-lg border border-zinc-200 bg-white p-3 text-xs text-zinc-900 placeholder:text-zinc-400 shadow-2xs transition-colors hover:border-zinc-300 focus:border-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-900"
+              className="w-full resize-none rounded-lg border border-slate-200 bg-white p-3 text-xs text-slate-900 placeholder:text-slate-400 shadow-2xs transition-colors hover:border-slate-300 focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
             />
           </div>
         </div>
 
         {/* Footer Actions */}
-        <div className="flex items-center justify-end gap-3 border-t border-zinc-100 px-6 py-4 bg-zinc-50/50">
+        <div className="flex items-center justify-end gap-3 border-t border-slate-100 px-6 py-4 bg-slate-50/50">
           <button
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="rounded-lg border border-zinc-300 bg-white px-3.5 py-2 text-xs font-medium text-zinc-700 shadow-2xs transition-colors hover:bg-zinc-50 hover:text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-400 disabled:opacity-50 cursor-pointer"
+            className="rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-xs font-medium text-slate-700 shadow-2xs transition-colors hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-400 disabled:opacity-50 cursor-pointer"
           >
             Cancel
           </button>
@@ -573,11 +573,11 @@ export function CreateIncidentModalForm({
             type="button"
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 hover:bg-black text-white px-4 py-2 text-xs font-semibold shadow-xs transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-zinc-900 disabled:pointer-events-none disabled:opacity-50 cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 hover:bg-black text-white px-4 py-2 text-xs font-semibold shadow-xs transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-slate-900 disabled:pointer-events-none disabled:opacity-50 cursor-pointer"
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="h-3.5 w-3.5 animate-spin text-zinc-400" />
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-slate-400" />
                 <span>Declaring...</span>
               </>
             ) : (

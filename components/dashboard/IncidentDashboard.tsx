@@ -110,7 +110,7 @@ export function IncidentDashboard({
   return (
     <div
       className={cn(
-        'flex min-h-screen bg-zinc-50 font-sans text-zinc-900 antialiased',
+        'flex min-h-screen bg-slate-50 font-sans text-slate-900 antialiased',
         className
       )}
     >
@@ -126,7 +126,7 @@ export function IncidentDashboard({
         <div className="fixed inset-0 z-50 flex md:hidden" role="dialog" aria-modal="true">
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-zinc-900/60 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"
             onClick={handleCloseMobileMenu}
             aria-hidden="true"
           />
@@ -139,7 +139,7 @@ export function IncidentDashboard({
                 type="button"
                 onClick={handleCloseMobileMenu}
                 aria-label="Close sidebar menu"
-                className="rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-purple-500/30 cursor-pointer"
+                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-700/30 cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>

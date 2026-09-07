@@ -8,74 +8,91 @@
 :root {
   color-scheme: light;
 
-  /* --- Agora light token set --- */
+  /* --- Enterprise slate token set (Tailwind slate scale) --- */
 
-  /* Backgrounds */
-  --background:       220 20% 98%;
-  --surface:          220 18% 96%;
-  --surface-elevated: 220 16% 94%;
+  /* Raw slate ramp — the single neutral spine for the whole product */
+  --slate-50:  210 40% 98%;
+  --slate-100: 210 40% 96%;
+  --slate-200: 214 32% 91%;
+  --slate-300: 213 27% 84%;
+  --slate-400: 215 20% 65%;
+  --slate-500: 215 16% 47%;
+  --slate-600: 215 19% 35%;
+  --slate-700: 215 25% 27%;
+  --slate-800: 217 33% 17%;
+  --slate-900: 222 47% 11%;
+
+  /* Desaturated semantic accents — meaning only, never decoration */
+  --semantic-fact:          161 94% 30%;  /* emerald-600 */
+  --semantic-fact-surface:  152 81% 96%;  /* emerald-50  */
+  --semantic-hypothesis:     38 92% 50%;  /* amber-500   */
+  --semantic-hypothesis-surface: 48 100% 96%; /* amber-50 */
+  --semantic-critical:      347 77% 50%;  /* rose-600    */
+  --semantic-critical-surface: 356 100% 97%; /* rose-50   */
+
+  /* Backgrounds — unified warm neutral canvas */
+  --background:       var(--slate-50);
+  --surface:          var(--slate-100);
+  --surface-elevated: var(--slate-200);
 
   /* Semantic surface aliases */
   --card:             0 0% 100%;
-  --card-foreground:  220 25% 12%;
+  --card-foreground:  var(--slate-900);
   --popover:          0 0% 100%;
-  --popover-foreground: 220 25% 12%;
-  --muted:            220 14% 94%;
+  --popover-foreground: var(--slate-900);
+  --muted:            var(--slate-100);
 
   /* Borders / inputs */
-  --border:           220 13% 88%;
-  --input:            220 13% 88%;
+  --border:           var(--slate-200);
+  --input:            var(--slate-200);
 
-  /* Foreground */
-  --foreground:       220 25% 12%;
-  --muted-foreground: 220 10% 42%;
+  /* Foreground — highly legible slate-900 */
+  --foreground:       var(--slate-900);
+  --muted-foreground: var(--slate-500);
 
-  /* Brand — Agora cyan */
-  --primary:            194 100% 42%;
-  --primary-foreground: 220 25% 12%;
+  /* Primary — high-contrast dark slate, replaces the electric cyan brand */
+  --primary:            var(--slate-900);
+  --primary-foreground: 0 0% 100%;
 
   /* Secondary — quiet surface-level control */
-  --secondary:            220 14% 94%;
-  --secondary-foreground: 220 25% 12%;
+  --secondary:            var(--slate-100);
+  --secondary-foreground: var(--slate-900);
 
-  /* Accent — same hue as primary */
-  --accent:            194 100% 42%;
-  --accent-foreground: 220 25% 12%;
+  /* Accent — a quiet surface, not a brand colour */
+  --accent:            var(--slate-100);
+  --accent-foreground: var(--slate-900);
 
   /* Destructive — end call, error states only */
-  --destructive:            0 72% 52%;
+  --destructive:            var(--semantic-critical);
   --destructive-foreground: 0 0% 100%;
 
   /* Focus ring */
-  --ring: 194 100% 42%;
+  --ring: var(--slate-800);
 
   /* Radius base (8px) */
   --radius: 0.5rem;
 
-  /* Charts */
-  --chart-1: 194 100% 42%;
-  --chart-2: 220 10% 45%;
-  --chart-3: 220 10% 35%;
-  --chart-4: 0 72% 52%;
-  --chart-5: 150 50% 40%;
+  /* Charts — monochrome slate ramp, semantic accents reserved for meaning */
+  --chart-1: var(--slate-700);
+  --chart-2: var(--slate-500);
+  --chart-3: var(--slate-300);
+  --chart-4: var(--semantic-critical);
+  --chart-5: var(--semantic-fact);
 
-  /* Sidebar */
-  --sidebar-background:         0 0% 100%;
-  --sidebar-foreground:         220 25% 12%;
-  --sidebar-primary:            194 100% 42%;
-  --sidebar-primary-foreground: 220 25% 12%;
-  --sidebar-accent:             220 14% 94%;
-  --sidebar-accent-foreground:  220 25% 12%;
-  --sidebar-border:             220 13% 88%;
-  --sidebar-ring:               194 100% 42%;
+  /* Sidebar — dark slate rail against the light canvas */
+  --sidebar-background:         var(--slate-900);
+  --sidebar-foreground:         var(--slate-300);
+  --sidebar-primary:            0 0% 100%;
+  --sidebar-primary-foreground: var(--slate-900);
+  --sidebar-accent:             var(--slate-800);
+  --sidebar-accent-foreground:  0 0% 100%;
+  --sidebar-border:             var(--slate-800);
+  --sidebar-ring:               var(--slate-600);
 
-  /*
-   * AgentVisualizer: same order as dark — cool/primary at bar bottom, soft mid, purple at top.
-   * Light: blue ≈ cyan role; dark: overridden below (cyan → soft → purple).
-   */
-  --viz-stop-1: 225 92% 50%;
-  --viz-stop-2: 220 14% 78%;
-  --viz-stop-3: 285 58% 48%;
+  /* AgentVisualizer: monochrome slate ramp, dark at the bar base fading upward. */
+  --viz-stop-1: var(--slate-700);
+  --viz-stop-2: var(--slate-400);
+  --viz-stop-3: var(--slate-300);
 
   /* Font Stack: Montserrat & Helvetica exclusively */
   --font-sans: var(--font-montserrat), 'Helvetica Neue', 'Helvetica', Arial, sans-serif;
@@ -84,57 +101,61 @@
 .dark {
   color-scheme: dark;
 
-  /* --- Agora dark token set --- */
+  /* --- Enterprise slate dark token set --- */
 
-  --background:       220 14% 5%;
-  --surface:          220 12% 9%;
-  --surface-elevated: 220 10% 13%;
+  /* Slate ramp inverted: the same spine, read from the dark end */
+  --slate-950: 229 84% 5%;
 
-  --card:             220 12% 9%;
-  --card-foreground:  220 15% 95%;
-  --popover:          220 10% 13%;
-  --popover-foreground: 220 15% 95%;
-  --muted:            220 12% 9%;
+  --background:       var(--slate-950);
+  --surface:          var(--slate-900);
+  --surface-elevated: var(--slate-800);
 
-  --border:           220 10% 18%;
-  --input:            220 10% 18%;
+  --card:             var(--slate-900);
+  --card-foreground:  var(--slate-100);
+  --popover:          var(--slate-800);
+  --popover-foreground: var(--slate-100);
+  --muted:            var(--slate-800);
 
-  --foreground:       220 15% 95%;
-  --muted-foreground: 220 10% 50%;
+  --border:           var(--slate-800);
+  --input:            var(--slate-800);
 
-  --primary:            194 100% 50%;
-  --primary-foreground: 220 14% 5%;
+  --foreground:       var(--slate-100);
+  --muted-foreground: var(--slate-400);
 
-  --secondary:            220 10% 13%;
-  --secondary-foreground: 220 15% 95%;
+  /* Primary inverts to a light slate so dark buttons stay high-contrast */
+  --primary:            var(--slate-100);
+  --primary-foreground: var(--slate-900);
 
-  --accent:            194 100% 50%;
-  --accent-foreground: 220 14% 5%;
+  --secondary:            var(--slate-800);
+  --secondary-foreground: var(--slate-100);
 
-  --destructive:            0 72% 58%;
+  --accent:            var(--slate-800);
+  --accent-foreground: var(--slate-100);
+
+  --destructive:            347 77% 58%;
   --destructive-foreground: 0 0% 100%;
 
-  --ring: 194 100% 50%;
+  --ring: var(--slate-400);
 
-  --chart-1: 194 100% 50%;
-  --chart-2: 220 10% 60%;
-  --chart-3: 220 10% 40%;
-  --chart-4: 0 72% 58%;
-  --chart-5: 150 60% 45%;
+  --chart-1: var(--slate-300);
+  --chart-2: var(--slate-400);
+  --chart-3: var(--slate-600);
+  --chart-4: 347 77% 58%;
+  --chart-5: 161 84% 40%;
 
-  --sidebar-background:         220 12% 9%;
-  --sidebar-foreground:         220 15% 95%;
-  --sidebar-primary:            194 100% 50%;
-  --sidebar-primary-foreground: 220 14% 5%;
-  --sidebar-accent:             220 10% 13%;
-  --sidebar-accent-foreground:  220 15% 95%;
-  --sidebar-border:             220 10% 18%;
-  --sidebar-ring:               194 100% 50%;
+  --sidebar-background:         var(--slate-900);
+  --sidebar-foreground:         var(--slate-300);
+  --sidebar-primary:            0 0% 100%;
+  --sidebar-primary-foreground: var(--slate-900);
+  --sidebar-accent:             var(--slate-800);
+  --sidebar-accent-foreground:  0 0% 100%;
+  --sidebar-border:             var(--slate-800);
+  --sidebar-ring:               var(--slate-600);
 
-  /* Agent visualizer accent ramp used by the current conversation UI. */
-  --viz-stop-1: 194 100% 58%;
-  --viz-stop-2: 215 42% 72%;
-  --viz-stop-3: 272 62% 72%;
+  /* Agent visualizer: monochrome slate ramp for the dark surface. */
+  --viz-stop-1: var(--slate-300);
+  --viz-stop-2: var(--slate-500);
+  --viz-stop-3: var(--slate-700);
 }
 
 @layer base {
@@ -159,14 +180,31 @@
   input[type="password"],
   input:not([type]) {
     background-color: transparent !important;
-    color: #18181b !important;
+    color: hsl(var(--slate-900)) !important;
     color-scheme: light !important;
   }
 
   input[type="text"]::placeholder,
   input[type="search"]::placeholder,
   input::placeholder {
-    color: #a1a1aa !important;
+    color: hsl(var(--slate-400)) !important;
+  }
+
+  /*
+   * Escape hatch for inputs on dark surfaces (war room, pre-call, chat).
+   * The rules above force light-mode text on every input via `!important`,
+   * which beats any Tailwind `text-*` utility — element+attribute selectors
+   * outrank single class selectors. Dark surfaces opt out with `.on-dark`.
+   */
+  input.on-dark,
+  textarea.on-dark {
+    color: hsl(var(--slate-100)) !important;
+    color-scheme: dark !important;
+  }
+
+  input.on-dark::placeholder,
+  textarea.on-dark::placeholder {
+    color: hsl(var(--slate-500)) !important;
   }
 
   /* Transparent checkboxes with custom border & checked SVG checkmark */
@@ -179,7 +217,7 @@
     margin: 0;
     width: 0.9375rem;
     height: 0.9375rem;
-    border: 1.5px solid #d4d4d8 !important;
+    border: 1.5px solid hsl(var(--slate-300)) !important;
     border-radius: 0.25rem !important;
     display: inline-grid;
     place-content: center;
@@ -189,17 +227,17 @@
   }
 
   input[type="checkbox"]:hover {
-    border-color: #a1a1aa !important;
+    border-color: hsl(var(--slate-400)) !important;
   }
 
   input[type="checkbox"]:focus-visible {
-    outline: 2px solid #9333ea;
+    outline: 2px solid hsl(var(--slate-800));
     outline-offset: 1px;
   }
 
   input[type="checkbox"]:checked {
-    background-color: #9333ea !important;
-    border-color: #9333ea !important;
+    background-color: hsl(var(--slate-800)) !important;
+    border-color: hsl(var(--slate-800)) !important;
     background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e") !important;
     background-size: 100% 100% !important;
     background-position: center !important;
@@ -207,8 +245,8 @@
   }
 
   input[type="checkbox"]:indeterminate {
-    background-color: #9333ea !important;
-    border-color: #9333ea !important;
+    background-color: hsl(var(--slate-800)) !important;
+    border-color: hsl(var(--slate-800)) !important;
     background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M4 8a1 1 0 011-1h6a1 1 0 110 2H5a1 1 0 01-1-1z'/%3e%3c/svg%3e") !important;
     background-size: 100% 100% !important;
     background-position: center !important;

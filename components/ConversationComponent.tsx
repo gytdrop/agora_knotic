@@ -1259,7 +1259,7 @@ export default function ConversationComponent({
   }, [localVideoStream, onEndConversation]);
 
   return (
-    <div className="flex h-screen w-screen flex-col overflow-hidden bg-[#171717] text-zinc-100 font-sans">
+    <div className="flex h-screen w-screen flex-col overflow-hidden bg-[#171717] text-slate-100 font-sans">
       {/* Top Bar: Zoom/Teams Style Incident Header */}
       <IncidentHeader
         incidentId={incidentId}
@@ -1276,23 +1276,23 @@ export default function ConversationComponent({
         {/* Left Side: Dynamic Video Grid */}
         <section className="relative flex-1 min-w-0 overflow-hidden pb-16">
           {/* Discreet Demo Beat Failsafe Indicator & Hotkey Control */}
-          <div className="absolute top-3 left-4 z-20 flex items-center gap-2 bg-zinc-950/80 backdrop-blur-md border border-zinc-800/80 rounded-full px-3 py-1.5 text-xs text-zinc-300 shadow-xl transition-all select-none">
+          <div className="absolute top-3 left-4 z-20 flex items-center gap-2 bg-slate-950/80 backdrop-blur-md border border-slate-800/80 rounded-full px-3 py-1.5 text-xs text-slate-300 shadow-xl transition-all select-none">
             <div className="flex items-center gap-1.5">
               <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="font-semibold text-zinc-100">Beat {currentDemoBeat}/5</span>
+              <span className="font-semibold text-slate-100">Beat {currentDemoBeat}/5</span>
             </div>
-            <span className="text-zinc-600">•</span>
+            <span className="text-slate-600">•</span>
             <button
               type="button"
               onClick={() => {
                 const nextBeat = demoIncidentStore.advanceBeat();
                 commitBeatCard(nextBeat);
               }}
-              className="inline-flex items-center gap-1 text-[11px] text-zinc-300 hover:text-white transition-colors bg-zinc-800/80 hover:bg-zinc-700 px-2 py-0.5 rounded border border-zinc-700/60 cursor-pointer"
+              className="inline-flex items-center gap-1 text-[11px] text-slate-300 hover:text-white transition-colors bg-slate-800/80 hover:bg-slate-700 px-2 py-0.5 rounded border border-slate-700/60 cursor-pointer"
               title="Advance to next demo beat (Hotkeys: Ctrl+Alt+N or Cmd+Option+N)"
             >
               <span>Next</span>
-              <kbd className="font-mono text-[9px] bg-zinc-900 px-1 py-0.2 rounded border border-zinc-700 text-zinc-400">
+              <kbd className="font-mono text-[9px] bg-slate-900 px-1 py-0.2 rounded border border-slate-700 text-slate-400">
                 Ctrl+Alt+N
               </kbd>
             </button>
