@@ -16,7 +16,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const cleanId = decodeURIComponent(id).trim();
     const body = await request.json();
 
-    if (!body.message) {
+    const message = body.message || body.content;
+    if (!message) {
       return withCors(
         NextResponse.json({ success: false, error: 'Event message is required' }, { status: 400 }),
         request
@@ -26,8 +27,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const eventId = await recordTimelineEvent({
       incidentId: cleanId,
       type: body.type || 'note',
-      message: body.message,
-      actor: body.actor || 'Incident Responder',
+      message,
+      actor: body.actor || body.author || 'Incident Responder',
       icon: body.icon,
       metadata: body.metadata,
       timestamp: body.timestamp,

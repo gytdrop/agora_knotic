@@ -16,7 +16,14 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const cleanId = decodeURIComponent(id).trim();
 
     const timeline = await getUnifiedIncidentTimeline(cleanId);
-    return withCors(NextResponse.json({ success: true, ...timeline }), request);
+    return withCors(
+      NextResponse.json({
+        success: true,
+        timeline: timeline.timelineEvents,
+        ...timeline,
+      }),
+      request
+    );
   } catch (error) {
     return withCors(
       NextResponse.json(

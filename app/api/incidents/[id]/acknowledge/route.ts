@@ -14,14 +14,15 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
     const cleanId = decodeURIComponent(id).trim();
-    let body: { actor?: string } = {};
+    let body: { actor?: string; acknowledgedBy?: string } = {};
     try {
       body = await request.json();
     } catch {
       // Body is optional
     }
 
-    const result = await IncidentService.acknowledgeIncident(cleanId, body.actor);
+    const actor = body.actor || body.acknowledgedBy;
+    const result = await IncidentService.acknowledgeIncident(cleanId, actor);
     return withCors(
       NextResponse.json({
         message: 'Incident acknowledged and triage started',

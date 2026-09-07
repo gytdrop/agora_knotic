@@ -9,6 +9,8 @@ import {
   Flame,
   TrendingDown,
 } from 'lucide-react';
+import { useConvex, useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
 import { cn } from '@/lib/utils';
 import { NumberTicker } from '@/components/ui/number-ticker';
 import {
@@ -98,12 +100,13 @@ const MONTH_NAMES = [
   'Dec',
 ];
 
-export function IncidentInsightsHeatmap({
+function IncidentInsightsHeatmapView({
   className,
   totalIncidents = 34,
   mttr = '24m',
   openActions = 12,
 }: IncidentInsightsHeatmapProps) {
+
   // Generate 52 weeks x 7 days cells
   const cells = useMemo(() => {
     const list: CalendarCell[] = [];
@@ -344,4 +347,29 @@ export function IncidentInsightsHeatmap({
   );
 }
 
+function ConvexIncidentInsightsHeatmap(props: IncidentInsightsHeatmapProps) {
+  const metrics = useQuery(api.incidents.calculateMetrics);
+  return (
+    <IncidentInsightsHeatmapView
+      {...props}
+      totalIncidents={props.totalIncidents ?? (metrics?.totalIncidents !== undefined && metrics.totalIncidents > 0 ? metrics.totalIncidents : 34)}
+      mttr={props.mttr ?? (metrics?.mttr !== undefined ? `${metrics.mttr}m` : '24m')}
+      openActions={props.openActions ?? (metrics?.openActions !== undefined ? metrics.openActions : 12)}
+    />
+  );
+}
+
+function OfflineIncidentInsightsHeatmap(props: IncidentInsightsHeatmapProps) {
+  return <IncidentInsightsHeatmapView {...props} />;
+}
+
+export function IncidentInsightsHeatmap(props: IncidentInsightsHeatmapProps) {
+  const convex = useConvex();
+  if (convex) {
+    return <ConvexIncidentInsightsHeatmap {...props} />;
+  }
+  return <OfflineIncidentInsightsHeatmap {...props} />;
+}
+
 export default IncidentInsightsHeatmap;
+

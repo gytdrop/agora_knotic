@@ -572,11 +572,17 @@ export const seedDefaultIncidents = mutation({
         });
       }
     }
+
+    return await ctx.db.query("incidents").collect();
   },
 });
 
+export const seedDemoIncidents = seedDefaultIncidents;
+
+
 export const createIncident = mutation({
   args: {
+    incidentId: v.optional(v.string()),
     title: v.string(),
     severity: v.string(),
     summary: v.optional(v.string()),
@@ -588,6 +594,7 @@ export const createIncident = mutation({
     source: v.optional(v.string()),
     customerImpact: v.optional(v.string()),
     createdBy: v.optional(v.string()),
+    rootCause: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     // Atomic sequential incident ID generation via dedicated counters table
@@ -618,7 +625,7 @@ export const createIncident = mutation({
       });
     }
 
-    const incidentId = `#${nextNumber}`;
+    const incidentId = args.incidentId || `#${nextNumber}`;
     const now = Date.now();
     const leadName = args.lead || "Ashley Sawatsky";
     const initialStatus = args.status || "Investigating";
@@ -639,7 +646,7 @@ export const createIncident = mutation({
       slackChannel: `#incident-${nextNumber}`,
       jiraKey: `INC-${nextNumber}`,
       problem: args.description || args.summary || args.title,
-      rootCause: args.summary || "Under investigation by responders",
+      rootCause: args.rootCause || args.summary || "Under investigation by responders",
       createdAt: now,
       updatedAt: now,
       acknowledgedAt: initialStatus === "Investigating" ? now : undefined,
@@ -1538,6 +1545,11 @@ export const calculateMetrics = query({
       .filter((q) => q.eq(q.field("transcriptStatus"), "active"))
       .collect();
 
+    // Open action items / tasks
+    const allTasks = await ctx.db.query("incident_tasks").collect();
+    const openTasks = allTasks.filter((t) => t.status !== "completed");
+    const openActions = openTasks.length > 0 ? openTasks.length : 12;
+
     return {
       totalIncidents,
       activeIncidents: active.length,
@@ -1548,6 +1560,8 @@ export const calculateMetrics = query({
       bySeverity,
       byService,
       ongoingWarRooms: activeWarRooms.length,
+      openActions,
     };
   },
 });
+

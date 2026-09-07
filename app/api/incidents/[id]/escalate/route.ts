@@ -16,7 +16,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const cleanId = decodeURIComponent(id).trim();
     const body = await request.json();
 
-    if (!body.severity) {
+    const targetSeverity = body.severity || body.newSeverity;
+
+    if (!targetSeverity) {
       return withCors(
         NextResponse.json({ success: false, error: 'Severity is required' }, { status: 400 }),
         request
@@ -24,16 +26,16 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     const result = await IncidentService.escalateIncident(cleanId, {
-      severity: body.severity,
+      severity: targetSeverity,
       team: body.team,
       engineer: body.engineer,
       reason: body.reason,
-      actor: body.actor,
+      actor: body.actor || body.escalatedBy,
     });
 
     return withCors(
       NextResponse.json({
-        message: `Incident escalated to ${body.severity}`,
+        message: `Incident escalated to ${targetSeverity}`,
         ...result,
       }),
       request
